@@ -9,7 +9,9 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.7",
     "prettier": "^3.0.0",
-    "typescript-eslint": "^7.16.1"
+    "typescript-eslint": "^7.16.1",
+    "typescript-language-server": "^4.3.3",
+    "vscode-langservers-extracted": "^4.10.0"
   },
   "scripts": {
     "prepare": "husky"
