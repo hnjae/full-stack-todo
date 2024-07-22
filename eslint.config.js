@@ -1,6 +1,7 @@
 import eslint from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
 import reactConfig from 'eslint-plugin-react/configs/recommended.js';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -43,6 +44,12 @@ export default tseslint.config(
       prettierConfig,
     ],
     languageOptions: commonLangOpts,
-    rules: {},
+    plugins: {
+      'simple-import-sort': simpleImportSort,
+    },
+    rules: {
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
+    },
   },
 );
