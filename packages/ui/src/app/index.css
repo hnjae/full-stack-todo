@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.material-icons-outlined {
+  font-family: 'Material Icons Outlined';
+  display: inline-block;
+}
