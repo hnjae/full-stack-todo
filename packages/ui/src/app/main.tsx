@@ -1,4 +1,5 @@
 import './index.css';
+import '@fontsource/material-icons-outlined';
 
 import {
   createRootRoute,
@@ -27,6 +28,7 @@ function RootComponent() {
   return (
     <>
       <h1 className="text-3xl font-bold underline">tailwindcss test</h1>
+      <span className="material-icons-outlined">home</span>
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
     </>
