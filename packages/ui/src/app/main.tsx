@@ -1,3 +1,5 @@
+import './index.css';
+
 import {
   createRootRoute,
   createRouter,
@@ -24,6 +26,7 @@ const rootRoute = createRootRoute({
 function RootComponent() {
   return (
     <>
+      <h1 className="text-3xl font-bold underline">tailwindcss test</h1>
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
     </>
