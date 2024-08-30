@@ -51,6 +51,10 @@
               name = "PRISMA_FNT_BINARY";
               value = "${pkgs.prisma-engines}/bin/prisma-fmt";
             }
+            {
+              name = "DATABASE_URL";
+              value = "postgres://devuser:devpassword@localhost:5432/devdb";
+            }
           ];
           packages = [
           ];
