@@ -1,0 +1,30 @@
+layout {
+  tab_template name="default-tab" {
+    pane size=1 borderless=true {
+      plugin location="compact-bar"
+    }
+    pane {
+      children
+    }
+  }
+
+  new_tab_template {
+    pane size=1 borderless=true {
+      plugin location="compact-bar"
+    }
+    pane {
+      children
+    }
+  }
+
+  default-tab name="API" {
+    pane command="direnv" {
+      args "exec" "." "pnpm" "run" "start:dev"
+      cwd "."
+    }
+    pane command="just" {
+      args "run-db"
+      cwd "."
+    }
+  }
+}
