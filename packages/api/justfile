@@ -13,3 +13,7 @@ run-db:
 
 db-seed:
   ts-node prisma/seed.ts
+
+start-dev:
+  zellij attach api-dev || zellij -s api-dev --layout ./dev.kdl
+
