@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 
 import { CreateUserDto, UpdateUserDto } from './users.dto';
@@ -27,7 +35,10 @@ export class UsersController {
 
   @Put(':email')
   @ApiOperation({ summary: 'Update user data' })
-  async update(@Param('email') email: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Param('email') email: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.update(email, updateUserDto);
   }
 
