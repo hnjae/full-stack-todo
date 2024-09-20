@@ -1,6 +1,7 @@
 // TODO: remove id & hashed password from return ofmethods <2024-09-04>
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -17,11 +18,22 @@ export class UsersService {
   async create(userDto: CreateUserDto) {
     const { email } = userDto;
     const hashedPassword = await bcrypt.hash(userDto.password, 10); // 10: saltRounds
-    const user = await this.prisma.user.create({
-      data: { email: email, password: hashedPassword },
-    });
 
-    return user;
+    try {
+      const user = await this.prisma.user.create({
+        data: { email: email, password: hashedPassword },
+      });
+      return user;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code == 'P2002') {
+          // "Unique constraint failed on the {constraint}"
+          throw new HttpException('User already exists', HttpStatus.CONFLICT);
+        }
+
+        throw error;
+      }
+    }
   }
 
   async get(email: string) {
