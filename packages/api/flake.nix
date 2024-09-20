@@ -56,7 +56,8 @@
               value = "postgres://devuser:devpassword@localhost:5432/devdb";
             }
           ];
-          packages = [
+          packages = with pkgs; [
+            hurl
           ];
         };
       };
