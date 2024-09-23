@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { Prisma } from '@prisma/client';
 import { mockDeep } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersModule } from 'src/users/users.module';
@@ -65,21 +66,25 @@ describe('Users', () => {
     return response;
   });
 
-  // WIP
-  // it(`/POST same email as existing user`, async () => {
-  //   const user = {
-  //     email: 'example2@example.com',
-  //     password: 'unhashed-password',
-  //   };
-  //
-  //   const response = await request(app.getHttpServer())
-  //     .post('/users')
-  //     .send(user)
-  //     .set('Accept', 'application/json')
-  //     .expect(409);
-  //
-  //   expect(response.body.email).toEqual(user.email);
-  // });
+  it(`/POST same email as existing user`, async () => {
+    const user = {
+      email: 'example2@example.com',
+      password: 'unhashed-password',
+    };
+
+    mockPrismaService.user.create.mockRejectedValueOnce(
+      new Prisma.PrismaClientKnownRequestError('An error occurred', {
+        code: 'P2002',
+        clientVersion: '5.19.0',
+      }),
+    );
+
+    return request(app.getHttpServer())
+      .post('/users')
+      .send(user)
+      .set('Accept', 'application/json')
+      .expect(409);
+  });
 
   afterAll(async () => {
     await app.close();
