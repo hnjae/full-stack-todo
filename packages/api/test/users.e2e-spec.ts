@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
 import { mockDeep } from 'jest-mock-extended';
@@ -20,6 +20,8 @@ describe('Users', () => {
       .compile();
 
     app = moduleRef.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
+
     await app.init();
   });
 
@@ -101,6 +103,19 @@ describe('Users', () => {
       .send(user)
       .set('Accept', 'application/json')
       .expect(409);
+  });
+
+  it(`/POST bad requests`, async () => {
+    const user = {
+      email: 'not-an-email',
+      password: 'unhashed-password',
+    };
+
+    return request(app.getHttpServer())
+      .post('/users')
+      .send(user)
+      .set('Accept', 'application/json')
+      .expect(400);
   });
 
   afterAll(async () => {
