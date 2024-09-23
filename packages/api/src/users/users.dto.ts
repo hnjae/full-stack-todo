@@ -1,6 +1,7 @@
 import { OmitType, PartialType, PickType } from '@nestjs/swagger';
 import {
   IsAscii,
+  IsDate,
   IsEmail,
   IsNotEmpty,
   IsUUID,
@@ -8,7 +9,7 @@ import {
 } from 'class-validator';
 
 class UserDto {
-  @IsUUID(4)
+  @IsUUID()
   id: string;
 
   @IsEmail()
@@ -18,12 +19,15 @@ class UserDto {
   @MaxLength(72) // bcrypt's limit
   @IsNotEmpty()
   password: string;
+
+  @IsDate()
+  createdAt: Date;
 }
 
-class _UserDtoNoId extends OmitType(UserDto, ['id'] as const) {}
+class _UserInputDto extends OmitType(UserDto, ['id', 'createdAt'] as const) {}
 
-export class CreateUserDto extends PickType(_UserDtoNoId, [
+export class CreateUserDto extends PickType(_UserInputDto, [
   'email',
   'password',
 ] as const) {}
-export class UpdateUserDto extends PartialType(_UserDtoNoId) {}
+export class UpdateUserDto extends PartialType(_UserInputDto) {}

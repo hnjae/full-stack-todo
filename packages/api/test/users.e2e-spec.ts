@@ -29,11 +29,13 @@ describe('Users', () => {
         id: 'bb70a9a3-6eb8-45c9-b006-ca085517bcf8',
         email: 'example@example.com',
         password: 'hashed-password',
+        createdAt: new Date('2024-09-23T15:27:53Z'),
       },
       {
         id: '35d078a5-48aa-4a37-ad7c-ab7de27d8a35',
         email: 'example2@example2.com',
         password: 'hashed-password2',
+        createdAt: new Date('2024-09-23T15:28:04Z'),
       },
     ];
     mockPrismaService.user.findMany.mockResolvedValueOnce(users);
@@ -52,6 +54,7 @@ describe('Users', () => {
 
     mockPrismaService.user.create.mockResolvedValueOnce({
       id: 'ce392f27-1746-474b-ba18-20f9b6b9d09b',
+      createdAt: new Date('2024-09-23T15:28:19Z'),
       ...user,
     });
 
