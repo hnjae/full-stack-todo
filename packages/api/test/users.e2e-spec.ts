@@ -36,7 +36,7 @@ describe('Users', () => {
         password: 'hashed-password2',
       },
     ];
-    mockPrismaService.user.findMany.mockResolvedValue(users);
+    mockPrismaService.user.findMany.mockResolvedValueOnce(users);
 
     return request(app.getHttpServer())
       .get('/users/all')
@@ -50,7 +50,7 @@ describe('Users', () => {
       password: 'unhashed-password',
     };
 
-    mockPrismaService.user.create.mockResolvedValue({
+    mockPrismaService.user.create.mockResolvedValueOnce({
       id: 'ce392f27-1746-474b-ba18-20f9b6b9d09b',
       ...user,
     });
