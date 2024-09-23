@@ -42,7 +42,7 @@ export class UsersService {
     });
 
     if (user == null) {
-      return null;
+      throw new HttpException('User does not exists', HttpStatus.NOT_FOUND);
     }
 
     return user;

@@ -25,3 +25,9 @@ content-type: application/json
   "password": "example"
 }
 HTTP 400
+
+GET http://localhost:3000/users/example@example.com
+HTTP 200
+
+GET http://localhost:3000/users/example{{random_int_number}}@example{{random_int_number}}.com
+HTTP 404
