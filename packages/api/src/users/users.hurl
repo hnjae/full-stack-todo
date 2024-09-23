@@ -16,3 +16,12 @@ content-type: application/json
   "password": "example"
 }
 HTTP 409
+
+# check-validation-pipe
+POST http://localhost:3000/users
+content-type: application/json
+{
+  "email": "not-an-email",
+  "password": "example"
+}
+HTTP 400
