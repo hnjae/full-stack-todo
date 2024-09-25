@@ -30,9 +30,9 @@ export class UsersService {
           // "Unique constraint failed on the {constraint}"
           throw new HttpException('User already exists', HttpStatus.CONFLICT);
         }
-
-        throw error;
       }
+
+      throw error;
     }
   }
 
