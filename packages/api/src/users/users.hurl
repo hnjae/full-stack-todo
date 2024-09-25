@@ -9,6 +9,7 @@ content-type: application/json
 }
 HTTP 201
 
+# check existing user
 POST http://localhost:3000/users
 content-type: application/json
 {
@@ -16,6 +17,14 @@ content-type: application/json
   "password": "example"
 }
 HTTP 409
+
+# check if some information missing
+POST http://localhost:3000/users
+content-type: application/json
+{
+  "email": "example{{random_int_number}}@example{{random_int_number}}.com"
+}
+HTTP 400
 
 # check-validation-pipe
 POST http://localhost:3000/users
