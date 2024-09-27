@@ -78,14 +78,20 @@ export class UsersService {
   }
 
   async delete(email: string) {
-    const user = await this.prisma.user.delete({
-      where: { email: email },
-    });
+    try {
+      const user = await this.prisma.user.delete({
+        where: { email: email },
+      });
 
-    if (user == null) {
-      return null;
+      return user;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code == 'P2025') {
+          // Record to delete does not exist.
+          throw new HttpException('User does not exists', HttpStatus.NOT_FOUND);
+        }
+      }
+      throw error;
     }
-
-    return user;
   }
 }
