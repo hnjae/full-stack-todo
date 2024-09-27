@@ -54,14 +54,27 @@ export class UsersService {
       data.password = await bcrypt.hash(data.password, 10);
     }
 
-    const user = await this.prisma.user.update({
-      where: {
-        email: email,
-      },
-      data: data,
-    });
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          email: email,
+        },
+        data: data,
+      });
+      return user;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code == 'P2025') {
+          // Record to update not found.
+          throw new HttpException('User does not exists', HttpStatus.NOT_FOUND);
+        } else if (error.code == 'P2002') {
+          // Unique constraint failed on the fields:
+          throw new HttpException('User already exists', HttpStatus.CONFLICT);
+        }
+      }
 
-    return user;
+      throw error;
+    }
   }
 
   async delete(email: string) {
