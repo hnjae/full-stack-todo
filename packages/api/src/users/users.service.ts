@@ -1,18 +1,28 @@
-// TODO: remove id & hashed password from return ofmethods <2024-09-04>
-
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 
-import { CreateUserDto, UpdateUserDto } from './users.dto';
+import { CreateUserDto, UpdateUserDto, UserDto } from './users.dto';
+
+function excludeSensitive(user: UserDto): Partial<UserDto> {
+  const keys: (keyof UserDto)[] = ['id', 'password'];
+
+  return Object.fromEntries(
+    Object.entries(user).filter(
+      ([key]) => !keys.includes(key as keyof UserDto),
+    ),
+  );
+}
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async getAll() {
-    return this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany();
+
+    return users.map((user) => excludeSensitive(user));
   }
 
   async create(userDto: CreateUserDto) {
@@ -23,7 +33,8 @@ export class UsersService {
       const user = await this.prisma.user.create({
         data: { email: email, password: hashedPassword },
       });
-      return user;
+
+      return excludeSensitive(user);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code == 'P2002') {
@@ -45,7 +56,7 @@ export class UsersService {
       throw new HttpException('User does not exists', HttpStatus.NOT_FOUND);
     }
 
-    return user;
+    return excludeSensitive(user);
   }
 
   async update(email: string, updateUserDto: UpdateUserDto) {
@@ -61,7 +72,8 @@ export class UsersService {
         },
         data: data,
       });
-      return user;
+
+      return excludeSensitive(user);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code == 'P2025') {
@@ -83,7 +95,7 @@ export class UsersService {
         where: { email: email },
       });
 
-      return user;
+      return excludeSensitive(user);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code == 'P2025') {

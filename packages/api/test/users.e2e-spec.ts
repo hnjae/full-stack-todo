@@ -42,15 +42,11 @@ describe('Users', () => {
     ];
     const expectedReturns = [
       {
-        id: 'bb70a9a3-6eb8-45c9-b006-ca085517bcf8',
         email: 'example@example.com',
-        password: 'hashed-password',
         createdAt: '2024-09-23T15:27:53.000Z',
       },
       {
-        id: '35d078a5-48aa-4a37-ad7c-ab7de27d8a35',
         email: 'example2@example2.com',
-        password: 'hashed-password2',
         createdAt: '2024-09-23T15:28:04.000Z',
       },
     ];

@@ -8,7 +8,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-class UserDto {
+export class UserDto {
   @IsUUID()
   id: string;
 
