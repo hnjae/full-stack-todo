@@ -67,3 +67,4 @@ HTTP 404
 
 # user-does-not-exists
 DELETE http://localhost:3000/users/example{{random_int_number}}@example{{random_int_number}}.com
+HTTP 404
