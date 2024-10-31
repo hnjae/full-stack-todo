@@ -11,9 +11,11 @@ run-db:
     -v "todo-postgres:/var/lib/postgresql/data" \
     "docker.io/postgres:16"
 
+run-dev:
+  direnv exec . pnpm run start:dev
+
 db-seed:
   ts-node prisma/seed.ts
 
 start-dev:
   zellij attach api-dev || zellij -s api-dev --layout ./dev.kdl
-
