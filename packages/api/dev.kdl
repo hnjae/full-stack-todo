@@ -18,8 +18,8 @@ layout {
   }
 
   default-tab name="API" {
-    pane command="direnv" {
-      args "exec" "." "pnpm" "run" "start:dev"
+    pane command="just" {
+      args "run-dev"
       cwd "."
     }
     pane command="just" {
