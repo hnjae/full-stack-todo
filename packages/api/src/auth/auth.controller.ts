@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   HttpException,
   HttpStatus,
   Post,
@@ -34,6 +35,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Login' })
   async login(@Body() userDto: LoginUserDto) {
     return this.authService.logIn(userDto);

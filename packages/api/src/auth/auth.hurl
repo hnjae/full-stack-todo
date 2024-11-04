@@ -43,3 +43,4 @@ content-type: application/json
   "email": "example@example.com",
   "password": "example"
 }
+HTTP 200
