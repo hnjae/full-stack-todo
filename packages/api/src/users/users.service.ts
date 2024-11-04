@@ -35,13 +35,17 @@ export class UsersService {
     return excludeSensitive(user);
   }
 
-  async get(email: string) {
+  async get(email: string, opts = { includeSensitive: false }) {
     const user = await this.prisma.user.findUnique({
       where: { email: email },
     });
 
     if (user == null) {
       return null;
+    }
+
+    if (opts.includeSensitive) {
+      return user;
     }
 
     return excludeSensitive(user);
