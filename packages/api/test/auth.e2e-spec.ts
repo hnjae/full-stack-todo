@@ -70,4 +70,16 @@ describe('auth', () => {
       .set('Accept', 'application/json')
       .expect(409);
   });
+
+  it(`/POST auth/register bad-request`, async () => {
+    const user = {
+      email: 'example@example.com',
+    };
+
+    return await request(app.getHttpServer())
+      .post('/auth/register')
+      .send(user)
+      .set('Accept', 'application/json')
+      .expect(400);
+  });
 });
