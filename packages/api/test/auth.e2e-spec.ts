@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { mockDeep } from 'jest-mock-extended';
 import { AuthModule } from 'src/auth/auth.module';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateUserDto } from 'src/users/users.dto';
 import * as request from 'supertest';
 
 describe('auth', () => {
@@ -25,8 +26,8 @@ describe('auth', () => {
     await app.init();
   });
 
-  it(`/POST auth/register user`, async () => {
-    const user = {
+  it(`/POST auth/register new-user`, async () => {
+    const user: CreateUserDto = {
       email: 'example@example.com',
       password: 'unhashed-password',
     };
@@ -51,7 +52,7 @@ describe('auth', () => {
   });
 
   it(`/POST auth/register existing-user`, async () => {
-    const user = {
+    const user: CreateUserDto = {
       email: 'example2@example.com',
       password: 'unhashed-password',
     };
@@ -63,8 +64,8 @@ describe('auth', () => {
       }),
     );
 
-    return request(app.getHttpServer())
-      .post('/users')
+    return await request(app.getHttpServer())
+      .post('/auth/register')
       .send(user)
       .set('Accept', 'application/json')
       .expect(409);
