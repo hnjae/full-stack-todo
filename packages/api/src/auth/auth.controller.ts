@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { CreateUserDto } from 'src/users/users.dto';
+import { CreateUserDto, LoginUserDto } from 'src/users/users.dto';
 
 import { AuthService } from './auth.service';
 
@@ -33,10 +33,9 @@ export class AuthController {
     }
   }
 
-  // @Post('login')
-  // @ApiOperation({ summary: 'Login' })
-  // async login() {}
-
-  // @Post('logout')
-  // async logout() {}
+  @Post('login')
+  @ApiOperation({ summary: 'Login' })
+  async login(@Body() userDto: LoginUserDto) {
+    return this.authService.logIn(userDto);
+  }
 }
