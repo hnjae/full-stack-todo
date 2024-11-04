@@ -25,7 +25,6 @@ describe('auth', () => {
     await app.init();
   });
 
-  // 여기 이슈 있음. 고치자...
   it(`/POST auth/register user`, async () => {
     const user = {
       email: 'example@example.com',
@@ -44,6 +43,8 @@ describe('auth', () => {
       .set('Accept', 'application/json')
       .expect(201);
 
+    // TODO: 여기에 sensetive 한 정보 있는지 체크 <2024-11-04>
+    console.log(response);
     expect(response.body.email).toEqual(user.email);
 
     return response;
