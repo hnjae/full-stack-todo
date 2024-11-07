@@ -55,6 +55,10 @@
               name = "DATABASE_URL";
               value = "postgres://devuser:devpassword@localhost:5432/devdb";
             }
+            {
+              name = "JWT_SECRET";
+              value = "jwt-dev-secret";
+            }
           ];
           packages = with pkgs; [
             hurl
