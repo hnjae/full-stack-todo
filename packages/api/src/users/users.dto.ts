@@ -30,4 +30,10 @@ export class CreateUserDto extends PickType(_UserInputDto, [
   'email',
   'password',
 ] as const) {}
+
+export class LoginUserDto extends PickType(_UserInputDto, [
+  'email',
+  'password',
+] as const) {}
+
 export class UpdateUserDto extends PartialType(_UserInputDto) {}
