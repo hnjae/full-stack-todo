@@ -4,14 +4,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateUserDto, UpdateUserDto, UserDto } from './users.dto';
 
-function excludeSensitive(user: UserDto): Partial<UserDto> {
-  const keys: (keyof UserDto)[] = ['id', 'password'];
-
-  return Object.fromEntries(
-    Object.entries(user).filter(
-      ([key]) => !keys.includes(key as keyof UserDto),
-    ),
-  );
+function excludeSensitive(user: UserDto): Omit<UserDto, 'id' | 'password'> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, password, ...rest } = user;
+  return rest;
 }
 
 @Injectable()
@@ -35,7 +31,12 @@ export class UsersService {
     return excludeSensitive(user);
   }
 
-  async get(email: string) {
+  async get<T extends boolean = false>(
+    email: string,
+    opts = { includeSensitive: false as T },
+  ): Promise<
+    null | (T extends true ? UserDto : Omit<UserDto, 'id' | 'password'>)
+  > {
     const user = await this.prisma.user.findUnique({
       where: { email: email },
     });
@@ -44,7 +45,13 @@ export class UsersService {
       return null;
     }
 
-    return excludeSensitive(user);
+    if (opts.includeSensitive) {
+      return user;
+    }
+
+    return excludeSensitive(user) as T extends true
+      ? UserDto
+      : Omit<UserDto, 'id' | 'password'>;
   }
 
   async update(email: string, updateUserDto: UpdateUserDto) {
