@@ -12,7 +12,8 @@
     "@fontsource/material-icons-outlined": "^5.0.12",
     "@tanstack/react-router": "^1.45.7",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2"
   },
   "devDependencies": {
     "@tailwindcss/language-server": "^0.0.21",
