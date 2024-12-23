@@ -15,6 +15,7 @@ import { UsersModule } from './users/users.module';
       validate: (config) => {
         const configSchema = z.object({
           JWT_SECRET: z.string().min(1),
+          APP_URL: z.string().url(),
         });
         return configSchema.parse(config);
       },
