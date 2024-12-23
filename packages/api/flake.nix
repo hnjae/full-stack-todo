@@ -59,6 +59,10 @@
               name = "JWT_SECRET";
               value = "jwt-dev-secret";
             }
+            {
+              name = "APP_URL";
+              value = "http://localhost:5173";
+            }
           ];
           packages = with pkgs; [
             hurl
