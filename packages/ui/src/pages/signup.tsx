@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import getApiUrl from 'src/shared/getApiUrl';
 
 // TODO: 이메일 인증? <2024-12-23>
@@ -8,25 +8,28 @@ import getApiUrl from 'src/shared/getApiUrl';
 // TODO: 실시간 이메일 규격 validate <2024-12-23>
 // TODO: error-handling <2024-12-23>
 
+interface FormData {
+  email: string;
+  password: string;
+}
+
 export default function SignupPage() {
-  const [form, setForm] = useState({ email: '', password: '' });
+  const {
+    register,
+    handleSubmit,
+    // watch,
+    // formState: { errors },
+  } = useForm<FormData>();
 
-  const handleSubmit = async function handleSubmitFromSignupForm(
-    e: FormEvent<HTMLFormElement>,
-  ) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const parsedData = Object.fromEntries(form.entries());
-
-    const url = getApiUrl();
-
+  const onSubmit: SubmitHandler<FormData> = async function (data) {
+    const apiUrl = getApiUrl();
     try {
-      const response = await fetch(`${url}/auth/register`, {
+      const response = await fetch(`${apiUrl}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(parsedData),
+        body: JSON.stringify(data),
       });
       if (!response.ok) {
         // TODO: DO SOMETHING <2024-12-23>
@@ -42,20 +45,16 @@ export default function SignupPage() {
     <div className="hero bg-base-200 min-h-screen">
       <div className="hero-content flex-col lg:flex-row-reverse">
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-          <form className="card-body" onSubmit={handleSubmit}>
+          <form className="card-body" onSubmit={handleSubmit(onSubmit)}>
             <div className="text-xl">Sign up</div>
             <div className="form-control">
               <label className="input input-bordered flex items-center gap-2">
                 <span className="material-icons-outlined">email</span>
                 <input
                   type="text"
-                  name="email"
                   className="grow"
                   placeholder="example@example.org"
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, email: e.target.value }))
-                  }
+                  {...register('email', { required: true })}
                 />
               </label>
             </div>
@@ -64,13 +63,9 @@ export default function SignupPage() {
                 <span className="material-icons-outlined">password</span>
                 <input
                   type="password"
-                  name="password"
                   className="grow"
                   placeholder="password"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, password: e.target.value }))
-                  }
+                  {...register('password', { required: true })}
                 />
               </label>
             </div>
