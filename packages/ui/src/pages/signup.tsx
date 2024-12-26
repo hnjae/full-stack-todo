@@ -2,10 +2,6 @@ import { Button, Card, Form, Input } from 'antd';
 import getApiUrl from 'src/shared/getApiUrl';
 
 // TODO: 이메일 인증? <2024-12-23>
-// TODO: 패스워드를 한번 더 입력하게 하기 <2024-12-23>
-// TODO: 어떤 버튼을 눌러서 패스워드를 보이게 하기 <2024-12-23>
-// TODO: 패스워드 규칙을 뛰우고, 현재 입력이 해당 규칙에 맞는지 노출하기 <2024-12-23>
-// TODO: 실시간 이메일 규격 validate <2024-12-23>
 // TODO: error-handling <2024-12-23>
 // TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
 
@@ -50,7 +46,13 @@ export default function SignupPage() {
         <Form.Item<FormData>
           label="Email"
           name="email"
-          rules={[{ required: true, message: '' }]}
+          rules={[
+            { required: true, message: 'Please input your email!' },
+            {
+              type: 'email',
+              message: 'The input is not valid E-mail',
+            },
+          ]}
         >
           <Input placeholder="example@example.org" />
         </Form.Item>
@@ -58,9 +60,42 @@ export default function SignupPage() {
         <Form.Item<FormData>
           label="Password"
           name="password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
+          rules={[
+            { required: true, message: 'Please input your password!' },
+            {
+              type: 'string',
+              min: 8,
+              max: 72,
+              message: 'The password must be between 8 and 72 characters long.',
+            },
+          ]}
         >
           <Input.Password placeholder="input password" />
+        </Form.Item>
+
+        <Form.Item
+          name="confirm"
+          label="Confirm Password"
+          dependencies={['password']}
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: 'Please confirm your password!',
+            },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error('The new password that you entered do not match!'),
+                );
+              },
+            }),
+          ]}
+        >
+          <Input.Password />
         </Form.Item>
 
         <Form.Item label={null}>
