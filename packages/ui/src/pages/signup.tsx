@@ -1,8 +1,8 @@
-import { Button, Card, Form, Input } from 'antd';
+import { Button, Card, Form, Input, message } from 'antd';
+import { useState } from 'react';
 import getApiUrl from 'src/shared/getApiUrl';
 
 // TODO: 이메일 인증? <2024-12-23>
-// TODO: error-handling <2024-12-23>
 // TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
 
 interface FormData {
@@ -11,30 +11,59 @@ interface FormData {
 }
 
 export default function SignupPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const onFinish = async function (data: FormData) {
+    setIsLoading(true);
+
     const apiUrl = getApiUrl();
-    try {
-      const response = await fetch(`${apiUrl}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        // TODO: DO SOMETHING <2024-12-23>
-        console.error('API Server error: ', response);
+    const response = await fetch(`${apiUrl}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      let msg: string;
+
+      if (!['basic', 'cors'].includes(response.type)) {
+        msg = 'Registration failed. The API server did not respond properly.';
+      } else if (response.status === 400) {
+        // Bad Request (validated on the frontend, should not be displayed)
+        try {
+          const data = await response.json();
+          if (data && data.message) {
+            msg = 'Registration failed: ';
+            msg = msg.concat('\n', data.message.join(';\n\t'));
+          } else {
+            msg = 'Registration failed';
+          }
+        } catch (error) {
+          msg = 'Registration failed';
+        }
+      } else if (response.status === 409) {
+        // Conflict
+        msg = 'A user with this email already exists.';
+      } else {
+        // fallback
+        msg = 'Registration failed';
       }
-    } catch (error) {
-      // TODO: DO SOMETHING <2024-12-23>
-      console.error('Signup error: ', error);
+
+      setIsLoading(false);
+      message.error(msg, 5);
+      throw new Error(msg);
     }
+
+    // TODO: redirect <2024-12-30>
+    message.success('Registration successful');
   };
 
   return (
     <Card title="Sign up" className="">
       <Form
-        name="Sign up"
+        name="signup"
+        disabled={isLoading}
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         style={{ maxWidth: 400 }}
