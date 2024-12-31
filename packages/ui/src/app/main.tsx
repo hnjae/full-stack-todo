@@ -12,6 +12,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import LoginPage from 'src/pages/login';
 import signupPage from 'src/pages/signup';
 
 const rootRoute = createRootRoute({
@@ -24,6 +25,12 @@ const rootRoute = createRootRoute({
       </div>
     );
   },
+});
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'login',
+  component: LoginPage,
 });
 
 const signupRoute = createRoute({
@@ -43,7 +50,7 @@ function RootComponent() {
   );
 }
 
-const routeTree = rootRoute.addChildren([signupRoute]);
+const routeTree = rootRoute.addChildren([signupRoute, loginRoute]);
 
 // Set up a Router instance
 const router = createRouter({
