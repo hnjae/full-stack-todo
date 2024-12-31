@@ -3,6 +3,7 @@ import '@fontsource/material-icons-outlined';
 
 import {
   createRootRoute,
+  createRoute,
   createRouter,
   Link,
   Outlet,
@@ -11,6 +12,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import signupPage from 'src/pages/signup';
 
 const rootRoute = createRootRoute({
   component: RootComponent,
@@ -24,6 +26,12 @@ const rootRoute = createRootRoute({
   },
 });
 
+const signupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'signup',
+  component: signupPage,
+});
+
 function RootComponent() {
   return (
     <>
@@ -35,7 +43,7 @@ function RootComponent() {
   );
 }
 
-const routeTree = rootRoute.addChildren([]);
+const routeTree = rootRoute.addChildren([signupRoute]);
 
 // Set up a Router instance
 const router = createRouter({
