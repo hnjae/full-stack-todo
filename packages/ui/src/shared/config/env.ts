@@ -1,11 +1,11 @@
-// TODO: validate using zod <2025-01-01>
+import { z } from 'zod';
 
-interface Env {
-  API_URL: string;
-}
+const schema = z.object({
+  API_URL: z.string().url(),
+});
 
-const env: Env = {
+const env = schema.parse({
   API_URL: import.meta.env.VITE_API_URL,
-};
+});
 
 export default env;
