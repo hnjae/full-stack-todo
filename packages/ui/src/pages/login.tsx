@@ -1,6 +1,6 @@
 import { Button, Card, Form, Input, message } from 'antd';
 import { useState } from 'react';
-import getApiUrl from 'src/shared/getApiUrl';
+import env from 'src/shared/config/env';
 
 // TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
 // TODO: handle-jwt <2024-12-31>
@@ -15,8 +15,7 @@ export default function LoginPage() {
   const onFinish = async function (data: FormData) {
     setIsLoading(true);
 
-    const apiUrl = getApiUrl();
-    const response = await fetch(`${apiUrl}/auth/login`, {
+    const response = await fetch(`${env.API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
