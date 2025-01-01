@@ -1,6 +1,6 @@
 import { Button, Card, Form, Input, message } from 'antd';
 import { useState } from 'react';
-import getApiUrl from 'src/shared/getApiUrl';
+import env from 'src/shared/config/env';
 
 // TODO: 이메일 인증? <2024-12-23>
 // TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
@@ -15,8 +15,7 @@ export default function SignupPage() {
   const onFinish = async function (data: FormData) {
     setIsLoading(true);
 
-    const apiUrl = getApiUrl();
-    const response = await fetch(`${apiUrl}/auth/register`, {
+    const response = await fetch(`${env.API_URL}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
