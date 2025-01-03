@@ -3,3 +3,6 @@
 format:
   pnpm eslint --fix .
   pnpm prettier --write .
+
+format-lock:
+  pnpm prettier --write pnpm-lock.yaml
