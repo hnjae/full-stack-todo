@@ -19,9 +19,13 @@ run-db:
     "docker.io/postgres:16"
 
 [working-directory: 'packages/api']
+db-seed:
+  direnv exec . ts-node prisma/seed.ts
+
+[working-directory: 'packages/api']
 run-api-dev:
   direnv exec . pnpm run start:dev
 
-[working-directory: 'packages/api']
-db-seed:
-  direnv exec . ts-node prisma/seed.ts
+[working-directory: 'packages/ui']
+run-ui-dev:
+  direnv exec . pnpm run dev
