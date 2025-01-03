@@ -11,11 +11,12 @@ import {
   useNavigate,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { Layout, Menu, MenuProps, theme } from 'antd';
+import { Layout, MenuProps, theme } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import LoginPage from 'src/pages/login';
 import signupPage from 'src/pages/signup';
+import MainHeader from 'src/shared/ui/MainHeader';
 
 const rootRoute = createRootRoute({
   component: RootComponent,
@@ -51,11 +52,11 @@ const signupRoute = createRoute({
   component: signupPage,
 });
 
-const { Header } = Layout;
+type ItemType = Required<MenuProps>['items'][number];
 
 function RootComponent() {
   const navigate = useNavigate();
-  const items: MenuProps['items'] = [
+  const items: ItemType[] = [
     {
       key: 'home',
       label: 'Home',
@@ -80,31 +81,7 @@ function RootComponent() {
 
   return (
     <Layout>
-      <Header
-        className="foo"
-        style={{
-          height: 32,
-          padding: '0 0px',
-          lineHeight: '32px',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Menu
-          theme="light"
-          mode="horizontal"
-          items={items}
-          defaultSelectedKeys={['home']}
-          style={{
-            height: 32,
-            padding: '0 16px',
-            lineHeight: '32px',
-            justifyContent: 'flex-end',
-            flex: 1,
-            minWidth: 0,
-          }}
-        />
-      </Header>
+      <MainHeader items={items} />
 
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
