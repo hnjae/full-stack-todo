@@ -81,7 +81,7 @@ function RootComponent() {
 
   return (
     <Layout>
-      <MainHeader items={items} />
+      <MainHeader rightItems={items} />
 
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
