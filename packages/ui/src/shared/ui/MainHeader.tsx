@@ -1,6 +1,26 @@
 import { Layout, Menu, MenuProps } from 'antd';
+import { CSSProperties } from 'react';
 
 const { Header } = Layout;
+
+const HEADER_HEIGHT = 32;
+const MENU_PADDING = 16;
+
+const headerStyle: CSSProperties = {
+  height: HEADER_HEIGHT,
+  padding: 0,
+  lineHeight: `${HEADER_HEIGHT}px`,
+  display: 'flex',
+  alignItems: 'center',
+};
+
+const menuStyle: CSSProperties = {
+  height: HEADER_HEIGHT,
+  padding: `0 ${MENU_PADDING}px`,
+  lineHeight: `${HEADER_HEIGHT}px`,
+  flex: 1,
+  minWidth: 0,
+};
 
 type ItemType = Required<MenuProps>['items'][number];
 
@@ -11,28 +31,15 @@ interface MainHeaderProps {
 
 export default function MainHeader({ leftItems, rightItems }: MainHeaderProps) {
   return (
-    <Header
-      className="foo"
-      style={{
-        height: 32,
-        padding: '0 0px',
-        lineHeight: '32px',
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
+    <Header className="foo" style={headerStyle}>
       {leftItems != null && (
         <Menu
           theme="light"
           mode="horizontal"
           items={leftItems}
           style={{
-            height: 32,
-            padding: '0 16px',
-            lineHeight: '32px',
+            ...menuStyle,
             justifyContent: 'flex-start',
-            flex: 1,
-            minWidth: 0,
           }}
         />
       )}
@@ -43,12 +50,8 @@ export default function MainHeader({ leftItems, rightItems }: MainHeaderProps) {
           mode="horizontal"
           items={rightItems}
           style={{
-            height: 32,
-            padding: '0 16px',
-            lineHeight: '32px',
+            ...menuStyle,
             justifyContent: 'flex-end',
-            flex: 1,
-            minWidth: 0,
           }}
         />
       )}
