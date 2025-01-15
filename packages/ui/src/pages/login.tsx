@@ -1,8 +1,8 @@
 import { Layout } from 'antd';
 import { Button, Card, Form, Input, message } from 'antd';
 import { useState } from 'react';
-import env from 'src/shared/config/env';
-import MainHeader from 'src/shared/ui/MainHeader';
+import { env } from 'src/shared/config';
+import { MainHeader } from 'src/shared/ui';
 
 // TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
 // TODO: handle-jwt <2024-12-31>

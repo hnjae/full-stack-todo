@@ -1,5 +1,5 @@
 import { Layout, theme } from 'antd';
-import MainHeader from 'src/shared/ui/MainHeader';
+import { MainHeader } from 'src/shared/ui';
 
 export default function HomePage() {
   const {
