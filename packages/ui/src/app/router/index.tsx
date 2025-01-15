@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { LoginPage, SignupPage } from 'src/pages/auth';
-import HomePage from 'src/pages/home';
+import HomePage from 'src/pages/HomePage';
 
 function RootComponent() {
   return (
