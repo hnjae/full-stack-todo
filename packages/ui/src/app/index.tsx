@@ -1,17 +1,15 @@
 import './index.css';
 import '@fontsource/material-icons-outlined';
 
-import { HomeOutlined, LoginOutlined } from '@ant-design/icons';
 import {
   createRootRoute,
   createRoute,
   createRouter,
   Outlet,
   RouterProvider,
-  useNavigate,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { Layout, MenuProps, theme } from 'antd';
+import { Layout, theme } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import LoginPage from 'src/pages/login';
@@ -52,36 +50,10 @@ const signupRoute = createRoute({
   component: signupPage,
 });
 
-type ItemType = Required<MenuProps>['items'][number];
-
 function RootComponent() {
-  const navigate = useNavigate();
-  const items: ItemType[] = [
-    {
-      key: 'home',
-      label: 'Home',
-      icon: <HomeOutlined />,
-      onClick: () => {
-        navigate({
-          to: '/',
-        });
-      },
-    },
-    {
-      key: 'login',
-      label: 'Login',
-      icon: <LoginOutlined />,
-      onClick: () => {
-        navigate({
-          to: '/login',
-        });
-      },
-    },
-  ];
-
   return (
     <Layout>
-      <MainHeader rightItems={items} />
+      <MainHeader />
 
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
