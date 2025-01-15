@@ -9,33 +9,15 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { Layout, theme } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import HomePage from 'src/pages/home';
 import LoginPage from 'src/pages/login';
 import signupPage from 'src/pages/signup';
-import MainHeader from 'src/shared/ui/MainHeader';
 
 const rootRoute = createRootRoute({
   component: RootComponent,
-  notFoundComponent: () => {
-    const {
-      token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
-
-    return (
-      <div
-        style={{
-          background: colorBgContainer,
-          minHeight: 280,
-          padding: 24,
-          borderRadius: borderRadiusLG,
-        }}
-      >
-        <span className="material-icons-outlined">home</span> hello
-      </div>
-    );
-  },
+  notFoundComponent: HomePage,
 });
 
 const loginRoute = createRoute({
@@ -52,12 +34,10 @@ const signupRoute = createRoute({
 
 function RootComponent() {
   return (
-    <Layout>
-      <MainHeader />
-
+    <div>
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
-    </Layout>
+    </div>
   );
 }
 
