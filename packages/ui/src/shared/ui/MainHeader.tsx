@@ -1,3 +1,5 @@
+import { HomeOutlined, LoginOutlined } from '@ant-design/icons';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps } from 'antd';
 import { CSSProperties } from 'react';
 
@@ -22,39 +24,56 @@ const menuStyle: CSSProperties = {
   minWidth: 0,
 };
 
-type ItemType = Required<MenuProps>['items'][number];
+type ItemTypeWithRequiredKey = Required<MenuProps>['items'][number] & {
+  key: string;
+};
 
 interface MainHeaderProps {
-  leftItems?: ItemType[];
-  rightItems?: ItemType[];
+  hidItems?: string[];
 }
 
-export default function MainHeader({ leftItems, rightItems }: MainHeaderProps) {
+export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
+  const router = useRouterState();
+  const navigate = useNavigate();
+
+  const allItems: ItemTypeWithRequiredKey[] = [
+    // use router path for key
+    {
+      key: '/',
+      label: 'Home',
+      icon: <HomeOutlined />,
+      onClick: () => {
+        navigate({
+          to: '/',
+        });
+      },
+    },
+    {
+      key: '/login',
+      label: 'Login',
+      icon: <LoginOutlined />,
+      onClick: () => {
+        navigate({
+          to: '/login',
+        });
+      },
+    },
+  ];
+
+  const items = allItems.filter((item) => !hidItems.includes(item.key));
+
   return (
     <Header className="foo" style={headerStyle}>
-      {leftItems != null && (
-        <Menu
-          theme="light"
-          mode="horizontal"
-          items={leftItems}
-          style={{
-            ...menuStyle,
-            justifyContent: 'flex-start',
-          }}
-        />
-      )}
-
-      {rightItems != null && (
-        <Menu
-          theme="light"
-          mode="horizontal"
-          items={rightItems}
-          style={{
-            ...menuStyle,
-            justifyContent: 'flex-end',
-          }}
-        />
-      )}
+      <Menu
+        theme="light"
+        mode="horizontal"
+        defaultSelectedKeys={[router.location.pathname]}
+        items={items}
+        style={{
+          ...menuStyle,
+          justifyContent: 'flex-end',
+        }}
+      />
     </Header>
   );
 }
