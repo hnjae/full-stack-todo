@@ -1,4 +1,4 @@
-import './index.css';
+import './style.css';
 import '@fontsource/material-icons-outlined';
 
 import {
