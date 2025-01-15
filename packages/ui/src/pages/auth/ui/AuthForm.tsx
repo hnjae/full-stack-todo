@@ -1,4 +1,4 @@
-import { Form } from 'antd';
+import { ColProps, Form } from 'antd';
 
 import FormData from '../model/FormData';
 
@@ -7,6 +7,7 @@ interface AuthFormProps {
   isLoading: boolean;
   onFinish: (data: FormData) => Promise<void>;
   children: React.ReactNode;
+  labelCol?: ColProps;
 }
 
 export default function AuthForm({
@@ -14,14 +15,14 @@ export default function AuthForm({
   isLoading,
   onFinish,
   children,
+  labelCol = {},
 }: AuthFormProps) {
   return (
     <Form
       name={name}
       disabled={isLoading}
-      labelCol={{ span: 8 }}
+      labelCol={labelCol}
       wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 400 }}
       initialValues={{ remember: true }}
       onFinish={onFinish}
       autoComplete="off"
