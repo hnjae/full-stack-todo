@@ -26,6 +26,10 @@ run-api-dev:
 run-ui-dev:
   direnv exec . pnpm run dev
 
+[working-directory: 'packages/ui']
+run-ui-steiger:
+  pnpm exec steiger './src' --watch
+
 run-devs:
   #!/bin/sh
 
@@ -42,6 +46,8 @@ run-devs:
   tmux send -t "$sname:0.0" "just run-db" C-m
   tmux send -t "$sname:0.1" "just run-api-dev" C-m
   tmux new-window -n "ui" -t "$sname:1" -d bash
-  tmux send-keys -t "$sname:1" 'just run-ui-dev' C-m
+  tmux split-window -t "$sname:1" -v bash
+  tmux send-keys -t "$sname:1.0" 'just run-ui-dev' C-m
+  tmux send -t "$sname:1.1" "just run-ui-steiger" C-m
   tmux select-window -t "$sname:0"
   tmux attach-session -t "$sname"
