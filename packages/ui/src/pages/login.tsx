@@ -1,10 +1,11 @@
-import { Layout } from 'antd';
+import { Layout, theme } from 'antd';
 import { Button, Card, Form, Input, message } from 'antd';
 import { useState } from 'react';
 import { env } from 'src/shared/config';
 import { MainHeader } from 'src/shared/ui';
 
-// TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
+const { Content } = Layout;
+
 // TODO: handle-jwt <2024-12-31>
 // TODO: forgot password? 기능 <2024-12-31>
 
@@ -52,49 +53,75 @@ export default function LoginPage() {
     }
   };
 
+  const { token } = theme.useToken();
+
   return (
-    <Layout>
+    <Layout
+      style={{
+        height: '100dvh',
+      }}
+    >
       <MainHeader />
-      <Card title="Login" className="">
-        <Form
-          name="login"
-          disabled={isLoading}
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 400 }}
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          autoComplete="off"
+      <Content
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingBottom: '20vh',
+          background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
+        }}
+      >
+        <Card
+          title="Login"
+          className="shadow-md"
+          style={{
+            maxWidth: 500,
+          }}
         >
-          <Form.Item<FormData>
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: 'Please input your email!' },
-              {
-                type: 'email',
-                message: 'The input is not valid E-mail',
-              },
-            ]}
+          <Form
+            name="login"
+            disabled={isLoading}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            style={{
+              maxWidth: 500,
+            }}
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            autoComplete="off"
           >
-            <Input placeholder="example@example.org" />
-          </Form.Item>
+            <Form.Item<FormData>
+              label="Email"
+              name="email"
+              rules={[
+                { required: true, message: 'Please input your email!' },
+                {
+                  type: 'email',
+                  message: 'The input is not valid E-mail',
+                },
+              ]}
+            >
+              <Input placeholder="example@example.org" />
+            </Form.Item>
 
-          <Form.Item<FormData>
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
-          >
-            <Input.Password placeholder="input password" />
-          </Form.Item>
+            <Form.Item<FormData>
+              label="Password"
+              name="password"
+              rules={[
+                { required: true, message: 'Please input your password!' },
+              ]}
+            >
+              <Input.Password placeholder="input password" />
+            </Form.Item>
 
-          <Form.Item label={null}>
-            <Button type="primary" htmlType="submit">
-              Login
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+            <Form.Item label={null}>
+              <Button type="primary" htmlType="submit">
+                Login
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      </Content>
     </Layout>
   );
 }
