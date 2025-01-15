@@ -59,7 +59,12 @@ export default function SignupPage() {
 
   return (
     <AuthPageLayout title="Sign up">
-      <AuthForm name="signup" isLoading={isLoading} onFinish={onFinish}>
+      <AuthForm
+        name="signup"
+        isLoading={isLoading}
+        onFinish={onFinish}
+        labelCol={{ span: 10 }}
+      >
         <Form.Item<FormData>
           label="Email"
           name="email"

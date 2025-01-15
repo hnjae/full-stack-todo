@@ -31,13 +31,7 @@ export default function AuthPageLayout({
           background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
         }}
       >
-        <Card
-          title={title}
-          className="shadow-md"
-          style={{
-            maxWidth: 500,
-          }}
-        >
+        <Card title={title} className="shadow-md">
           {children}
         </Card>
       </Content>

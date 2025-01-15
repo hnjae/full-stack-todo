@@ -50,7 +50,12 @@ export default function LoginPage() {
 
   return (
     <AuthPageLayout title="Login">
-      <AuthForm name="login" isLoading={isLoading} onFinish={onFinish}>
+      <AuthForm
+        name="login"
+        isLoading={isLoading}
+        onFinish={onFinish}
+        labelCol={{ span: 7 }}
+      >
         <Form.Item<FormData>
           label="Email"
           name="email"
