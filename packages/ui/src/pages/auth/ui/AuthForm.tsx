@@ -23,7 +23,6 @@ export default function AuthForm({
       disabled={isLoading}
       labelCol={labelCol}
       wrapperCol={{ span: 16 }}
-      initialValues={{ remember: true }}
       onFinish={onFinish}
       autoComplete="off"
     >
