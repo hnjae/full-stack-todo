@@ -1,10 +1,12 @@
-import { Button, Form, Input, message } from 'antd';
+import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
 import { env } from 'src/shared/config';
 
 import FormData from '../model/FormData';
 import AuthForm from './AuthForm';
 import AuthPageLayout from './AuthPageLayout';
+
+const { Text, Link } = Typography;
 
 // TODO: handle-jwt <2024-12-31>
 // TODO: forgot password? 기능 <2024-12-31>
@@ -84,6 +86,9 @@ export default function LoginPage() {
           </Button>
         </Form.Item>
       </AuthForm>
+      <Text>
+        Do not have an account? <Link href="/signup">Create an account!</Link>
+      </Text>
     </AuthPageLayout>
   );
 }
