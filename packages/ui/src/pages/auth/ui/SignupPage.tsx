@@ -76,7 +76,7 @@ export default function SignupPage() {
             },
           ]}
         >
-          <Input placeholder="example@example.org" />
+          <Input placeholder="example@example.org" autoComplete="email" />
         </Form.Item>
 
         <Form.Item<FormData>
