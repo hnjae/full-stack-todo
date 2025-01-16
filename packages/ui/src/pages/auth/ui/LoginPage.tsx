@@ -1,14 +1,15 @@
-import { Button, Card, Form, Input, message } from 'antd';
+import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import env from 'src/shared/config/env';
+import { env } from 'src/shared/config';
 
-// TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
+import FormData from '../model/FormData';
+import AuthForm from './AuthForm';
+import AuthPageLayout from './AuthPageLayout';
+
+const { Text, Link } = Typography;
+
 // TODO: handle-jwt <2024-12-31>
-
-interface FormData {
-  email: string;
-  password: string;
-}
+// TODO: forgot password? 기능 <2024-12-31>
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,16 +51,12 @@ export default function LoginPage() {
   };
 
   return (
-    <Card title="Login" className="">
-      <Form
+    <AuthPageLayout title="Login">
+      <AuthForm
         name="login"
-        disabled={isLoading}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 400 }}
-        initialValues={{ remember: true }}
+        isLoading={isLoading}
         onFinish={onFinish}
-        autoComplete="off"
+        labelCol={{ span: 7 }}
       >
         <Form.Item<FormData>
           label="Email"
@@ -72,7 +69,7 @@ export default function LoginPage() {
             },
           ]}
         >
-          <Input placeholder="example@example.org" />
+          <Input placeholder="example@example.org" autoComplete="email" />
         </Form.Item>
 
         <Form.Item<FormData>
@@ -88,7 +85,10 @@ export default function LoginPage() {
             Login
           </Button>
         </Form.Item>
-      </Form>
-    </Card>
+      </AuthForm>
+      <Text>
+        Do not have an account? <Link href="/signup">Create an account!</Link>
+      </Text>
+    </AuthPageLayout>
   );
 }

@@ -1,14 +1,13 @@
-import { Button, Card, Form, Input, message } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
-import env from 'src/shared/config/env';
+import { env } from 'src/shared/config';
+
+import FormData from '../model/FormData';
+import AuthForm from './AuthForm';
+import AuthPageLayout from './AuthPageLayout';
 
 // TODO: 이메일 인증? <2024-12-23>
 // TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
-
-interface FormData {
-  email: string;
-  password: string;
-}
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -59,17 +58,12 @@ export default function SignupPage() {
   };
 
   return (
-    <Card title="Sign up" className="">
-      <Form
+    <AuthPageLayout title="Sign up">
+      <AuthForm
         name="signup"
-        disabled={isLoading}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 400 }}
-        initialValues={{ remember: true }}
+        isLoading={isLoading}
         onFinish={onFinish}
-        // onFinishFailed={onFinishFailed}
-        autoComplete="off"
+        labelCol={{ span: 10 }}
       >
         <Form.Item<FormData>
           label="Email"
@@ -82,7 +76,7 @@ export default function SignupPage() {
             },
           ]}
         >
-          <Input placeholder="example@example.org" />
+          <Input placeholder="example@example.org" autoComplete="email" />
         </Form.Item>
 
         <Form.Item<FormData>
@@ -131,7 +125,7 @@ export default function SignupPage() {
             Submit
           </Button>
         </Form.Item>
-      </Form>
-    </Card>
+      </AuthForm>
+    </AuthPageLayout>
   );
 }
