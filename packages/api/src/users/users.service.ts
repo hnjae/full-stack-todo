@@ -32,6 +32,27 @@ export class UsersService {
   }
 
   async get<T extends boolean = false>(
+    id: string,
+    opts = { includeSensitive: false as T },
+  ): Promise<null | (T extends true ? UserDto : Omit<UserDto, 'password'>)> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (user == null) {
+      return null;
+    }
+
+    if (opts.includeSensitive) {
+      return user;
+    }
+
+    return excludeSensitive(user) as T extends true
+      ? UserDto
+      : Omit<UserDto, 'password'>;
+  }
+
+  async getByEmail<T extends boolean = false>(
     email: string,
     opts = { includeSensitive: false as T },
   ): Promise<null | (T extends true ? UserDto : Omit<UserDto, 'password'>)> {
@@ -52,7 +73,7 @@ export class UsersService {
       : Omit<UserDto, 'password'>;
   }
 
-  async update(email: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const data = { ...updateUserDto };
     if (data.password != null) {
       data.password = await bcrypt.hash(data.password, 10);
@@ -60,7 +81,7 @@ export class UsersService {
 
     const user = await this.prisma.user.update({
       where: {
-        email: email,
+        id: id,
       },
       data: data,
     });
@@ -68,9 +89,9 @@ export class UsersService {
     return excludeSensitive(user);
   }
 
-  async delete(email: string) {
+  async delete(id: string) {
     const user = await this.prisma.user.delete({
-      where: { email: email },
+      where: { id: id },
     });
 
     return excludeSensitive(user);

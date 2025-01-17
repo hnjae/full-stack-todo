@@ -43,24 +43,21 @@ export class UsersController {
     }
   }
 
-  @Get(':email')
+  @Get(':id')
   @ApiOperation({ summary: 'Get user data' })
-  async get(@Param('email') email: string) {
-    const user = await this.usersService.get(email);
+  async get(@Param('id') id: string) {
+    const user = await this.usersService.get(id);
     if (user == null) {
       throw new HttpException('User does not exists', HttpStatus.NOT_FOUND);
     }
     return user;
   }
 
-  @Put(':email')
+  @Put(':id')
   @ApiOperation({ summary: 'Update user data' })
-  async update(
-    @Param('email') email: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
-      const user = await this.usersService.update(email, updateUserDto);
+      const user = await this.usersService.update(id, updateUserDto);
       return user;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -77,11 +74,11 @@ export class UsersController {
     }
   }
 
-  @Delete(':email')
+  @Delete(':id')
   @ApiOperation({ summary: 'Delete user' })
-  async delete(@Param('email') email: string) {
+  async delete(@Param('id') id: string) {
     try {
-      const user = await this.usersService.delete(email);
+      const user = await this.usersService.delete(id);
       return user;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
