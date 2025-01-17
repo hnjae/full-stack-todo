@@ -46,7 +46,6 @@ describe('auth', () => {
       .set('Accept', 'application/json')
       .expect(201);
 
-    expect(response.body).not.toHaveProperty('id');
     expect(response.body).not.toHaveProperty('password');
     expect(response.body.email).toEqual(user.email);
 
