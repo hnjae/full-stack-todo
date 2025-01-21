@@ -15,7 +15,7 @@ export class AuthService {
     return this.usersService.create(userDto);
   }
 
-  async logIn(userDto: LoginUserDto) {
+  async login(userDto: LoginUserDto) {
     const user = await this.usersService.getByEmail(userDto.email, {
       includeSensitive: true,
     });
