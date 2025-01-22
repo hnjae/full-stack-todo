@@ -4,6 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto } from 'src/users/users.dto';
 import { UsersService } from 'src/users/users.service';
 
+import { JwtPayloadData } from './jwt.strategy';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,7 +31,7 @@ export class AuthService {
     }
 
     // NOTE: https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
-    const payload = {
+    const payload: JwtPayloadData = {
       sub: user.id,
       /*
         NOTE:
