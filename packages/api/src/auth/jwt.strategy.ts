@@ -5,10 +5,10 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 export interface JwtPayloadData {
   sub: string;
-  iat: number;
 }
 
 interface JwtPayload extends JwtPayloadData {
+  iat: number;
   exp: number;
 }
 
