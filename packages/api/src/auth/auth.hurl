@@ -44,3 +44,11 @@ content-type: application/json
   "password": "example"
 }
 HTTP 200
+
+POST http://localhost:3000/auth/login
+content-type: application/json
+{
+  "email": "example@example.org",
+  "password": "example"
+}
+HTTP 200
