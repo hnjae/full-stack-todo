@@ -8,10 +8,13 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+import { UserMatchGuard } from './user-match.guard';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
 import { UsersService } from './users.service';
 
@@ -19,6 +22,7 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // TODO: remove or guard this in production <2025-02-05>
   @Get('all')
   async findAll() {
     return this.usersService.getAll();
@@ -43,6 +47,7 @@ export class UsersController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get user data' })
   async get(@Param('id') id: string) {
@@ -53,6 +58,7 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Update user data' })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
@@ -74,6 +80,7 @@ export class UsersController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete user' })
   async delete(@Param('id') id: string) {
