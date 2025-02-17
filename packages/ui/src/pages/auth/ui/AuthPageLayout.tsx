@@ -1,6 +1,6 @@
 import { Layout, theme } from 'antd';
 import { Card } from 'antd';
-import { MainHeader } from 'src/shared/ui';
+import { MainHeader } from 'src/widgets/header';
 
 const { Content } = Layout;
 
