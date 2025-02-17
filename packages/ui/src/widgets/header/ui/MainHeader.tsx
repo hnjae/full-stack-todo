@@ -7,6 +7,8 @@ import {
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps } from 'antd';
 import { CSSProperties } from 'react';
+import { selectIsAuthenticated } from 'src/entities/auth';
+import { useAppSelector } from 'src/shared/lib';
 
 const { Header } = Layout;
 
@@ -33,16 +35,12 @@ type ItemTypeWithRequiredKey = Required<MenuProps>['items'][number] & {
   key: string;
 };
 
-interface MainHeaderProps {
-  hidItems?: string[];
-}
-
-export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
+export default function MainHeader() {
   const router = useRouterState();
   const navigate = useNavigate();
 
-  const allItems: ItemTypeWithRequiredKey[] = [
-    // use router path for key
+  // use router path for key
+  const noAuthItems: ItemTypeWithRequiredKey[] = [
     {
       key: '/',
       label: 'Home',
@@ -73,6 +71,9 @@ export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
         });
       },
     },
+  ];
+
+  const authItems: ItemTypeWithRequiredKey[] = [
     {
       key: '/logout',
       label: 'Logout',
@@ -85,7 +86,7 @@ export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
     },
   ];
 
-  const items = allItems.filter((item) => !hidItems.includes(item.key));
+  const isLogin = useAppSelector(selectIsAuthenticated);
 
   return (
     <Header className="foo" style={headerStyle}>
@@ -93,7 +94,7 @@ export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
         theme="light"
         mode="horizontal"
         defaultSelectedKeys={[router.location.pathname]}
-        items={items}
+        items={(isLogin && authItems) || noAuthItems}
         style={{
           ...menuStyle,
           justifyContent: 'flex-end',
