@@ -5,7 +5,7 @@ import {
   Outlet,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { LoginPage, SignupPage } from 'src/pages/auth';
+import { LoginPage, LogoutPage, SignupPage } from 'src/pages/auth';
 import HomePage from 'src/pages/HomePage';
 
 function RootComponent() {
@@ -34,6 +34,11 @@ const routeTree = rootRoute.addChildren([
     getParentRoute: getRootRoute,
     path: 'login',
     component: LoginPage,
+  }),
+  createRoute({
+    getParentRoute: getRootRoute,
+    path: 'logout',
+    component: LogoutPage,
   }),
 ]);
 
