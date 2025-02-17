@@ -1,4 +1,9 @@
-import { FormOutlined, HomeOutlined, LoginOutlined } from '@ant-design/icons';
+import {
+  FormOutlined,
+  HomeOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps } from 'antd';
 import { CSSProperties } from 'react';
@@ -65,6 +70,16 @@ export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
       onClick: () => {
         navigate({
           to: '/signup',
+        });
+      },
+    },
+    {
+      key: '/logout',
+      label: 'Logout',
+      icon: <LogoutOutlined />,
+      onClick: () => {
+        navigate({
+          to: '/logout',
         });
       },
     },
