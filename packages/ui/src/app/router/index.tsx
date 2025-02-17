@@ -7,6 +7,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { LoginPage, LogoutPage, SignupPage } from 'src/pages/auth';
 import HomePage from 'src/pages/HomePage';
+import { WebAppPage } from 'src/pages/webapp';
 
 function RootComponent() {
   return (
@@ -39,6 +40,11 @@ const routeTree = rootRoute.addChildren([
     getParentRoute: getRootRoute,
     path: 'logout',
     component: LogoutPage,
+  }),
+  createRoute({
+    getParentRoute: getRootRoute,
+    path: 'webapp',
+    component: WebAppPage,
   }),
 ]);
 
