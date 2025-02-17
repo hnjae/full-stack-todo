@@ -4,4 +4,4 @@ export {
   clearToken,
   selectIsAuthenticated,
   setToken,
-} from './model';
+} from './model/authSlice';
