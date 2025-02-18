@@ -1,4 +1,9 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import {
+  createSelector,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
+import { jwtDecode } from 'jwt-decode';
 
 export interface AuthState {
   token: string | null;
@@ -25,3 +30,15 @@ export const { setToken, clearToken } = authSlice.actions;
 export const selectIsAuthenticated = (state: RootState) =>
   state.auth.token !== null;
 export const authReducer = authSlice.reducer;
+
+export const selectUserId = createSelector(
+  (state: RootState) => state.auth.token,
+  (token) => {
+    if (!token) {
+      return null;
+    }
+
+    const decoded = jwtDecode(token);
+    return decoded.sub;
+  },
+);
