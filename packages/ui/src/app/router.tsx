@@ -2,12 +2,16 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Navigate,
   Outlet,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { FC } from 'react';
+import { selectIsAuthenticated } from 'src/entities/auth';
 import { LoginPage, LogoutPage, SignupPage } from 'src/pages/auth';
 import HomePage from 'src/pages/HomePage';
 import { WebAppPage } from 'src/pages/webapp';
+import { useAppSelector } from 'src/shared/lib';
 
 function RootComponent() {
   return (
@@ -25,16 +29,23 @@ const rootRoute = createRootRoute({
 
 const getRootRoute = () => rootRoute;
 
+const withRedirectIfAuthenticated = function (Component: FC) {
+  return () => {
+    const isLogin = useAppSelector(selectIsAuthenticated);
+    return <>{isLogin ? <Navigate to="/webapp" /> : <Component />}</>;
+  };
+};
+
 const routeTree = rootRoute.addChildren([
   createRoute({
     getParentRoute: getRootRoute,
     path: 'signup',
-    component: SignupPage,
+    component: withRedirectIfAuthenticated(SignupPage),
   }),
   createRoute({
     getParentRoute: getRootRoute,
     path: 'login',
-    component: LoginPage,
+    component: withRedirectIfAuthenticated(LoginPage),
   }),
   createRoute({
     getParentRoute: getRootRoute,
@@ -44,7 +55,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({
     getParentRoute: getRootRoute,
     path: 'webapp',
-    component: WebAppPage,
+    component: () => {
+      const isLogin = useAppSelector(selectIsAuthenticated);
+
+      return <>{isLogin ? <WebAppPage /> : <Navigate to="/login" />}</>;
+    },
   }),
 ]);
 
