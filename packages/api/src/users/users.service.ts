@@ -5,7 +5,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto, UserDto } from './users.dto';
 
 function excludeSensitive(user: UserDto): Omit<UserDto, 'password'> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...rest } = user;
   return rest;
 }

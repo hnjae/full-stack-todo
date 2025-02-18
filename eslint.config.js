@@ -12,7 +12,7 @@ const commonLangOpts = {
     tsconfigRootDir: import.meta.dirname,
   },
 };
-const ignores = ['node_modules', '**/dist/*'];
+const ignores = ['node_modules', '**/dist/**'];
 
 export default tseslint.config(
   {
@@ -50,6 +50,7 @@ export default tseslint.config(
     rules: {
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+      '@typescript-eslint/no-unused-vars': 'off', // use ts-ls's feature instead
     },
   },
 );
