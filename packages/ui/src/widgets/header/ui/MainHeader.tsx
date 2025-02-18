@@ -5,10 +5,10 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Layout, Menu, MenuProps } from 'antd';
+import { Layout, Menu, MenuProps, Modal } from 'antd';
 import { CSSProperties } from 'react';
-import { selectIsAuthenticated } from 'src/entities/auth';
-import { useAppSelector } from 'src/shared/model';
+import { clearToken, selectIsAuthenticated } from 'src/entities/auth';
+import { useAppDispatch, useAppSelector } from 'src/shared/model';
 
 const { Header } = Layout;
 
@@ -38,6 +38,7 @@ type ItemTypeWithRequiredKey = Required<MenuProps>['items'][number] & {
 export default function MainHeader() {
   const router = useRouterState();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   // use router path for key
   const noAuthItems: ItemTypeWithRequiredKey[] = [
@@ -79,8 +80,14 @@ export default function MainHeader() {
       label: 'Logout',
       icon: <LogoutOutlined />,
       onClick: () => {
-        navigate({
-          to: '/logout',
+        Modal.confirm({
+          title: 'Logout',
+          content: 'Are you sure you want to logout?',
+          okText: 'Yes',
+          cancelText: 'No',
+          onOk: () => {
+            dispatch(clearToken());
+          },
         });
       },
     },
