@@ -24,7 +24,10 @@ function RootComponent() {
 
 const rootRoute = createRootRoute({
   component: RootComponent,
-  notFoundComponent: HomePage,
+  notFoundComponent: () => {
+    const isLogin = useAppSelector(selectIsAuthenticated);
+    return <>{isLogin ? <Navigate to="/webapp" /> : <Navigate to="/" />}</>;
+  },
 });
 
 const getRootRoute = () => rootRoute;
@@ -37,6 +40,11 @@ const withRedirectIfAuthenticated = function (Component: FC) {
 };
 
 const routeTree = rootRoute.addChildren([
+  createRoute({
+    getParentRoute: getRootRoute,
+    path: '/',
+    component: HomePage,
+  }),
   createRoute({
     getParentRoute: getRootRoute,
     path: 'signup',
