@@ -2,7 +2,7 @@ import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
 import { setToken } from 'src/entities/auth';
 import { env } from 'src/shared/config';
-import { useAppDispatch } from 'src/shared/lib/hook';
+import { useAppDispatch } from 'src/shared/model';
 
 import FormData from '../model/FormData';
 import AuthForm from './AuthForm';

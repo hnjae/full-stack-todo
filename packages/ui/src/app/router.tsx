@@ -11,7 +11,7 @@ import { selectIsAuthenticated } from 'src/entities/auth';
 import { LoginPage, LogoutPage, SignupPage } from 'src/pages/auth';
 import HomePage from 'src/pages/HomePage';
 import { WebAppPage } from 'src/pages/webapp';
-import { useAppSelector } from 'src/shared/lib';
+import { useAppSelector } from 'src/shared/model';
 
 function RootComponent() {
   return (

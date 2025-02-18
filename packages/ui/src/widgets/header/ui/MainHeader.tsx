@@ -8,7 +8,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps } from 'antd';
 import { CSSProperties } from 'react';
 import { selectIsAuthenticated } from 'src/entities/auth';
-import { useAppSelector } from 'src/shared/lib';
+import { useAppSelector } from 'src/shared/model';
 
 const { Header } = Layout;
 

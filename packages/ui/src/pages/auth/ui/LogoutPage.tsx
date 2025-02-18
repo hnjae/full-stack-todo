@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { clearToken } from 'src/entities/auth';
-import { useAppDispatch } from 'src/shared/lib/hook';
+import { useAppDispatch } from 'src/shared/model';
 
 export default function LogoutPage() {
   const dispatch = useAppDispatch();
