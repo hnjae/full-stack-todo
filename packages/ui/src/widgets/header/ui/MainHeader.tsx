@@ -1,7 +1,14 @@
-import { FormOutlined, HomeOutlined, LoginOutlined } from '@ant-design/icons';
+import {
+  FormOutlined,
+  HomeOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Layout, Menu, MenuProps } from 'antd';
+import { Layout, Menu, MenuProps, Modal } from 'antd';
 import { CSSProperties } from 'react';
+import { clearToken, selectIsAuthenticated } from 'src/entities/auth';
+import { useAppDispatch, useAppSelector } from 'src/shared/model';
 
 const { Header } = Layout;
 
@@ -28,16 +35,13 @@ type ItemTypeWithRequiredKey = Required<MenuProps>['items'][number] & {
   key: string;
 };
 
-interface MainHeaderProps {
-  hidItems?: string[];
-}
-
-export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
+export default function MainHeader() {
   const router = useRouterState();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  const allItems: ItemTypeWithRequiredKey[] = [
-    // use router path for key
+  // use router path for key
+  const noAuthItems: ItemTypeWithRequiredKey[] = [
     {
       key: '/',
       label: 'Home',
@@ -70,7 +74,26 @@ export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
     },
   ];
 
-  const items = allItems.filter((item) => !hidItems.includes(item.key));
+  const authItems: ItemTypeWithRequiredKey[] = [
+    {
+      key: '/logout',
+      label: 'Logout',
+      icon: <LogoutOutlined />,
+      onClick: () => {
+        Modal.confirm({
+          title: 'Logout',
+          content: 'Are you sure you want to logout?',
+          okText: 'Yes',
+          cancelText: 'No',
+          onOk: () => {
+            dispatch(clearToken());
+          },
+        });
+      },
+    },
+  ];
+
+  const isLogin = useAppSelector(selectIsAuthenticated);
 
   return (
     <Header className="foo" style={headerStyle}>
@@ -78,7 +101,7 @@ export default function MainHeader({ hidItems = [] }: MainHeaderProps) {
         theme="light"
         mode="horizontal"
         defaultSelectedKeys={[router.location.pathname]}
-        items={items}
+        items={(isLogin && authItems) || noAuthItems}
         style={{
           ...menuStyle,
           justifyContent: 'flex-end',

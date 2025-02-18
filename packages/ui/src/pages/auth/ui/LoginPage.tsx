@@ -1,6 +1,8 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
+import { setToken } from 'src/entities/auth';
 import { env } from 'src/shared/config';
+import { useAppDispatch } from 'src/shared/model';
 
 import FormData from '../model/FormData';
 import AuthForm from './AuthForm';
@@ -8,10 +10,10 @@ import AuthPageLayout from './AuthPageLayout';
 
 const { Text, Link } = Typography;
 
-// TODO: handle-jwt <2024-12-31>
 // TODO: forgot password? 기능 <2024-12-31>
 
 export default function LoginPage() {
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const onFinish = async function (data: FormData) {
     setIsLoading(true);
@@ -41,7 +43,7 @@ export default function LoginPage() {
 
     try {
       const jwt = (await response.json()).accessToken;
-      console.log(jwt);
+      dispatch(setToken(jwt));
       message.success('Login successful');
     } catch (error) {
       const msg = 'Login failed. The API server did not respond properly.';
