@@ -16,8 +16,6 @@ import { JwtAuthGuard } from './jwt-auth.guard';
       global: true,
       // NOTE: 환경변수를 검증하고 사용하기 위해  process.env.JWT_SECRET 에서 읽어 들이지 않음.
       secret: new ConfigService().get('JWT_SECRET'),
-      // TODO: test 를 위해 expiresIn 을 길게 잡음. 나중에 수정할 것 <2024-12-12>
-      signOptions: { expiresIn: '86400s' },
     }),
   ],
   providers: [AuthService, JwtAuthGuard, JwtStrategy],

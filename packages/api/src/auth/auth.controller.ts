@@ -6,11 +6,13 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { CreateUserDto, LoginUserDto } from 'src/users/users.dto';
 
 import { AuthService } from './auth.service';
+import { TokenEndpointGuard } from './token-endpoint-guard';
+import { TokenRequestDto } from './token-request.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -39,5 +41,24 @@ export class AuthController {
   @ApiOperation({ summary: 'Login' })
   async login(@Body() userDto: LoginUserDto) {
     return this.authService.login(userDto);
+  }
+
+  /*
+    e.g.)
+
+     POST /token HTTP/1.1
+     Host: server.example.com
+     Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=password&username=johndoe&password=A3ddj3w
+*/
+  // TODO: guard this api <2025-02-26>
+  @Post('token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'token endpoint' })
+  @ApiConsumes('application/x-www-form-urlencoded')
+  async getToken(@Body() tokenRequestDto: TokenRequestDto) {
+    return this.authService.generateTokenResponse(tokenRequestDto);
   }
 }
