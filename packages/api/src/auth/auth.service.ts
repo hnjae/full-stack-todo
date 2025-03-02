@@ -21,6 +21,22 @@ export class AuthService {
     return this.usersService.create(userDto);
   }
 
+  async validate(userDto: LoginUserDto) {
+    const user = await this.usersService.getByEmail(userDto.email, {
+      includeSensitive: true,
+    });
+
+    if (user == null) {
+      return false;
+    }
+
+    if (!(await bcrypt.compare(userDto.password, user.password))) {
+      return false;
+    }
+
+    return true;
+  }
+
   async login(userDto: LoginUserDto) {
     const user = await this.usersService.getByEmail(userDto.email, {
       includeSensitive: true,

@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
@@ -53,8 +54,8 @@ export class AuthController {
 
      grant_type=password&username=johndoe&password=A3ddj3w
 */
-  // TODO: guard this api <2025-02-26>
   @Post('token')
+  @UseGuards(TokenEndpointGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'token endpoint' })
   @ApiConsumes('application/x-www-form-urlencoded')
