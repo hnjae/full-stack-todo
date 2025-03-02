@@ -58,4 +58,4 @@ content-Type: application/x-www-form-urlencoded
 [FormParams]
 grant_type: password
 username: example@example.org
-password: foo
+password: example

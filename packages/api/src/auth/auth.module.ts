@@ -7,6 +7,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { TokenPasswordGrantGuard } from './token-password-grant.guard';
+import { TokenPasswordGrantStrategy } from './token-password-grant.strategy';
 
 @Module({
   imports: [
@@ -18,7 +20,13 @@ import { JwtAuthGuard } from './jwt-auth.guard';
       secret: new ConfigService().get('JWT_SECRET'),
     }),
   ],
-  providers: [AuthService, JwtAuthGuard, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtAuthGuard,
+    JwtStrategy,
+    TokenPasswordGrantGuard,
+    TokenPasswordGrantStrategy,
+  ],
   exports: [JwtAuthGuard],
   controllers: [AuthController],
 })
