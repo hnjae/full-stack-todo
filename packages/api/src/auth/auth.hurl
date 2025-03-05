@@ -59,3 +59,11 @@ content-Type: application/x-www-form-urlencoded
 grant_type: password
 username: example@example.org
 password: example
+
+POST http://localhost:3000/auth/token
+content-type: application/json
+{
+  "grant_type": "password",
+  "username": "example@example.org",
+  "password": "example"
+}
