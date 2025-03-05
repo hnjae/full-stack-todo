@@ -3,12 +3,28 @@
 
   `TokenEndpointGuard` is
     - assumed to be used in `token` endpoint.
+
+  NOTE: https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
 */
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+} from '@nestjs/common';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
+import { z } from 'zod';
 
 import { TokenPasswordGrantGuard } from './token-password-grant.guard';
+
+const passwordSchema = z
+  .object({
+    grant_type: z.string(),
+    username: z.string(),
+    password: z.string(),
+  })
+  .strict();
 
 @Injectable()
 export class TokenEndpointGuard implements CanActivate {
@@ -16,20 +32,55 @@ export class TokenEndpointGuard implements CanActivate {
     private readonly tokenPasswordGrantGuard: TokenPasswordGrantGuard,
   ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const { grant_type } = request.body;
 
-    if (grant_type === 'password') {
-      return this.tokenPasswordGrantGuard.canActivate(context);
-    } else if (grant_type === 'refresh_token') {
-      // TODO: implement this <2025-02-28>
-      throw new Error('Not implemented');
+    if (grant_type == null) {
+      throw new BadRequestException({
+        error: 'invalid_request',
+        error_description: 'grant_type is required.',
+      });
     }
 
-    // This code should not be executed as it will be filtered by class-validator.
-    return false;
+    if (grant_type === 'password') {
+      const validate = passwordSchema.safeParse(request.body);
+
+      if (!validate.success) {
+        throw new BadRequestException({
+          error: 'invalid_request',
+          error_description:
+            'Missing required parameter or includes an unsupported parameter.',
+        });
+      }
+
+      let canActivate = this.tokenPasswordGrantGuard.canActivate(context);
+
+      if (canActivate instanceof Promise) {
+        canActivate = await canActivate;
+      } else if (canActivate instanceof Observable) {
+        canActivate = await firstValueFrom(canActivate);
+      }
+
+      if (!canActivate) {
+        throw new BadRequestException({
+          error: 'invalid_grant',
+          error_description: 'Invalid username or password.',
+        });
+      }
+
+      return true;
+    }
+
+    if (grant_type === 'refresh_token') {
+      // TODO: implement this <2025-02-28>
+      throw new BadRequestException({
+        error: 'unsupported_grant_type',
+      });
+    }
+
+    throw new BadRequestException({
+      error: 'unsupported_grant_type',
+    });
   }
 }
