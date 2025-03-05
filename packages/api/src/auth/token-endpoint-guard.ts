@@ -34,7 +34,16 @@ export class TokenEndpointGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
+    const contentType = request.headers['content-type'];
     const { grant_type } = request.body;
+
+    if (contentType !== 'application/x-www-form-urlencoded') {
+      throw new BadRequestException({
+        error: 'invalid_request',
+        error_description:
+          'Content-Type must be application/x-www-form-urlencoded.',
+      });
+    }
 
     if (grant_type == null) {
       throw new BadRequestException({
