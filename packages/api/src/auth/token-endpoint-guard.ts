@@ -9,6 +9,7 @@
 import {
   BadRequestException,
   CanActivate,
+  createParamDecorator,
   ExecutionContext,
   Injectable,
 } from '@nestjs/common';
@@ -17,11 +18,29 @@ import { z } from 'zod';
 
 import { AuthService } from './auth.service';
 
+/**
+ * assumes that `TokenEndpointGuard` is applied
+ */
+export const AuthUserId = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest<Request>();
+
+    return (request.user as { userId: string }).userId;
+  },
+);
+
 const passwordSchema = z
   .object({
     grant_type: z.string(),
     username: z.string(),
     password: z.string(),
+  })
+  .strict();
+
+const refreshTokenSchema = z
+  .object({
+    grant_type: z.string(),
+    refresh_token: z.string(),
   })
   .strict();
 
@@ -50,9 +69,9 @@ export class TokenEndpointGuard implements CanActivate {
     }
 
     if (grant_type === 'password') {
-      const validate_schema = passwordSchema.safeParse(request.body);
+      const parsedRequest = passwordSchema.safeParse(request.body);
 
-      if (!validate_schema.success) {
+      if (!parsedRequest.success) {
         throw new BadRequestException({
           error: 'invalid_request',
           error_description:
@@ -60,26 +79,50 @@ export class TokenEndpointGuard implements CanActivate {
         });
       }
 
-      const isAuthenticatable = await this.authService.validate({
-        email: validate_schema.data.username,
-        password: validate_schema.data.password,
+      const userOrFalse = await this.authService.validatePassword({
+        email: parsedRequest.data.username,
+        password: parsedRequest.data.password,
       });
 
-      if (!isAuthenticatable) {
+      if (!userOrFalse) {
         throw new BadRequestException({
           error: 'invalid_grant',
           error_description: 'Invalid username or password.',
         });
       }
 
+      // attach user to request object
+      request.user = { userId: userOrFalse.id };
+
       return true;
     }
 
     if (grant_type === 'refresh_token') {
-      // TODO: implement this <2025-02-28>
-      throw new BadRequestException({
-        error: 'unsupported_grant_type',
-      });
+      const parsedRequest = refreshTokenSchema.safeParse(request.body);
+
+      if (!parsedRequest.success) {
+        throw new BadRequestException({
+          error: 'invalid_request',
+          error_description:
+            'Missing required parameter or includes an unsupported parameter.',
+        });
+      }
+
+      const userOrFalse = await this.authService.validateAndRotateRefreshToken(
+        parsedRequest.data.refresh_token,
+      );
+
+      if (!userOrFalse) {
+        throw new BadRequestException({
+          error: 'invalid_grant',
+          error_description: 'Token is expired or invalid.',
+        });
+      }
+
+      // attach user to request object
+      request.user = { userId: userOrFalse.id };
+
+      return true;
     }
 
     throw new BadRequestException({

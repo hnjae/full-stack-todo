@@ -5,15 +5,15 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { CreateUserDto } from 'src/users/users.dto';
+import { CreateUserDto, UserDto } from 'src/users/users.dto';
 
 import { AuthService } from './auth.service';
-import { TokenEndpointGuard } from './token-endpoint-guard';
-import { TokenRequestDto } from './token-request.dto';
+import { AuthUserId, TokenEndpointGuard } from './token-endpoint-guard';
 
 @Controller('auth')
 export class AuthController {
@@ -52,7 +52,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'token endpoint' })
   @ApiConsumes('application/x-www-form-urlencoded')
-  async getToken(@Body() tokenRequestDto: TokenRequestDto) {
-    return this.authService.generateTokenResponse(tokenRequestDto);
+  async getToken(
+    @AuthUserId() userId: string, // userId is set by TokenEndpointGuard
+  ) {
+    return this.authService.generateTokenResponse(userId);
   }
 }
