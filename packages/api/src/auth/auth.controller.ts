@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { CreateUserDto, LoginUserDto } from 'src/users/users.dto';
+import { CreateUserDto } from 'src/users/users.dto';
 
 import { AuthService } from './auth.service';
 import { TokenEndpointGuard } from './token-endpoint-guard';
@@ -35,13 +35,6 @@ export class AuthController {
 
       throw error;
     }
-  }
-
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login' })
-  async login(@Body() userDto: LoginUserDto) {
-    return this.authService.login(userDto);
   }
 
   /*
