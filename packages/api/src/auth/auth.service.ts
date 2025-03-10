@@ -37,8 +37,7 @@ export class AuthService {
     return this.usersService.create(userDto);
   }
 
-  // TODO: rename this <2025-03-10>
-  async validate(userDto: LoginUserDto) {
+  async validatePassword(userDto: LoginUserDto): Promise<UserDto | false> {
     const user = await this.usersService.getByEmail(userDto.email, {
       includeSensitive: true,
     });
@@ -51,7 +50,7 @@ export class AuthService {
       return false;
     }
 
-    return true;
+    return user;
   }
 
   /**
