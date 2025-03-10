@@ -9,6 +9,7 @@
 import {
   BadRequestException,
   CanActivate,
+  createParamDecorator,
   ExecutionContext,
   Injectable,
 } from '@nestjs/common';
@@ -16,6 +17,13 @@ import { Request } from 'express';
 import { z } from 'zod';
 
 import { AuthService } from './auth.service';
+
+export const AuthUser = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest<Request>();
+    return request.user;
+  },
+);
 
 const passwordSchema = z
   .object({
