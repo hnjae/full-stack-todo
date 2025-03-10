@@ -18,10 +18,14 @@ import { z } from 'zod';
 
 import { AuthService } from './auth.service';
 
-export const AuthUser = createParamDecorator(
+/**
+ * assumes that `TokenEndpointGuard` is applied
+ */
+export const AuthUserId = createParamDecorator(
   (_: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<Request>();
-    return request.user;
+
+    return (request.user as { userId: string }).userId;
   },
 );
 
@@ -88,7 +92,7 @@ export class TokenEndpointGuard implements CanActivate {
       }
 
       // attach user to request object
-      request.user = userOrFalse;
+      request.user = { userId: userOrFalse.id };
 
       return true;
     }
@@ -116,7 +120,7 @@ export class TokenEndpointGuard implements CanActivate {
       }
 
       // attach user to request object
-      request.user = userOrFalse;
+      request.user = { userId: userOrFalse.id };
 
       return true;
     }

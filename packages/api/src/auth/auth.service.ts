@@ -145,10 +145,10 @@ export class AuthService {
    * @remarks
    * The user and password match is assumed to be verified before this operation.
    */
-  async generateTokenResponse(userDto: UserDto) {
+  async generateTokenResponse(userId: string) {
     // NOTE: https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
     const payload: JwtPayloadData = {
-      sub: userDto.id,
+      sub: userId,
       /*
         NOTE:
         iat 는 JwtModule 에서 알아서 처리해준다.
@@ -167,7 +167,7 @@ export class AuthService {
       }),
       token_type: 'Bearer',
       expires_in: ACCESS_TOKEN_EXPIRES_IN,
-      refresh_token: await this.issueRefreshToken(userDto.id),
+      refresh_token: await this.issueRefreshToken(userId),
     };
   }
 }
