@@ -57,7 +57,7 @@ export class AuthService {
    *
    * @remarks:
    * To support refresh token rotation, the following side effects are performed:
-   * - If the refresh token is invalid, revoke all refresh tokens for the user.
+   * - If the refresh token is invalid, revoke all refresh tokens of the user.
    * - Since the current refresh token has been used, revoke this refresh token.
    */
   async validateAndRotateRefreshToken(token: string): Promise<UserDto | false> {
