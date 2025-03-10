@@ -67,3 +67,9 @@ content-type: application/json
   "username": "example@example.org",
   "password": "example"
 }
+
+POST http://localhost:3000/auth/token
+content-Type: application/x-www-form-urlencoded
+[FormParams]
+grant_type: refresh_token
+refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmY5NTkyZi1jZDM1LTQyNWMtOTNjZC00NDVhMDMzYzEyNDYiLCJqdGkiOiI1ZTRkZGRlNy0wYzhmLTQ4MDItOGU1ZS01YTg2MWMzMjU1MDciLCJleHAiOjE3NDIyMTg2MTEsImlhdCI6MTc0MTYxMzgxMX0.8zqlr-LdxizX7fUDKJlhNPbVdeo7mID_hLgg8cXxDyE

@@ -132,22 +132,10 @@ export class AuthService {
    * @remarks
    * The user and password match is assumed to be verified before this operation.
    */
-  async generateTokenResponse(tokenRequestDto: TokenRequestDto) {
-    let user: Omit<UserDto, 'password'> | null = null;
-
-    if (tokenRequestDto.grant_type == 'password') {
-      user = await this.usersService.getByEmail(tokenRequestDto.username);
-    } else {
-      throw new Error('Not implemented');
-    }
-
-    if (user == null) {
-      return null;
-    }
-
+  async generateTokenResponse(userDto: UserDto) {
     // NOTE: https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
     const payload: JwtPayloadData = {
-      sub: user.id,
+      sub: userDto.id,
       /*
         NOTE:
         iat 는 JwtModule 에서 알아서 처리해준다.
@@ -166,7 +154,7 @@ export class AuthService {
       }),
       token_type: 'Bearer',
       expires_in: ACCESS_TOKEN_EXPIRES_IN,
-      refresh_token: await this.issueRefreshToken(user.id),
+      refresh_token: await this.issueRefreshToken(userDto.id),
     };
   }
 }
