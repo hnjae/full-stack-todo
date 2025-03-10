@@ -13,7 +13,7 @@ import { Prisma } from '@prisma/client';
 import { CreateUserDto, UserDto } from 'src/users/users.dto';
 
 import { AuthService } from './auth.service';
-import { AuthUser, TokenEndpointGuard } from './token-endpoint-guard';
+import { AuthUserId, TokenEndpointGuard } from './token-endpoint-guard';
 
 @Controller('auth')
 export class AuthController {
@@ -53,8 +53,8 @@ export class AuthController {
   @ApiOperation({ summary: 'token endpoint' })
   @ApiConsumes('application/x-www-form-urlencoded')
   async getToken(
-    @AuthUser() userDto: UserDto, // user is set by TokenEndpointGuard
+    @AuthUserId() userId: string, // userId is set by TokenEndpointGuard
   ) {
-    return this.authService.generateTokenResponse(userDto);
+    return this.authService.generateTokenResponse(userId);
   }
 }
