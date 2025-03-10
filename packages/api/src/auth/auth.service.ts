@@ -1,20 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto, LoginUserDto, UserDto } from 'src/users/users.dto';
 import { UsersService } from 'src/users/users.service';
 
 import { JwtPayloadData } from './jwt.strategy';
 import { TokenRequestDto } from './token-request.dto';
 
+// TODO: limit number of refresh tokken issued <2025-03-10>
 // TODO: test 를 위해 expiresIn 을 길게 잡음. 나중에 수정할 것 <2024-12-12>
-const JWT_EXPIRES_IN = 86400;
+const ACCESS_TOKEN_EXPIRES_IN = 86400; // 단위 seconds
+const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60; // 7 days
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private prismaService: PrismaService,
   ) {}
 
   async register(userDto: CreateUserDto) {
@@ -35,6 +39,30 @@ export class AuthService {
     }
 
     return true;
+  }
+
+  async issueRefreshToken(userId: string) {
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = iat + REFRESH_TOKEN_EXPIRES_IN;
+
+    const registered = await this.prismaService.refreshToken.create({
+      data: {
+        userId: userId,
+        expiresAt: new Date(exp * 1000),
+        issuedAt: new Date(iat * 1000),
+      },
+    });
+
+    const payload = {
+      sub: userId,
+      jti: registered.id,
+      exp,
+      iat,
+    };
+
+    const token = this.jwtService.signAsync(payload);
+
+    return token;
   }
 
   /**
@@ -73,11 +101,11 @@ export class AuthService {
 
     return {
       access_token: await this.jwtService.signAsync(payload, {
-        expiresIn: JWT_EXPIRES_IN,
+        expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       }),
       token_type: 'Bearer',
-      expires_in: JWT_EXPIRES_IN,
-      // refresh_token: <todo>
+      expires_in: ACCESS_TOKEN_EXPIRES_IN,
+      refresh_token: await this.issueRefreshToken(user.id),
     };
   }
 }
