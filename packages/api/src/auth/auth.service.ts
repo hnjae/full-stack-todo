@@ -7,7 +7,6 @@ import { UsersService } from 'src/users/users.service';
 import { z } from 'zod';
 
 import { JwtPayloadData } from './jwt.strategy';
-import { TokenRequestDto } from './token-request.dto';
 
 // TODO: limit number of refresh tokken issued <2025-03-10>
 // TODO: test 를 위해 expiresIn 을 길게 잡음. 나중에 수정할 것 <2024-12-12>
@@ -58,8 +57,8 @@ export class AuthService {
    *
    * @remarks:
    * To support refresh token rotation, the following side effects are performed:
-   * - If the refresh token is invalid, revoke all refresh tokens for the user. (TODO)
-   * - Since the current refresh token has been used, revoke this refresh token. (TODO)
+   * - If the refresh token is invalid, revoke all refresh tokens for the user.
+   * - Since the current refresh token has been used, revoke this refresh token.
    */
   async validateAndRotateRefreshToken(token: string): Promise<UserDto | false> {
     try {
@@ -82,7 +81,13 @@ export class AuthService {
         refreshTokenRecord == null ||
         refreshTokenRecord.userId !== payloadParsed.data.sub // 이거 검증할 필요가 있나?
       ) {
-        // TODO: revoke all refresh token <2025-03-10>
+        // delete (revoke) all refresh token
+        await this.prismaService.refreshToken.deleteMany({
+          where: {
+            userId: payloadParsed.data.sub,
+          },
+        });
+
         console.log('Invalid refresh token');
         return false;
       }
@@ -90,11 +95,19 @@ export class AuthService {
       // Check if the token has expired
       const now = new Date();
       if (refreshTokenRecord.expiresAt < now) {
+        // delete (revoke) used refresh token
+        await this.prismaService.refreshToken.delete({
+          where: { id: refreshTokenRecord.id },
+        });
+
         console.log('Refresh token has expired');
         return false;
       }
 
-      // TODO: revoke old refresh token <2025-03-10>
+      // delete (revoke) used refresh token
+      await this.prismaService.refreshToken.delete({
+        where: { id: refreshTokenRecord.id },
+      });
       return refreshTokenRecord.user;
     } catch (JsonWebTokenError) {
       console.log('Invalid refresh token (JWT error)');
