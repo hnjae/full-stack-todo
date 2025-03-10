@@ -15,45 +15,76 @@ const { Text, Link } = Typography;
 export default function LoginPage() {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+
   const onFinish = async function (data: FormData) {
     setIsLoading(true);
 
-    const response = await fetch(`${env.API_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
+    try {
+      const formData = new URLSearchParams();
+      formData.append('grant_type', 'password');
+      formData.append('username', data.email);
+      formData.append('password', data.password);
 
-    if (!response.ok) {
-      let msg = 'Login failed';
+      const response = await fetch(`${env.API_URL}/auth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+      });
 
-      if (!['basic', 'cors'].includes(response.type)) {
-        msg = 'Login failed. The API server did not respond properly.';
-      } else if (response.status === 400 || response.status === 401) {
-        // Bad Request (400) / Unauthorized (401)
-        msg = 'The password does not match, or the user does not exist.';
+      let responseBody;
+      try {
+        responseBody = await response.json();
+      } catch (parseError) {
+        throw new Error('The API server returned an invalid response format.');
       }
 
-      setIsLoading(false);
-      message.error(msg, 5);
-      throw new Error(msg);
-    }
+      if (!response.ok) {
+        if (!['basic', 'cors'].includes(response.type)) {
+          const msg = 'The API server did not respond properly.';
+          throw new Error(msg);
+        }
 
-    try {
-      const jwt = (await response.json()).accessToken;
-      dispatch(setToken(jwt));
-      message.success('Login successful');
+        if (response.status === 400 && responseBody.error === 'invalid_grant') {
+          const msg =
+            'Login failed. The password does not match, or the user does not exist.';
+          throw new Error(msg);
+        }
+
+        const msg = `Login failed for following reason: '${responseBody.error}'`;
+        throw new Error(msg);
+      }
+
+      const { access_token: accessToken } = responseBody;
+      if (!accessToken) {
+        throw new Error(
+          'Login succeed but no access token was provided by the server.',
+        );
+      }
+
+      dispatch(setToken(accessToken));
+
+      // should redirect to else where
+      // messageApi.success('Login successful');
     } catch (error) {
-      const msg = 'Login failed. The API server did not respond properly.';
-      message.error(msg, 5);
-      throw new Error(msg);
+      const msg =
+        error instanceof Error
+          ? error.message
+          : 'Login failed. An unexpected error occurred.';
+
+      // message.error(msg, 5);
+      messageApi.error(msg);
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <AuthPageLayout title="Login">
+      {contextHolder}
       <AuthForm
         name="login"
         isLoading={isLoading}
