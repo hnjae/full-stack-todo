@@ -11,10 +11,10 @@ function excludeSensitive(user: UserDto): Omit<UserDto, 'password'> {
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaService: PrismaService) {}
 
   async getAll() {
-    const users = await this.prisma.user.findMany();
+    const users = await this.prismaService.user.findMany();
 
     return users.map((user) => excludeSensitive(user));
   }
@@ -23,7 +23,7 @@ export class UsersService {
     const { email } = userDto;
     const hashedPassword = await bcrypt.hash(userDto.password, 10); // 10: saltRounds
 
-    const user = await this.prisma.user.create({
+    const user = await this.prismaService.user.create({
       data: { email: email, password: hashedPassword },
     });
 
@@ -34,7 +34,7 @@ export class UsersService {
     id: string,
     opts = { includeSensitive: false as T },
   ): Promise<null | (T extends true ? UserDto : Omit<UserDto, 'password'>)> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: { id: id },
     });
 
@@ -55,7 +55,7 @@ export class UsersService {
     email: string,
     opts = { includeSensitive: false as T },
   ): Promise<null | (T extends true ? UserDto : Omit<UserDto, 'password'>)> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: { email: email },
     });
 
@@ -78,7 +78,7 @@ export class UsersService {
       data.password = await bcrypt.hash(data.password, 10);
     }
 
-    const user = await this.prisma.user.update({
+    const user = await this.prismaService.user.update({
       where: {
         id: id,
       },
@@ -89,7 +89,7 @@ export class UsersService {
   }
 
   async delete(id: string) {
-    const user = await this.prisma.user.delete({
+    const user = await this.prismaService.user.delete({
       where: { id: id },
     });
 
