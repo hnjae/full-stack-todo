@@ -52,3 +52,18 @@ content-type: application/json
   "password": "example"
 }
 HTTP 200
+
+POST http://localhost:3000/auth/token
+content-Type: application/x-www-form-urlencoded
+[FormParams]
+grant_type: password
+username: example@example.org
+password: example
+
+POST http://localhost:3000/auth/token
+content-type: application/json
+{
+  "grant_type": "password",
+  "username": "example@example.org",
+  "password": "example"
+}
