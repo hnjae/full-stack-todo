@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { PrismaModule } from 'src/prisma/prisma.module';
 import { UsersModule } from 'src/users/users.module';
 
 import { AuthController } from './auth.controller';
@@ -18,6 +19,7 @@ import { TokenEndpointGuard } from './token-endpoint-guard';
       // NOTE: 환경변수를 검증하고 사용하기 위해  process.env.JWT_SECRET 에서 읽어 들이지 않음.
       secret: new ConfigService().get('JWT_SECRET'),
     }),
+    PrismaModule,
   ],
   providers: [AuthService, JwtAuthGuard, JwtStrategy, TokenEndpointGuard],
   exports: [JwtAuthGuard],
