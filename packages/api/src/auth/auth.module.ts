@@ -7,8 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { TokenPasswordGrantGuard } from './token-password-grant.guard';
-import { TokenPasswordGrantStrategy } from './token-password-grant.strategy';
+import { TokenEndpointGuard } from './token-endpoint-guard';
 
 @Module({
   imports: [
@@ -20,13 +19,7 @@ import { TokenPasswordGrantStrategy } from './token-password-grant.strategy';
       secret: new ConfigService().get('JWT_SECRET'),
     }),
   ],
-  providers: [
-    AuthService,
-    JwtAuthGuard,
-    JwtStrategy,
-    TokenPasswordGrantGuard,
-    TokenPasswordGrantStrategy,
-  ],
+  providers: [AuthService, JwtAuthGuard, JwtStrategy, TokenEndpointGuard],
   exports: [JwtAuthGuard],
   controllers: [AuthController],
 })

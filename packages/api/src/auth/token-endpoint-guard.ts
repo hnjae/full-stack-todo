@@ -13,10 +13,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { firstValueFrom, Observable } from 'rxjs';
 import { z } from 'zod';
 
-import { TokenPasswordGrantGuard } from './token-password-grant.guard';
+import { AuthService } from './auth.service';
 
 const passwordSchema = z
   .object({
@@ -28,9 +27,7 @@ const passwordSchema = z
 
 @Injectable()
 export class TokenEndpointGuard implements CanActivate {
-  constructor(
-    private readonly tokenPasswordGrantGuard: TokenPasswordGrantGuard,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -53,9 +50,9 @@ export class TokenEndpointGuard implements CanActivate {
     }
 
     if (grant_type === 'password') {
-      const validate = passwordSchema.safeParse(request.body);
+      const validate_schema = passwordSchema.safeParse(request.body);
 
-      if (!validate.success) {
+      if (!validate_schema.success) {
         throw new BadRequestException({
           error: 'invalid_request',
           error_description:
@@ -63,15 +60,12 @@ export class TokenEndpointGuard implements CanActivate {
         });
       }
 
-      let canActivate = this.tokenPasswordGrantGuard.canActivate(context);
+      const isAuthenticatable = await this.authService.validate({
+        email: validate_schema.data.username,
+        password: validate_schema.data.password,
+      });
 
-      if (canActivate instanceof Promise) {
-        canActivate = await canActivate;
-      } else if (canActivate instanceof Observable) {
-        canActivate = await firstValueFrom(canActivate);
-      }
-
-      if (!canActivate) {
+      if (!isAuthenticatable) {
         throw new BadRequestException({
           error: 'invalid_grant',
           error_description: 'Invalid username or password.',
