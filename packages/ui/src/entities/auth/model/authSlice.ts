@@ -6,33 +6,34 @@ import {
 import { jwtDecode } from 'jwt-decode';
 
 export interface AuthState {
-  token: string | null;
+  accessToken: string | null;
 }
 
 const initialState: AuthState = {
-  token: null,
+  accessToken: null,
 };
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setToken: (state, action: PayloadAction<string>) => {
-      state.token = action.payload;
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      state.accessToken = action.payload;
     },
-    clearToken: (state) => {
-      state.token = null;
+    clearAccessToken: (state) => {
+      state.accessToken = null;
     },
   },
 });
 
-export const { setToken, clearToken } = authSlice.actions;
+export const { setAccessToken, clearAccessToken } = authSlice.actions;
 export const selectIsAuthenticated = (state: RootState) =>
-  state.auth.token !== null;
+  state.auth.accessToken !== null;
 export const authReducer = authSlice.reducer;
 
 export const selectUserId = createSelector(
-  (state: RootState) => state.auth.token,
+  (state: RootState) => state.auth.accessToken,
+
   (token) => {
     if (!token) {
       return null;

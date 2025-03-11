@@ -1,8 +1,8 @@
 export {
   authReducer,
   authSlice,
-  clearToken,
+  clearAccessToken,
   selectIsAuthenticated,
   selectUserId,
-  setToken,
+  setAccessToken,
 } from './model/authSlice';
