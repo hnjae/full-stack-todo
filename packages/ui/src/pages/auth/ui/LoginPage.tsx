@@ -64,6 +64,15 @@ export default function LoginPage() {
         );
       }
 
+      const { refresh_token: refreshToken } = responseBody;
+      if (!refreshToken) {
+        throw new Error(
+          'Login succeed but no refresh token was provided by the server.',
+        );
+      }
+
+      localStorage.setItem('refreshToken', refreshToken);
+
       dispatch(setToken(accessToken));
 
       // should redirect to else where
