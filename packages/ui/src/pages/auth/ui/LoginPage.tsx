@@ -2,6 +2,7 @@ import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
 import { setAccessToken } from 'src/entities/auth';
 import { env } from 'src/shared/config';
+import { refreshTokenService } from 'src/shared/lib';
 import { useAppDispatch } from 'src/shared/model';
 
 import FormData from '../model/FormData';
@@ -57,21 +58,14 @@ export default function LoginPage() {
         throw new Error(msg);
       }
 
-      const { access_token: accessToken } = responseBody;
-      if (!accessToken) {
+      const { access_token: accessToken, refresh_token: refreshToken } =
+        responseBody;
+      if (accessToken == null || refreshToken == null) {
         throw new Error(
-          'Login succeed but no access token was provided by the server.',
+          'Login succeed but the API server did not provide the required token(s).',
         );
       }
-
-      const { refresh_token: refreshToken } = responseBody;
-      if (!refreshToken) {
-        throw new Error(
-          'Login succeed but no refresh token was provided by the server.',
-        );
-      }
-
-      localStorage.setItem('refreshToken', refreshToken);
+      refreshTokenService.set(refreshToken);
 
       dispatch(setAccessToken(accessToken));
 
