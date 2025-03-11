@@ -95,7 +95,7 @@ export class AuthService {
       // Check if the token has expired
       const now = new Date();
       if (refreshTokenRecord.expiresAt < now) {
-        // delete (revoke) used refresh token
+        // delete expired refresh token
         await this.prismaService.refreshToken.delete({
           where: { id: refreshTokenRecord.id },
         });
