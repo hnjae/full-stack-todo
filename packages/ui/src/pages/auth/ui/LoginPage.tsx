@@ -1,6 +1,6 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import { setToken } from 'src/entities/auth';
+import { setAccessToken } from 'src/entities/auth';
 import { env } from 'src/shared/config';
 import { useAppDispatch } from 'src/shared/model';
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
 
       localStorage.setItem('refreshToken', refreshToken);
 
-      dispatch(setToken(accessToken));
+      dispatch(setAccessToken(accessToken));
 
       // should redirect to else where
       // messageApi.success('Login successful');

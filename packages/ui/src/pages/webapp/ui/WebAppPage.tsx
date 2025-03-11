@@ -17,20 +17,20 @@ interface User {
 
 export default function WebAppPage() {
   const { token } = theme.useToken();
-  const jwt = useSelector((state: RootState) => state.auth.token);
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   const userId = useSelector(selectUserId);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (jwt == null) {
+      if (accessToken == null) {
         // raise error
       }
 
       const response = await fetch(`${env.API_URL}/users/${userId}`, {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${jwt}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
