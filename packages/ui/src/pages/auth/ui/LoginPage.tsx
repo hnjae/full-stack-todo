@@ -1,9 +1,8 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import { setAccessToken } from 'src/entities/auth';
 import { env } from 'src/shared/config';
 import { refreshTokenService } from 'src/shared/lib';
-import { useAppDispatch } from 'src/shared/model';
+import { setAccessToken, useAppDispatch } from 'src/shared/model';
 
 import FormData from '../model/FormData';
 import AuthForm from './AuthForm';
