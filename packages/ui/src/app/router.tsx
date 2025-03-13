@@ -7,11 +7,10 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { FC } from 'react';
-import { selectIsAuthenticated } from 'src/entities/auth';
 import { LoginPage, SignupPage } from 'src/pages/auth';
 import HomePage from 'src/pages/HomePage';
 import { WebAppPage } from 'src/pages/webapp';
-import { useAppSelector } from 'src/shared/model';
+import { selectIsAuthenticated, useAppSelector } from 'src/shared/model';
 
 function RootComponent() {
   return (
