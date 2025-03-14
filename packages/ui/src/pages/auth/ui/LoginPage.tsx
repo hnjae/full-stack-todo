@@ -1,8 +1,15 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import { setToken } from 'src/entities/auth';
-import { env } from 'src/shared/config';
-import { useAppDispatch } from 'src/shared/model';
+import {
+  AuthenticationError,
+  getTokens,
+  refreshTokenService,
+} from 'src/shared/lib';
+import {
+  clearAccessToken,
+  setAccessToken,
+  useAppDispatch,
+} from 'src/shared/model';
 
 import FormData from '../model/FormData';
 import AuthForm from './AuthForm';
@@ -21,62 +28,26 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const formData = new URLSearchParams();
-      formData.append('grant_type', 'password');
-      formData.append('username', data.email);
-      formData.append('password', data.password);
+      const formParams = new URLSearchParams();
+      formParams.append('grant_type', 'password');
+      formParams.append('username', data.email);
+      formParams.append('password', data.password);
 
-      const response = await fetch(`${env.API_URL}/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData,
-      });
+      const { accessToken, refreshToken } = await getTokens(formParams);
 
-      let responseBody;
-      try {
-        responseBody = await response.json();
-      } catch (parseError) {
-        throw new Error('The API server returned an invalid response format.');
-      }
-
-      if (!response.ok) {
-        if (!['basic', 'cors'].includes(response.type)) {
-          const msg = 'The API server did not respond properly.';
-          throw new Error(msg);
-        }
-
-        if (response.status === 400 && responseBody.error === 'invalid_grant') {
-          const msg =
-            'Login failed. The password does not match, or the user does not exist.';
-          throw new Error(msg);
-        }
-
-        const msg = `Login failed for following reason: '${responseBody.error}'`;
-        throw new Error(msg);
-      }
-
-      const { access_token: accessToken } = responseBody;
-      if (!accessToken) {
-        throw new Error(
-          'Login succeed but no access token was provided by the server.',
-        );
-      }
-
-      dispatch(setToken(accessToken));
-
-      // should redirect to else where
-      // messageApi.success('Login successful');
+      refreshTokenService.set(refreshToken);
+      dispatch(setAccessToken(accessToken));
     } catch (error) {
-      const msg =
-        error instanceof Error
+      const msgFailedReason =
+        error instanceof AuthenticationError
           ? error.message
-          : 'Login failed. An unexpected error occurred.';
+          : `An unexpected error occurred: ${error}`;
+      const msg = `Failed to login. ${msgFailedReason}`;
 
-      // message.error(msg, 5);
       messageApi.error(msg);
       console.error('Login error:', error);
+
+      dispatch(clearAccessToken());
     } finally {
       setIsLoading(false);
     }
