@@ -2,6 +2,7 @@ import './style.css';
 import '@fontsource/material-icons-outlined';
 
 import { RouterProvider } from '@tanstack/react-router';
+import { Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -44,15 +45,23 @@ const App = function () {
     initAccessToken();
   }, []);
 
-  if (authInitialized == null) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <React.StrictMode>
-      <Provider store={store}>
-        <RouterProvider router={router} />
-      </Provider>
+      {authInitialized == null ? (
+        <Spin
+          style={{
+            display: 'grid',
+            placeItems: 'center',
+            height: '98svh',
+            width: '100%',
+          }}
+          size="large"
+        />
+      ) : (
+        <Provider store={store}>
+          <RouterProvider router={router} />
+        </Provider>
+      )}
     </React.StrictMode>
   );
 };
