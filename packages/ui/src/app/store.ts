@@ -1,12 +1,16 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { authReducer } from 'src/entities/auth';
+import { userApi } from 'src/entities/user';
+import { authReducer } from 'src/shared/model';
 
-const rootReducer = combineReducers({
+const rootReducers = combineReducers({
   auth: authReducer,
+  userApi: userApi.reducer,
 });
 
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: rootReducers,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(userApi.middleware),
 });
 
 export type AppStore = typeof store;

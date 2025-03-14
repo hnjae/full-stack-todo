@@ -7,8 +7,12 @@ import {
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps, Modal } from 'antd';
 import { CSSProperties } from 'react';
-import { clearToken, selectIsAuthenticated } from 'src/entities/auth';
-import { useAppDispatch, useAppSelector } from 'src/shared/model';
+import {
+  clearAccessToken,
+  selectIsAuthenticated,
+  useAppDispatch,
+  useAppSelector,
+} from 'src/shared/model';
 
 const { Header } = Layout;
 
@@ -86,7 +90,7 @@ export default function MainHeader() {
           okText: 'Yes',
           cancelText: 'No',
           onOk: () => {
-            dispatch(clearToken());
+            dispatch(clearAccessToken());
           },
         });
       },
