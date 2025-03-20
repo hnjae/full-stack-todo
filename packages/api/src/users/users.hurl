@@ -1,4 +1,4 @@
-GET http://localhost:3000/users/all
+GET http://localhost:3000/users
 HTTP 200
 
 POST http://localhost:3000/users

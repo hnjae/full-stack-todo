@@ -23,8 +23,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // TODO: remove or guard this in production <2025-02-05>
-  @Get('all')
-  async findAll() {
+  @Get()
+  async getAll() {
     return this.usersService.getAll();
   }
 
