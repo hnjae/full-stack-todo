@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { TodoListsModule } from './todo-lists/todo-lists.module';
+import { TodosModule } from './todos/todos.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -23,6 +25,8 @@ import { UsersModule } from './users/users.module';
     }),
     UsersModule,
     AuthModule,
+    TodosModule,
+    TodoListsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
