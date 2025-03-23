@@ -12,9 +12,12 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UserMatchGuard } from 'src/users/user-match.guard';
 
 import {
   CreateTodoListDto,
@@ -27,12 +30,14 @@ import { TodoListsService } from './todo-lists.service';
 export class TodoListsController {
   constructor(private readonly todoListsService: TodoListsService) {}
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Get()
   @ApiOperation({ summary: 'Get all todo-lists.' })
   async getAll(@Param('userId') userId: string): Promise<TodoListDto[]> {
     return this.todoListsService.getAll(userId);
   }
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Post()
   @ApiOperation({ summary: 'Create a todo list.' })
   async create(
@@ -54,6 +59,7 @@ export class TodoListsController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get a todo list.' })
   async get(@Param('id') todoListId: string): Promise<TodoListDto> {
@@ -74,6 +80,7 @@ export class TodoListsController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Update a todo list.' })
   async update(
@@ -100,6 +107,7 @@ export class TodoListsController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a todo.' })
   async delete(@Param('id') todoListId: string): Promise<TodoListDto> {
