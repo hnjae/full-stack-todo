@@ -28,6 +28,7 @@ export class UsersController {
     return this.usersService.getAll();
   }
 
+  // TODO: delete this endpoint in production <2025-03-23>
   @Post()
   @ApiOperation({ summary: 'Create user' })
   async create(@Body() createUserDto: CreateUserDto) {
@@ -48,9 +49,9 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, UserMatchGuard)
-  @Get(':id')
+  @Get(':userId')
   @ApiOperation({ summary: 'Get user data' })
-  async get(@Param('id') id: string) {
+  async get(@Param('userId') id: string) {
     const user = await this.usersService.get(id);
     if (user == null) {
       throw new HttpException('User does not exists', HttpStatus.NOT_FOUND);
@@ -59,9 +60,12 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, UserMatchGuard)
-  @Put(':id')
+  @Put(':userId')
   @ApiOperation({ summary: 'Update user data' })
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Param('userId') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     try {
       const user = await this.usersService.update(id, updateUserDto);
       return user;
@@ -81,9 +85,9 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, UserMatchGuard)
-  @Delete(':id')
+  @Delete(':userId')
   @ApiOperation({ summary: 'Delete user' })
-  async delete(@Param('id') id: string) {
+  async delete(@Param('userId') id: string) {
     try {
       const user = await this.usersService.delete(id);
       return user;

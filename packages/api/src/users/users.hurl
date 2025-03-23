@@ -1,94 +1,134 @@
-GET http://localhost:3000/users
-HTTP 200
+###############################################################################
+# Get/Generate required resources
+###############################################################################
 
-POST http://localhost:3000/users
+# Create a new user
+POST http://{{host}}/auth/register
 content-type: application/json
+[Options]
+variable: host = "localhost:3000"
+variable: password = "example"
 {
-  "email": "example{{random_int_number}}@example{{random_int_number}}.com",
-  "password": "example"
+  "email": "{{newUuid}}@example.com",
+  "password": "{{password}}"
 }
 HTTP 201
+[Captures]
+userId: jsonpath "$.id"
+email: jsonpath "$.email"
 
-POST http://localhost:3000/users
+# Create a 2nd user
+POST http://{{host}}/auth/register
 content-type: application/json
+[Options]
+variable: password2 = "example"
 {
-  "email": "example@example.com",
-  "password": "example"
+  "email": "{{newUuid}}@example.com",
+  "password": "{{password}}"
 }
+HTTP 201
+[Captures]
+userId2: jsonpath "$.id"
+email2: jsonpath "$.email"
 
-POST http://localhost:3000/users
+# Query tokens
+POST http://{{host}}/auth/token
+content-Type: application/x-www-form-urlencoded
+[FormParams]
+grant_type: password
+username: {{email}}
+password: {{password}}
+HTTP 200
+[Captures]
+accessToken: jsonpath "$.access_token"
+refreshToken: jsonpath "$.refresh_token"
+tokenType: jsonpath "$.token_type"
+
+# Query tokens for 2nd user
+POST http://{{host}}/auth/token
+content-Type: application/x-www-form-urlencoded
+[FormParams]
+grant_type: password
+username: {{email2}}
+password: {{password2}}
+HTTP 200
+[Captures]
+accessToken2: jsonpath "$.access_token"
+refreshToken2: jsonpath "$.refresh_token"
+tokenType2: jsonpath "$.token_type"
+
+###############################################################################
+# Test APIs
+###############################################################################
+
+# without token
+GET http://{{host}}/users/{{userId}}
+HTTP 401
+
+# with wrong token
+GET http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} foo
+HTTP 401
+
+# access with other user's token
+GET http://{{host}}/users/{{userId}}
+Authorization: {{tokenType2}} {{accessToken2}}
+HTTP 403
+
+# access with user's own token
+GET http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 200
+
+# update user
+PUT http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
+[Options]
+variable: newEmail = "{{newUuid}}@example.org"
 {
-  "email": "example@example.org",
-  "password": "example"
+  "email": "{{newEmail}}"
 }
+HTTP 200
+[Asserts]
+jsonpath "$.email" == "{{newEmail}}"
 
-# check existing user
-POST http://localhost:3000/users
+# update user with existing email
+PUT http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
-  "email": "example@example.com",
-  "password": "example"
+  "email": "{{email2}}"
 }
 HTTP 409
 
-# check if some information missing
-POST http://localhost:3000/users
+# test class-validator
+PUT http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
-  "email": "example{{random_int_number}}@example{{random_int_number}}.com"
+  "email": "foo"
 }
 HTTP 400
 
-# check-validation-pipe
-POST http://localhost:3000/users
+# test class-validator
+PUT http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
-  "email": "not-an-email",
-  "password": "example"
+  "password": ""
 }
 HTTP 400
 
-# without token
-GET http://localhost:3000/users/00000000-0000-0000-0000-000000000000
-HTTP 401
-
-# wrong token
-GET http://localhost:3000/users/00000000-0000-0000-0000-000000000000
-Authorization: Bearer foo
-HTTP 401
-
-# user example@example.com
-GET http://localhost:3000/users/6ffd082f-eae9-4b2b-9156-57f20a601a86
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ZmZkMDgyZi1lYWU5LTRiMmItOTE1Ni01N2YyMGE2MDFhODYiLCJpYXQiOjE3Mzg2NjYxMzIsImV4cCI6MTczODc1MjUzMn0.7bxmwrPm9U0OQ4TKn05W5_gP-LtG1e5ZVevVdeMlxWc
+DELETE http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 
-# user example@example.org
-GET http://localhost:3000/users/9bf9592f-cd35-425c-93cd-445a033c1246
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YmY5NTkyZi1jZDM1LTQyNWMtOTNjZC00NDVhMDMzYzEyNDYiLCJpYXQiOjE3Mzg2NjYyMDUsImV4cCI6MTczODc1MjYwNX0.-_LmbAkELn5-5nLdAZST1u6mufMwiCsflKXT6Mnt8Ig
+DELETE http://{{host}}/users/{{userId2}}
+Authorization: {{tokenType2}} {{accessToken2}}
+HTTP 200
 
-# access example@example.org's resource with example@example.com's resources
-GET http://localhost:3000/users/9bf9592f-cd35-425c-93cd-445a033c1246
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ZmZkMDgyZi1lYWU5LTRiMmItOTE1Ni01N2YyMGE2MDFhODYiLCJpYXQiOjE3Mzg2NjYxMzIsImV4cCI6MTczODc1MjUzMn0.7bxmwrPm9U0OQ4TKn05W5_gP-LtG1e5ZVevVdeMlxWc
-HTTP 403
-
-# PUT http://localhost:3000/users/<uuid>
-# content-type: application/json
-# {
-#   "email": "example{{random_int_number}}@example{{random_int_number}}.com",
-#   "password": "example2"
-# }
-# HTTP 200
-
-# user-does-not-exists
-PUT http://localhost:3000/users/00000000-0000-0000-0000-000000000000
-content-type: application/json
-{
-  "email": "example@example.com",
-  "password": "example"
-}
-HTTP 404
-
-# user-does-not-exists
-DELETE http://localhost:3000/users/00000000-0000-0000-0000-000000000000
+# delete non-existing user
+DELETE http://{{host}}/users/{{userId}}
+Authorization: {{tokenType}} {{accessToken}}
 HTTP 404
