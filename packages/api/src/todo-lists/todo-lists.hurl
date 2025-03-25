@@ -61,64 +61,85 @@ tokenType2: jsonpath "$.token_type"
 # Test APIs
 ###############################################################################
 
-# without token
-GET http://{{host}}/users/{{userId}}
-HTTP 401
-
-# with wrong token
-GET http://{{host}}/users/{{userId}}
+# test worng token
+GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} foo
 HTTP 401
 
-# access with other user's token
-GET http://{{host}}/users/{{userId}}
+# test other user token
+GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType2}} {{accessToken2}}
 HTTP 403
 
-# access with user's own token
-GET http://{{host}}/users/{{userId}}
+# create new todo-list
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{newUuid}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+todoListId: jsonpath "$['id']"
+
+# create new todo-list with missing arguments
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{newUuid}}"
+}
+HTTP 400 # Bad Request
+
+GET http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 200
+[Asserts]
+jsonpath "$[0].id" == "{{todoListId}}"
+
+GET http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 
-# update user
-PUT http://{{host}}/users/{{userId}}
+PUT http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 [Options]
-variable: newEmail = "{{newUuid}}@example.org"
+variable: newName = "new-name-{{newUuid}}"
 {
-  "email": "{{newEmail}}"
+  "name": "{{newName}}"
 }
 HTTP 200
 [Asserts]
-jsonpath "$.email" == "{{newEmail}}"
+jsonpath "$.name" == "{{newName}}"
 
-# update user with existing email
-PUT http://{{host}}/users/{{userId}}
+# update non-existing todo-list
+PUT http://{{host}}/users/{{userId}}/todo-lists/{{newUuid}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
-  "email": "{{email2}}"
+  "name": "{{newUuid}}"
 }
-HTTP 409
+HTTP 404
 
-# test class-validator
-PUT http://{{host}}/users/{{userId}}
+DELETE http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
-content-type: application/json
-{
-  "email": "foo"
-}
-HTTP 400
+HTTP 200
 
-# test class-validator
-PUT http://{{host}}/users/{{userId}}
+# delete non-existing todo-list
+DELETE http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
-content-type: application/json
-{
-  "password": ""
-}
-HTTP 400
+HTTP 404
+
+# get non-existing todo-list
+GET http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 404
+
+###############################################################################
+# Clean-up
+###############################################################################
 
 DELETE http://{{host}}/users/{{userId}}
 Authorization: {{tokenType}} {{accessToken}}
@@ -127,8 +148,3 @@ HTTP 200
 DELETE http://{{host}}/users/{{userId2}}
 Authorization: {{tokenType2}} {{accessToken2}}
 HTTP 200
-
-# delete non-existing user
-DELETE http://{{host}}/users/{{userId}}
-Authorization: {{tokenType}} {{accessToken}}
-HTTP 404

@@ -55,7 +55,7 @@ describe('Users', () => {
     mockPrismaService.user.findMany.mockResolvedValueOnce(users);
 
     return request(app.getHttpServer())
-      .get('/users/all')
+      .get('/users')
       .expect(200)
       .expect(expectedReturns);
   });

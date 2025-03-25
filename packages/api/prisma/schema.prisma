@@ -19,6 +19,8 @@ model User {
   password     String
   createdAt    DateTime       @default(now())
   RefreshToken RefreshToken[]
+  Todo         Todo[]
+  TodoList     TodoList[]
 }
 
 model RefreshToken {
@@ -27,4 +29,40 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   issuedAt  DateTime
   expiresAt DateTime
+}
+
+model Todo {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  order       Int       @default(0)
+  dueDate     DateTime?
+
+  userId     String   @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  todoListId String   @db.Uuid
+  TodoList   TodoList @relation(fields: [todoListId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId])
+  @@index([todoListId])
+}
+
+model TodoList {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  name  String
+  order Int    @default(0)
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  todos Todo[]
+
+  @@index([userId])
 }

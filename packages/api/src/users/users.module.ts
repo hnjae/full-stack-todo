@@ -10,6 +10,6 @@ import { UsersService } from './users.service';
   imports: [PrismaModule],
   providers: [UsersService, UserMatchGuard, JwtAuthGuard],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [UsersService, UserMatchGuard],
 })
 export class UsersModule {}

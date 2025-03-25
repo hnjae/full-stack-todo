@@ -3,7 +3,7 @@
 
   `UserMatchGuard` is
     - assumed to be used after `JwtAuthGuard`.
-    - assumed `@Param('id')` as argument in controller to get the user id
+    - assumed `@Param('userId')` as argument in controller to get the user id
 */
 import {
   CanActivate,
@@ -27,13 +27,13 @@ export class UserMatchGuard implements CanActivate {
       );
     }
 
-    if (request.params.id == null) {
+    if (request.params.userId == null) {
       throw new InternalServerErrorException(
         'UserMatchGuard requires id parameter',
       );
     }
 
-    if (user.userId !== request.params.id) {
+    if (user.userId !== request.params.userId) {
       throw new ForbiddenException('You can only access your own resources');
     }
 
