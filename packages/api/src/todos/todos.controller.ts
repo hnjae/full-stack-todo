@@ -1,7 +1,3 @@
-// TODO: guard theses api <2025-03-19>
-// @UseGuards(JwtAuthGuard, UserMatchGuard)
-// TODO:  없는 userId 에 CRUD할려고한다면??? 대응이 되어 있나? 가드에서 막을 것 같긴하다. <2025-03-19>
-
 import {
   Body,
   Controller,
