@@ -1,6 +1,7 @@
 // NOTE: This page assumes that the user is logged in when loaded.
 
 import { Layout, theme } from 'antd';
+import { useGetTodoListsQuery } from 'src/entities/todo-list';
 import { userApi } from 'src/entities/user';
 import { MainHeader } from 'src/widgets/header';
 
@@ -11,6 +12,7 @@ export default function WebAppPage() {
   const { token } = theme.useToken();
 
   const { data: user, isLoading, isFetching, isError } = useGetUserInfoQuery();
+  const { data: todoLists } = useGetTodoListsQuery();
 
   return (
     <Layout
@@ -53,6 +55,30 @@ export default function WebAppPage() {
               User createdAt: {user.createdAt}
             </div>
           ) : null}
+        </p>
+        <br />
+        <p>
+          {todoLists != null ? (
+            <div>
+              <br />
+              <ul>
+                {todoLists.map((todoList) => (
+                  <li key={todoList.id}>
+                    <div>
+                      Todo List Id: {todoList.id}
+                      <br />
+                      Todo List Name: {todoList.name}
+                      <br />
+                      Todo List Order: {todoList.order}
+                      <br />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div>no todo list</div>
+          )}
         </p>
       </Content>
     </Layout>
