@@ -2,13 +2,12 @@
 
 import { Layout, theme } from 'antd';
 import { useGetTodoListsQuery } from 'src/entities/todo-list';
-import { userApi } from 'src/entities/user';
+import { useGetUserInfoQuery } from 'src/entities/user';
 import { MainHeader } from 'src/widgets/header';
 
 const { Content } = Layout;
 
 export default function WebAppPage() {
-  const { useGetUserInfoQuery } = userApi;
   const { token } = theme.useToken();
 
   const { data: user, isLoading, isFetching, isError } = useGetUserInfoQuery();
