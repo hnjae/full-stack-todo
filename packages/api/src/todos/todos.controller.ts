@@ -10,7 +10,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserMatchGuard } from 'src/users/user-match.guard';
@@ -19,17 +19,18 @@ import { CreateTodoDto, TodoDto, UpdateTodoDto } from './todos.dto';
 import { TodosService } from './todos.service';
 
 @Controller('users/:userId/todos')
+@UseGuards(JwtAuthGuard, UserMatchGuard)
+@ApiBearerAuth()
+@ApiParam({ name: 'userId', type: 'string', description: 'User ID' })
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Get()
   @ApiOperation({ summary: 'Get all todos.' })
   async getAll(@Param('userId') userId: string): Promise<TodoDto[]> {
     return this.todosService.getAll(userId);
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Post()
   @ApiOperation({ summary: 'Create a todo.' })
   async create(
@@ -53,7 +54,6 @@ export class TodosController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get a todo.' })
   async get(@Param('id') todoId: string): Promise<TodoDto> {
@@ -74,7 +74,6 @@ export class TodosController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a todo.' })
   async update(
@@ -105,7 +104,6 @@ export class TodosController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a todo.' })
   async delete(@Param('id') todoId: string): Promise<TodoDto> {
