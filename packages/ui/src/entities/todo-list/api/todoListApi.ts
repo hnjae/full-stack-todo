@@ -8,14 +8,52 @@ export interface TodoList {
   updatedAt: string;
 }
 
-const todoListApi = userApi.injectEndpoints({
-  endpoints: (build) => ({
-    getTodoLists: build.query<TodoList[], void>({
-      query: () => 'todo-lists',
-    }),
-  }),
-});
+const TODO_LIST_TAG_TYPE = 'TodoList' as const;
 
-export const { useGetTodoListsQuery } = todoListApi;
+const todoListApi = userApi
+  .enhanceEndpoints({
+    addTagTypes: [TODO_LIST_TAG_TYPE],
+  })
+  .injectEndpoints({
+    endpoints: (build) => ({
+      getTodoLists: build.query<TodoList[], void>({
+        query: () => 'todo-lists',
+        providesTags: (result) =>
+          result
+            ? [
+                ...result.map(({ id }) => ({ type: TODO_LIST_TAG_TYPE, id })),
+                {
+                  type: TODO_LIST_TAG_TYPE,
+                  id: 'LIST',
+                },
+              ]
+            : [
+                {
+                  type: TODO_LIST_TAG_TYPE,
+                  id: 'LIST',
+                },
+              ],
+      }),
+
+      addTodoList: build.mutation<
+        TodoList,
+        Omit<TodoList, 'id' | 'createdAt' | 'updatedAt'>
+      >({
+        query: (newTodoList) => ({
+          url: 'todo-lists',
+          method: 'POST',
+          body: newTodoList,
+        }),
+        invalidatesTags: [
+          {
+            type: TODO_LIST_TAG_TYPE,
+            id: 'LIST',
+          },
+        ],
+      }),
+    }),
+  });
+
+export const { useGetTodoListsQuery, useAddTodoListMutation } = todoListApi;
 
 export default todoListApi;
