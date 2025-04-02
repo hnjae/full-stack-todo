@@ -3,18 +3,68 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Divider, Input, Layout, theme, Tree, TreeDataNode } from 'antd';
 import { useMemo, useState } from 'react';
-import { useGetTodoListsQuery } from 'src/entities/todo-list';
-import { useGetUserInfoQuery } from 'src/entities/user';
+import {
+  useAddTodoListMutation,
+  useGetTodoListsQuery,
+} from 'src/entities/todo-list';
+// import { useGetUserInfoQuery } from 'src/entities/user';
 import { MainHeader } from 'src/widgets/header';
 
 const { Content, Sider } = Layout;
 
+interface OrderedItem {
+  order: number;
+  name: string;
+}
+
+const generateUniqueName = function (
+  proposedName: string,
+  items: readonly OrderedItem[] | undefined,
+): string {
+  if (items == null || items.length === 0) {
+    return proposedName;
+  }
+
+  const names = new Set(items.map((item) => item.name));
+
+  if (!names.has(proposedName)) {
+    return proposedName;
+  }
+
+  let idx = 1;
+  let potentialName = `${proposedName} (${idx})`;
+  while (names.has(potentialName)) {
+    idx += 1;
+    potentialName = `${proposedName} (${idx})`;
+  }
+
+  return potentialName;
+};
+
+const calculateNewItemsOrder = function (
+  items: readonly OrderedItem[] | undefined,
+): number {
+  if (items == null || items.length === 0) {
+    return 0;
+  }
+
+  return (
+    Math.max(-Number.MAX_SAFE_INTEGER, ...items.map((item) => item.order)) + 1
+  );
+};
+
 export default function WebAppPage() {
   const { token } = theme.useToken();
 
-  const { data: user, isLoading, isFetching, isError } = useGetUserInfoQuery();
-  // TODO: loading 중일때는 화면에 표기 <2025-03-31>
-  const { data: todoLists, isTodoListLoading } = useGetTodoListsQuery();
+  // const { data: user, isLoading, isFetching, isError } = useGetUserInfoQuery();
+  const {
+    data: todoLists,
+    isLoading: isGetTodoListsLoading,
+    isFetching: isGetTodoListsFetching,
+  } = useGetTodoListsQuery();
+  const [addTodoListTrigger, { isLoading: isAddTodoListsLoading }] =
+    useAddTodoListMutation();
+  const [inputValue, setInputValue] = useState('');
 
   const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
     return todoLists
@@ -28,6 +78,20 @@ export default function WebAppPage() {
         };
       });
   }, [todoLists]);
+
+  // TODO: change selected list <2025-04-02>
+  const handleEnter = function (event: React.KeyboardEvent<HTMLInputElement>) {
+    let proposedName = event.currentTarget.value.trim();
+    if (proposedName === '') {
+      proposedName = 'New List';
+    }
+
+    addTodoListTrigger({
+      name: generateUniqueName(proposedName, todoLists),
+      order: calculateNewItemsOrder(todoLists),
+    });
+    setInputValue('');
+  };
 
   const {
     token: { colorBgContainer },
@@ -54,6 +118,7 @@ export default function WebAppPage() {
               flexDirection: 'column',
             }}
           >
+            <br />
             <div
               style={{
                 overflowY: 'auto',
@@ -77,12 +142,15 @@ export default function WebAppPage() {
             </div>
 
             <div style={{ flexShrink: 0 }}>
-              <Divider />
+              {todoLists != null && todoLists.length > 0 ? <Divider /> : null}
 
               <Input
                 addonBefore={<PlusOutlined />}
                 placeholder="New List"
                 variant="filled"
+                value={inputValue}
+                onPressEnter={handleEnter}
+                onChange={(event) => setInputValue(event.target.value)}
                 style={{
                   paddingRight: '8px',
                 }}
@@ -99,32 +167,26 @@ export default function WebAppPage() {
             background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
           }}
         >
-          <div>
-            <p>Todo-app should be implemented here</p>
-            <ul>
-              <li>
-                {isFetching ? 'Fetching User Info...' : <div>not fetching</div>}
-              </li>
-              <li>
-                {isLoading ? 'Loading User Info...' : <div>not loading</div>}
-              </li>
-              <li>
-                {isError ? 'Error loading user info...' : <div>not error</div>}
-              </li>
-            </ul>
-          </div>
-          <div>
-            {user != null ? (
-              <div>
-                <br />
-                User Id: {user.id}
-                <br />
-                User Email: {user.email}
-                <br />
-                User createdAt: {user.createdAt}
-              </div>
-            ) : null}
-          </div>
+          {isGetTodoListsLoading && isAddTodoListsLoading ? (
+            <div>
+              Loading ... <br />
+            </div>
+          ) : (
+            <div>
+              Not Loading <br />
+            </div>
+          )}
+          {isGetTodoListsFetching ? (
+            <div>
+              Fetching ...
+              <br />
+            </div>
+          ) : (
+            <div>
+              Not Fetching
+              <br />
+            </div>
+          )}
         </Content>
       </Layout>
     </Layout>
