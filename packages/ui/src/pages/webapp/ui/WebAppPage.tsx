@@ -42,15 +42,13 @@ const generateUniqueName = function (
 };
 
 const calculateNewItemsOrder = function (
-  items: readonly OrderedItem[] | undefined,
+  sortedItems: readonly OrderedItem[] | undefined,
 ): number {
-  if (items == null || items.length === 0) {
+  if (sortedItems == null || sortedItems.length === 0) {
     return 0;
   }
 
-  return (
-    Math.max(-Number.MAX_SAFE_INTEGER, ...items.map((item) => item.order)) + 1
-  );
+  return sortedItems[sortedItems.length - 1].order + 1;
 };
 
 export default function WebAppPage() {
@@ -67,16 +65,14 @@ export default function WebAppPage() {
   const [inputValue, setInputValue] = useState('');
 
   const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
-    return todoLists
-      ?.slice()
-      .sort((a, b) => a.order - b.order)
-      .map((todoList) => {
-        return {
-          key: todoList.id,
-          title: todoList.name,
-          disableCheckbox: true,
-        };
-      });
+    // NOTE: todoLists is aleady sorted by order
+    return todoLists?.map((todoList) => {
+      return {
+        key: todoList.id,
+        title: todoList.name,
+        disableCheckbox: true,
+      };
+    });
   }, [todoLists]);
 
   // TODO: change selected list <2025-04-02>

@@ -16,6 +16,7 @@ const todoListApi = userApi
   })
   .injectEndpoints({
     endpoints: (build) => ({
+      // NOTE: the results is always sorted
       getTodoLists: build.query<TodoList[], void>({
         query: () => 'todo-lists',
         providesTags: (result) =>
