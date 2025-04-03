@@ -133,7 +133,7 @@ GET http://{{host}}/users/{{userId}}/todos/{{newUuid}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 404 # NOT_FOUND
 
-PUT http://{{host}}/users/{{userId}}/todos/{{todoId}}
+PATCH http://{{host}}/users/{{userId}}/todos/{{todoId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
@@ -145,7 +145,7 @@ HTTP 200
 jsonpath "$.completed" == true
 
 # use invalid todoListId
-PUT http://{{host}}/users/{{userId}}/todos/{{todoId}}
+PATCH http://{{host}}/users/{{userId}}/todos/{{todoId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
@@ -156,7 +156,7 @@ content-type: application/json
 HTTP 400 # BAD_REQUEST
 
 # no-existing todo
-PUT http://{{host}}/users/{{userId}}/todos/{{newUuid}}
+PATCH http://{{host}}/users/{{userId}}/todos/{{newUuid}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {

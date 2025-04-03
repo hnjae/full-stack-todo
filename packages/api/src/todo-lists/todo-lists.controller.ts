@@ -6,8 +6,8 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
@@ -77,7 +77,7 @@ export class TodoListsController {
   }
 
   @UseGuards(JwtAuthGuard, UserMatchGuard)
-  @Put(':id')
+  @Patch(':id')
   @ApiOperation({ summary: 'Update a todo list.' })
   async update(
     @Param('id') todoListId: string,
