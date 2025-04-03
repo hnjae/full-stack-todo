@@ -6,8 +6,8 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
@@ -75,7 +75,7 @@ export class TodosController {
   }
 
   @UseGuards(JwtAuthGuard, UserMatchGuard)
-  @Put(':id')
+  @Patch(':id')
   @ApiOperation({ summary: 'Update a todo.' })
   async update(
     @Param('id') todoId: string,
