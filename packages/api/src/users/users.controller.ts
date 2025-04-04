@@ -6,8 +6,8 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
@@ -60,7 +60,7 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, UserMatchGuard)
-  @Put(':userId')
+  @Patch(':userId')
   @ApiOperation({ summary: 'Update user data' })
   async update(
     @Param('userId') id: string,

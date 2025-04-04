@@ -81,7 +81,7 @@ Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 
 # update user
-PUT http://{{host}}/users/{{userId}}
+PATCH http://{{host}}/users/{{userId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 [Options]
@@ -94,7 +94,7 @@ HTTP 200
 jsonpath "$.email" == "{{newEmail}}"
 
 # update user with existing email
-PUT http://{{host}}/users/{{userId}}
+PATCH http://{{host}}/users/{{userId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
@@ -103,7 +103,7 @@ content-type: application/json
 HTTP 409
 
 # test class-validator
-PUT http://{{host}}/users/{{userId}}
+PATCH http://{{host}}/users/{{userId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
@@ -112,7 +112,7 @@ content-type: application/json
 HTTP 400
 
 # test class-validator
-PUT http://{{host}}/users/{{userId}}
+PATCH http://{{host}}/users/{{userId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
