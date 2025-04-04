@@ -39,12 +39,12 @@ export class TodoListsController {
   @ApiOperation({ summary: 'Create a todo list.' })
   async create(
     @Param('userId') userId: string,
-    @Body() craeteTodoListDto: CreateTodoListDto,
+    @Body() createTodoListDto: CreateTodoListDto,
   ): Promise<TodoListDto> {
     try {
       const todoList = await this.todoListsService.create(
         userId,
-        craeteTodoListDto,
+        createTodoListDto,
       );
       return todoList;
     } catch (error) {
