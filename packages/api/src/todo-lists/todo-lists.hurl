@@ -102,7 +102,7 @@ GET http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 
-PUT http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
+PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 [Options]
@@ -115,7 +115,7 @@ HTTP 200
 jsonpath "$.name" == "{{newName}}"
 
 # update non-existing todo-list
-PUT http://{{host}}/users/{{userId}}/todo-lists/{{newUuid}}
+PATCH http://{{host}}/users/{{userId}}/todo-lists/{{newUuid}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
 {
