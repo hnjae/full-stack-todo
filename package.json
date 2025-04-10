@@ -2,6 +2,9 @@
   "type": "module",
   "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903",
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@commitlint/config-workspace-scopes": "^19.8.0",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-react": "^7.37.4",
@@ -14,6 +17,9 @@
     "typescript-language-server": "^4.3.3",
     "vscode-langservers-extracted": "^4.10.0"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "prepare": "husky"
   }
