@@ -61,7 +61,11 @@ tokenType2: jsonpath "$.token_type"
 # Test APIs
 ###############################################################################
 
-# test worng token
+##################
+# Testing Tokens #
+##################
+
+# test invalid token
 GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} foo
 HTTP 401
@@ -70,6 +74,10 @@ HTTP 401
 GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType2}} {{accessToken2}}
 HTTP 403
+
+######################################
+# Testing todo list Creation/Reading #
+######################################
 
 # create new todo-list
 POST http://{{host}}/users/{{userId}}/todo-lists
@@ -81,16 +89,8 @@ content-type: application/json
 }
 HTTP 201
 [Captures]
-todoListId: jsonpath "$['id']"
-
-# create new todo-list with missing arguments
-POST http://{{host}}/users/{{userId}}/todo-lists
-Authorization: {{tokenType}} {{accessToken}}
-content-type: application/json
-{
-  "name": "{{newUuid}}"
-}
-HTTP 400 # Bad Request
+todoListId: jsonpath "$.id"
+todoListName: jsonpath "$.name"
 
 GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
@@ -101,6 +101,25 @@ jsonpath "$[0].id" == "{{todoListId}}"
 GET http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
+[Asserts]
+jsonpath "$.id" == "{{todoListId}}"
+
+######################
+# Testing validation #
+######################
+
+# create new todo-list with missing arguments
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{newUuid}}"
+}
+HTTP 400 # Bad Request
+
+###################
+# Testing updates #
+###################
 
 PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
@@ -122,6 +141,73 @@ content-type: application/json
   "name": "{{newUuid}}"
 }
 HTTP 404
+
+#########################
+# Testing batch updates #
+#########################
+
+# create another todo-list
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{newUuid}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+todoListId2: jsonpath "$.id"
+todoListName2: jsonpath "$.name"
+
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoListId}}",
+    "payload": {
+      "name": "new-{{newUuid}}",
+      "order": {{random_int_number}}
+   }
+ },
+  {
+    "id": "{{todoListId2}}",
+    "payload": {
+      "name": "new-2-{{newUuid}}"
+    }
+  }
+]
+
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoListId}}"
+  }
+]
+HTTP 400 # bad-request
+
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{newUuid}}",
+    "payload": {}
+  },
+  {
+    "id": "{{todoListId2}}",
+    "payload": {
+      "name": "new-2-{{newUuid}}"
+    }
+  }
+]
+HTTP 404 # not-found
+
+####################
+# Testing deletion #
+####################
 
 DELETE http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
