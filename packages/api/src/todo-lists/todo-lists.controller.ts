@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
   UseGuards,
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserMatchGuard } from 'src/users/user-match.guard';
 
 import {
+  BatchUpdateTodoListDto,
   CreateTodoListDto,
   TodoListDto,
   UpdateTodoListDto,
@@ -47,6 +49,30 @@ export class TodoListsController {
         createTodoListDto,
       );
       return todoList;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // catch something if required
+      }
+
+      throw error;
+    }
+  }
+
+  @Patch()
+  @ApiOperation({ summary: 'Patch a batch of todo list items. (atomic)' })
+  async batchUpdate(
+    @Body(
+      new ParseArrayPipe({
+        // NOTE: `useGlobalPipes` 에 적용한 값이 여기에는 적용되지 않아 별도로 설정 해야 한다.
+        items: BatchUpdateTodoListDto,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    )
+    updateItems: BatchUpdateTodoListDto[],
+  ) {
+    try {
+      return await this.todoListsService.batchUpdate(updateItems);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // catch something if required
