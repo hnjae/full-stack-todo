@@ -1,7 +1,6 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsArray,
   IsDate,
   IsDefined,
   IsNotEmpty,
@@ -48,7 +47,7 @@ export class BatchUpdateTodoListDto {
 
   @IsDefined()
   @ValidateNested()
-  @Type(() => UpdateTodoListDto) // do I need this?
+  @Type(() => UpdateTodoListDto) // This is required to validate `payload`
   @ApiProperty()
   payload: UpdateTodoListDto;
 }

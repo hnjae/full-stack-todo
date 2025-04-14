@@ -142,6 +142,26 @@ content-type: application/json
 }
 HTTP 404
 
+# patching with invalid data
+PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[Options]
+{
+  "order": "foo"
+}
+HTTP 400
+
+# patching with should-not-exist property
+PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[Options]
+{
+  "foo": "bar"
+}
+HTTP 400
+
 #########################
 # Testing batch updates #
 #########################
@@ -159,25 +179,35 @@ HTTP 201
 todoListId2: jsonpath "$.id"
 todoListName2: jsonpath "$.name"
 
+# update multiple todo-lists
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
+[Options]
+variable: newName1 = "new-name-{{newUuid}}"
+variable: newName2 = "new-name-{{newUuid}}"
 [
   {
     "id": "{{todoListId}}",
     "payload": {
-      "name": "new-{{newUuid}}",
-      "order": {{random_int_number}}
+      "name": "{{newName1}}",
+      "order": 9392
    }
  },
   {
     "id": "{{todoListId2}}",
     "payload": {
-      "name": "new-2-{{newUuid}}"
+      "name": "{{newName2}}"
     }
   }
 ]
+HTTP 200
+[Asserts]
+jsonpath "$[0].name" == "{{newName1}}"
+jsonpath "$[0].order" == 9392
+jsonpath "$[1].name" == "{{newName2}}"
 
+# payload not provided
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -188,6 +218,69 @@ content-type: application/json
 ]
 HTTP 400 # bad-request
 
+# id not provided
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "payload": {
+      "name": "new-2-{{newUuid}}"
+    }
+  }
+]
+HTTP 400 # bad-request
+
+# extra data in payload (`forbidNonWhitelisted` should filter this)
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoListId2}}",
+    "payload": {
+      "name": "new-2-{{newUuid}}",
+      "foo": "bar"
+    }
+  }
+]
+HTTP 400
+
+
+# invalid payload
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoListId}}",
+    "payload": {
+      "name": "new-{{newUuid}}",
+      "order": "foo"
+   }
+ },
+  {
+    "id": "{{todoListId2}}",
+    "payload": {
+      "name": "new-2-{{newUuid}}"
+    }
+  }
+]
+HTTP 400
+
+# empty  payload
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoListId}}",
+    "payload": {}
+  }
+]
+HTTP 200
+
+# one of todo-list does not exist
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
