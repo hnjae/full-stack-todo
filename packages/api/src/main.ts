@@ -13,7 +13,12 @@ async function bootstrap() {
     origin: configService.get('APP_URL'),
   });
 
-  app.useGlobalPipes(new ValidationPipe({}));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('')
