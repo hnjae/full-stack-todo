@@ -73,7 +73,11 @@ todoListId: jsonpath "$['id']"
 # Test APIs
 ###############################################################################
 
-# test worng token
+##################
+# Testing Tokens #
+##################
+
+# test wrong token
 GET http://{{host}}/users/{{userId}}/todos
 Authorization: {{tokenType}} foo
 HTTP 401
@@ -82,6 +86,10 @@ HTTP 401
 GET http://{{host}}/users/{{userId}}/todos
 Authorization: {{tokenType2}} {{accessToken2}}
 HTTP 403
+
+#################################
+# Testing todo Creation/Reading #
+#################################
 
 GET http://{{host}}/users/{{userId}}/todos
 Authorization: {{tokenType}} {{accessToken}}
@@ -99,6 +107,14 @@ content-type: application/json
 HTTP 201
 [Captures]
 todoId: jsonpath "$['id']"
+
+GET http://{{host}}/users/{{userId}}/todos/{{newUuid}}
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 404 # NOT_FOUND
+
+######################
+# Testing Validation #
+######################
 
 # Missing attribute
 POST http://{{host}}/users/{{userId}}/todos
@@ -123,15 +139,15 @@ content-type: application/json
 }
 HTTP 400 # BAD_REQUEST
 
+###################
+# Testing updates #
+###################
+
 GET http://{{host}}/users/{{userId}}/todos/{{todoId}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 [Asserts]
 jsonpath "$.id" == "{{todoId}}"
-
-GET http://{{host}}/users/{{userId}}/todos/{{newUuid}}
-Authorization: {{tokenType}} {{accessToken}}
-HTTP 404 # NOT_FOUND
 
 PATCH http://{{host}}/users/{{userId}}/todos/{{todoId}}
 Authorization: {{tokenType}} {{accessToken}}
@@ -165,6 +181,92 @@ content-type: application/json
   "order": {{random_int_number}}
 }
 HTTP 404 # NOT_FOUND
+
+#########################
+# Testing batch updates #
+#########################
+# create another todo
+POST http://{{host}}/users/{{userId}}/todos
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "title": "Buy milk 2",
+  "completed": false,
+  "todoListId": "{{todoListId}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+todoId2: jsonpath "$['id']"
+
+# batch-update
+PATCH http://{{host}}/users/{{userId}}/todos
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoId}}",
+    "payload": {
+      "completed": true,
+      "order": {{random_int_number}}
+    }
+  },
+  {
+    "id": "{{todoId2}}",
+    "payload": {
+      "title": "Buy milk 2 update"
+    }
+  }
+]
+HTTP 200
+[Asserts]
+jsonpath "$[0].completed" == true
+jsonpath "$[1].completed" == false
+jsonpath "$[1].title" == "Buy milk 2 update"
+
+# payload not provided
+PATCH http://{{host}}/users/{{userId}}/todos
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoId}}"
+  }
+]
+HTTP 400 # bad-request
+
+# id not provided
+PATCH http://{{host}}/users/{{userId}}/todos
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "payload": {
+      "title": "foo"
+    }
+  }
+]
+HTTP 400 # bad-request
+
+# extra data in payload
+PATCH http://{{host}}/users/{{userId}}/todos
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoId}}",
+    "payload": {
+      "completed": true,
+      "order": {{random_int_number}},
+      "foo": "bar"
+    }
+  }
+]
+HTTP 400 # bad-request
+
+####################
+# Testing deletion #
+####################
 
 DELETE http://{{host}}/users/{{userId}}/todos/{{todoId}}
 Authorization: {{tokenType}} {{accessToken}}
