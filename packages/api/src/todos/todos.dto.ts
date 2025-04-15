@@ -4,13 +4,16 @@ import {
   OmitType,
   PartialType,
 } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
+  IsDefined,
   IsNumber,
   IsOptional,
   IsString,
   IsUUID,
+  ValidateNested,
 } from 'class-validator';
 
 export class TodoDto {
@@ -62,3 +65,16 @@ export class CreateTodoDto extends OmitType(TodoDto, [
 ] as const) {}
 
 export class UpdateTodoDto extends PartialType(CreateTodoDto) {}
+
+export class BatchUpdateTodoDto {
+  @IsDefined()
+  @IsUUID()
+  @ApiProperty()
+  id: string;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => UpdateTodoDto) // This is required to validate `payload`
+  @ApiProperty()
+  payload: UpdateTodoDto;
+}

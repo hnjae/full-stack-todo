@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 import {
+  BatchUpdateTodoListDto,
   CreateTodoListDto,
   TodoListDto,
   UpdateTodoListDto,
@@ -51,6 +53,35 @@ export class TodoListsService {
     });
 
     return todo;
+  }
+
+  async batchUpdate(
+    updateItems: BatchUpdateTodoListDto[],
+  ): Promise<TodoListDto[]> {
+    if (updateItems.length === 0) {
+      return [];
+    }
+
+    const counts = await this.prismaService.todoList.count({
+      where: {
+        id: {
+          in: updateItems.map((item) => item.id),
+        },
+      },
+    });
+
+    if (counts !== updateItems.length) {
+      throw new NotFoundException('Not all items found');
+    }
+
+    const updateOperations = updateItems.map((item) =>
+      this.prismaService.todoList.update({
+        where: { id: item.id },
+        data: item.payload,
+      }),
+    );
+
+    return this.prismaService.$transaction(updateOperations);
   }
 
   async delete(todoListId: string): Promise<TodoListDto> {
