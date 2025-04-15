@@ -10,7 +10,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
@@ -48,8 +48,9 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Get(':userId')
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user data' })
   async get(@Param('userId') id: string) {
     const user = await this.usersService.get(id);
@@ -59,8 +60,9 @@ export class UsersController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Patch(':userId')
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user data' })
   async update(
     @Param('userId') id: string,
@@ -84,8 +86,9 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Delete(':userId')
+  @UseGuards(JwtAuthGuard, UserMatchGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete user' })
   async delete(@Param('userId') id: string) {
     try {

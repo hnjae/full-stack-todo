@@ -6,30 +6,37 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserMatchGuard } from 'src/users/user-match.guard';
 
-import { CreateTodoDto, TodoDto, UpdateTodoDto } from './todos.dto';
+import {
+  BatchUpdateTodoDto,
+  CreateTodoDto,
+  TodoDto,
+  UpdateTodoDto,
+} from './todos.dto';
 import { TodosService } from './todos.service';
 
 @Controller('users/:userId/todos')
+@UseGuards(JwtAuthGuard, UserMatchGuard)
+@ApiBearerAuth()
+@ApiParam({ name: 'userId', type: 'string', description: 'User ID' })
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Get()
   @ApiOperation({ summary: 'Get all todos.' })
   async getAll(@Param('userId') userId: string): Promise<TodoDto[]> {
     return this.todosService.getAll(userId);
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Post()
   @ApiOperation({ summary: 'Create a todo.' })
   async create(
@@ -53,7 +60,30 @@ export class TodosController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
+  @Patch()
+  @ApiOperation({ summary: 'Patch a batch of todo items. (atomic)' })
+  async batchUpdate(
+    @Body(
+      new ParseArrayPipe({
+        // NOTE: `useGlobalPipes` 에 적용한 값이 여기에는 적용되지 않아 별도로 설정 해야 한다.
+        items: BatchUpdateTodoDto,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    )
+    updateItems: BatchUpdateTodoDto[],
+  ) {
+    try {
+      return await this.todosService.batchUpdate(updateItems);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // catch something if required
+      }
+
+      throw error;
+    }
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a todo.' })
   async get(@Param('id') todoId: string): Promise<TodoDto> {
@@ -74,7 +104,6 @@ export class TodosController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a todo.' })
   async update(
@@ -105,7 +134,6 @@ export class TodosController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, UserMatchGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a todo.' })
   async delete(@Param('id') todoId: string): Promise<TodoDto> {

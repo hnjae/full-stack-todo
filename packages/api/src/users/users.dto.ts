@@ -1,4 +1,4 @@
-import { OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import {
   IsAscii,
   IsDate,
@@ -12,9 +12,11 @@ export class UserDto {
   @IsUUID()
   id: string;
 
+  @ApiProperty()
   @IsEmail()
   email: string;
 
+  @ApiProperty()
   @IsAscii()
   @MaxLength(72) // bcrypt's limit
   @IsNotEmpty()
