@@ -1,27 +1,35 @@
 // NOTE: This page assumes that the user is logged in when loaded.
 
 import { PlusOutlined } from '@ant-design/icons';
-import { Divider, Input, Layout, theme, Tree, TreeDataNode } from 'antd';
+import {
+  Divider,
+  Input,
+  Layout,
+  theme,
+  Tree,
+  TreeDataNode,
+  TreeProps,
+} from 'antd';
 import { useMemo, useState } from 'react';
 import {
+  UpdateTodoList,
   useAddTodoListMutation,
+  useBatchUpdateTodoListMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
-// import { useGetUserInfoQuery } from 'src/entities/user';
 import { MainHeader } from 'src/widgets/header';
 
 const { Content, Sider } = Layout;
 
-interface OrderedItem {
-  order: number;
-  name: string;
-}
+const MIN_INTEGER = -2147483648; // -2^31
+const MAX_INTEGER = 2147483647; // 2^31 - 1 (4bit integer)
+const ORDER_DEFAULT_SPACING = 65536; // 2^16
 
 const generateUniqueName = function (
   proposedName: string,
-  items: readonly OrderedItem[] | undefined,
+  items: readonly { name: string }[],
 ): string {
-  if (items == null || items.length === 0) {
+  if (items.length === 0) {
     return proposedName;
   }
 
@@ -41,20 +49,24 @@ const generateUniqueName = function (
   return potentialName;
 };
 
-const calculateNewItemsOrder = function (
-  sortedItems: readonly OrderedItem[] | undefined,
-): number {
-  if (sortedItems == null || sortedItems.length === 0) {
-    return 0;
+const balanceItems = function <T extends { order: number }>(
+  sortedItems: readonly T[],
+): T[] {
+  if (sortedItems.length === 0) {
+    return [];
   }
 
-  return sortedItems[sortedItems.length - 1].order + 1;
+  const newOrderMin =
+    -Math.floor(sortedItems.length / 2) * ORDER_DEFAULT_SPACING;
+
+  return sortedItems.map((item, idx) => {
+    return { ...item, order: newOrderMin + ORDER_DEFAULT_SPACING * idx };
+  });
 };
 
 export default function WebAppPage() {
   const { token } = theme.useToken();
 
-  // const { data: user, isLoading, isFetching, isError } = useGetUserInfoQuery();
   const {
     data: todoLists,
     isLoading: isGetTodoListsLoading,
@@ -62,10 +74,11 @@ export default function WebAppPage() {
   } = useGetTodoListsQuery();
   const [addTodoListTrigger, { isLoading: isAddTodoListsLoading }] =
     useAddTodoListMutation();
+  const [batchUpdateTodoListTrigger] = useBatchUpdateTodoListMutation();
   const [inputValue, setInputValue] = useState('');
 
   const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
-    // NOTE: todoLists is aleady sorted by order
+    // NOTE: todoLists is already sorted by `order``
     return todoLists?.map((todoList) => {
       return {
         key: todoList.id,
@@ -82,11 +95,153 @@ export default function WebAppPage() {
       proposedName = 'New List';
     }
 
+    let order = 0;
+    let name = proposedName;
+
+    if (todoLists != null && todoLists.length > 0) {
+      const lastOrder = todoLists[todoLists.length - 1].order;
+      name = generateUniqueName(proposedName, todoLists);
+
+      if (lastOrder <= MAX_INTEGER - ORDER_DEFAULT_SPACING) {
+        order = lastOrder + ORDER_DEFAULT_SPACING;
+      } else {
+        console.log('Balancing todo-lists');
+
+        const balancedLists = balanceItems(todoLists);
+
+        const updateTodoLists = balancedLists.map((todoList) => ({
+          id: todoList.id,
+          payload: {
+            order: todoList.order,
+          },
+        }));
+        batchUpdateTodoListTrigger(updateTodoLists);
+
+        order = balancedLists[balancedLists.length - 1].order;
+      }
+    }
+
     addTodoListTrigger({
-      name: generateUniqueName(proposedName, todoLists),
-      order: calculateNewItemsOrder(todoLists),
+      name: name,
+      order: order,
     });
     setInputValue('');
+  };
+
+  const onDrop: TreeProps['onDrop'] = function (info) {
+    if (todoLists == null || todoLists.length === 0) {
+      return;
+    }
+
+    // NOTE: const dropPos = info.dropPosition; // e.g.) -1, 1, ,2 ,3
+    const dropPosIdx = info.dropPosition === -1 ? 0 : info.dropPosition;
+    const dragNodePosIdx = Number(info.dragNode.pos.split('-')[1]);
+    const dragNodeKey = info.dragNode.key;
+
+    if (dragNodePosIdx === dropPosIdx) {
+      return;
+    }
+
+    let updateTodoLists: UpdateTodoList[];
+
+    // Drop at the beginning
+    if (dropPosIdx === 0) {
+      let newOrder;
+
+      if (todoLists[0].order >= MIN_INTEGER + ORDER_DEFAULT_SPACING) {
+        updateTodoLists = [];
+        newOrder = todoLists[0].order - ORDER_DEFAULT_SPACING;
+      } else {
+        console.log('Balancing todo-lists');
+
+        updateTodoLists = balanceItems(todoLists)
+          .filter((todoList) => todoList.id !== dragNodeKey)
+          .map((todoList) => ({
+            id: todoList.id,
+            payload: {
+              order: todoList.order,
+            },
+          }));
+
+        newOrder = todoLists[0].order - ORDER_DEFAULT_SPACING;
+      }
+
+      updateTodoLists.push({
+        id: dragNodeKey as string,
+        payload: {
+          order: newOrder,
+        },
+      });
+
+      // Drop at the end
+    } else if (dropPosIdx === todoLists.length) {
+      let newOrder;
+
+      if (
+        todoLists[todoLists.length - 1].order <=
+        MAX_INTEGER - ORDER_DEFAULT_SPACING
+      ) {
+        updateTodoLists = [];
+        newOrder =
+          todoLists[todoLists.length - 1].order + ORDER_DEFAULT_SPACING;
+      } else {
+        console.log('Balancing todo-lists');
+        updateTodoLists = balanceItems(todoLists)
+          .filter((todoList) => todoList.id !== dragNodeKey)
+          .map((todoList) => ({
+            id: todoList.id,
+            payload: {
+              order: todoList.order,
+            },
+          }));
+
+        newOrder =
+          todoLists[todoLists.length - 1].order + ORDER_DEFAULT_SPACING;
+      }
+
+      updateTodoLists.push({
+        id: dragNodeKey as string,
+        payload: {
+          order: newOrder,
+        },
+      });
+
+      // Drop in the middle
+    } else {
+      let before = todoLists[dropPosIdx - 1].order;
+      let after = todoLists[dropPosIdx].order;
+
+      if (after - before > 1) {
+        updateTodoLists = [];
+      } else {
+        console.log('Balancing todo-lists');
+        const balancedLists = balanceItems(todoLists);
+
+        updateTodoLists = balancedLists
+          .filter((todoList) => todoList.id !== dragNodeKey)
+          .map((todoList) => ({
+            id: todoList.id,
+            payload: {
+              order: todoList.order,
+            },
+          }));
+
+        before = balancedLists[dropPosIdx - 1].order;
+        after = balancedLists[dropPosIdx].order;
+      }
+
+      const newOrder = Math.floor((after - before) / 2) + before;
+      updateTodoLists.push({
+        id: dragNodeKey as string,
+        payload: {
+          order: newOrder,
+        },
+      });
+    }
+
+    if (updateTodoLists.length !== 0) {
+      batchUpdateTodoListTrigger(updateTodoLists);
+    }
   };
 
   const {
@@ -114,9 +269,9 @@ export default function WebAppPage() {
               flexDirection: 'column',
             }}
           >
-            <br />
             <div
               style={{
+                paddingTop: '8px',
                 overflowY: 'auto',
                 overflowX: 'hidden',
               }}
@@ -124,15 +279,14 @@ export default function WebAppPage() {
               <Tree
                 className="draggable-tree"
                 draggable
+                allowDrop={({ dropPosition }) => dropPosition !== 0}
                 blockNode
                 defaultSelectedKeys={
                   todoListTreeData?.[0] != null
                     ? [todoListTreeData[0].key]
                     : undefined
                 }
-                // defaultExpandedKeys={expandedKeys}
-                // onDragEnter={onDragEnter}
-                // onDrop={onDrop}
+                onDrop={onDrop}
                 treeData={todoListTreeData}
               />
             </div>
