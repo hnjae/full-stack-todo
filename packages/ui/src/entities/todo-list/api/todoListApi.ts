@@ -10,6 +10,11 @@ interface TodoList {
 
 type CreateTodoList = Omit<TodoList, 'id' | 'createdAt' | 'updatedAt'>;
 
+export interface UpdateTodoList {
+  id: string;
+  payload: Partial<CreateTodoList>;
+}
+
 const TODO_LIST_TAG_TYPE = 'TodoList' as const;
 
 const todoListApi = userApi
@@ -51,9 +56,27 @@ const todoListApi = userApi
           },
         ],
       }),
+
+      batchUpdateTodoList: build.mutation<TodoList, UpdateTodoList[]>({
+        query: (arg) => ({
+          url: 'todo-lists',
+          method: 'PATCH',
+          body: arg,
+        }),
+        invalidatesTags: [
+          {
+            type: TODO_LIST_TAG_TYPE,
+            id: 'LIST',
+          },
+        ],
+      }),
     }),
   });
 
-export const { useGetTodoListsQuery, useAddTodoListMutation } = todoListApi;
+export const {
+  useGetTodoListsQuery,
+  useAddTodoListMutation,
+  useBatchUpdateTodoListMutation,
+} = todoListApi;
 
 export default todoListApi;
