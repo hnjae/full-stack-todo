@@ -1,12 +1,14 @@
 import { userApi } from 'src/entities/user/@x/todo-list';
 
-export interface TodoList {
+interface TodoList {
   id: string;
   name: string;
   order: number;
   createdAt: string;
   updatedAt: string;
 }
+
+type CreateTodoList = Omit<TodoList, 'id' | 'createdAt' | 'updatedAt'>;
 
 const TODO_LIST_TAG_TYPE = 'TodoList' as const;
 
@@ -36,10 +38,7 @@ const todoListApi = userApi
               ],
       }),
 
-      addTodoList: build.mutation<
-        TodoList,
-        Omit<TodoList, 'id' | 'createdAt' | 'updatedAt'>
-      >({
+      addTodoList: build.mutation<TodoList, CreateTodoList>({
         query: (newTodoList) => ({
           url: 'todo-lists',
           method: 'POST',
