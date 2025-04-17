@@ -1,6 +1,6 @@
 import { userApi } from 'src/entities/user/@x/todo-list';
 
-interface TodoList {
+export interface TodoList {
   id: string;
   name: string;
   order: number;

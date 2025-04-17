@@ -1,6 +1,12 @@
 // NOTE: This page assumes that the user is logged in when loaded.
 
-import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EllipsisOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import {
   Divider,
   Dropdown,
@@ -13,9 +19,11 @@ import {
 } from 'antd';
 import { useMemo, useState } from 'react';
 import {
+  TodoList,
   UpdateTodoList,
   useAddTodoListMutation,
   useBatchUpdateTodoListMutation,
+  useDeleteTodoListMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
 import { MainHeader } from 'src/widgets/header';
@@ -25,21 +33,6 @@ const { Content, Sider } = Layout;
 const MIN_INTEGER = -2147483648; // -2^31
 const MAX_INTEGER = 2147483647; // 2^31 - 1 (4bit integer)
 const ORDER_DEFAULT_SPACING = 65536; // 2^16
-
-const tempItem = [
-  {
-    label: '1st menu item',
-    key: '1',
-  },
-  {
-    label: '2nd menu item',
-    key: '2',
-  },
-  {
-    label: '3rd menu item',
-    key: '3',
-  },
-];
 
 const generateUniqueName = function (
   proposedName: string,
@@ -91,11 +84,52 @@ export default function WebAppPage() {
   const [addTodoListTrigger, { isLoading: isAddTodoListsLoading }] =
     useAddTodoListMutation();
   const [batchUpdateTodoListTrigger] = useBatchUpdateTodoListMutation();
+  const [deleteTodoListTrigger] = useDeleteTodoListMutation();
+
   const [inputValue, setInputValue] = useState('');
+
+  const handleRename = function (todoList: TodoList) {
+    // TODO: 구현
+    console.log('Renaming todo list with ID:', todoList.id);
+    alert('TODO: Implement rename functionality');
+  };
+
+  const handleDelete = function (todoList: TodoList) {
+    // TODO: modal 창 구현
+    if (
+      !window.confirm(
+        `Are you sure you want to delete list ID: ${todoList.name}?`,
+      )
+    ) {
+      return;
+    }
+
+    console.log('Deleting todo list with ID:', todoList.id);
+    deleteTodoListTrigger(todoList.id);
+  };
 
   const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
     // NOTE: todoLists is already sorted by `order``
     return todoLists?.map((todoList) => {
+      const menuItems: MenuProps['items'] = [
+        {
+          icon: <EditOutlined />,
+          label: 'Rename',
+          key: 'rename',
+          onClick: () => {
+            handleRename(todoList);
+          },
+        },
+        {
+          icon: <DeleteOutlined />,
+          label: 'Delete',
+          key: 'delete',
+          danger: true,
+          onClick: () => {
+            handleDelete(todoList);
+          },
+        },
+      ];
       return {
         key: todoList.id,
         title: (
@@ -111,7 +145,7 @@ export default function WebAppPage() {
                 width: 0,
               }}
             >
-              <Dropdown menu={{ items: tempItem }} trigger={['contextMenu']}>
+              <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
                 <div
                   style={{
                     textOverflow: 'ellipsis',
@@ -129,7 +163,7 @@ export default function WebAppPage() {
                 flexShrink: 0,
               }}
             >
-              <Dropdown menu={{ items: tempItem }} trigger={['click']}>
+              <Dropdown menu={{ items: menuItems }} trigger={['click']}>
                 <a onClick={(e) => e.preventDefault()}>
                   <EllipsisOutlined
                     style={{
