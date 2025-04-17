@@ -277,7 +277,7 @@ export default function WebAppPage() {
               }}
             >
               <Tree
-                className="draggable-tree"
+                className="todo-list-tree"
                 draggable
                 allowDrop={({ dropPosition }) => dropPosition !== 0}
                 blockNode

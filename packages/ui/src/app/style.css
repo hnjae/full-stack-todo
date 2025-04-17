@@ -6,3 +6,8 @@
   font-family: 'Material Icons Outlined';
   display: inline-block;
 }
+
+/* hide empty spaces in the tree */
+.todo-list-tree .ant-tree-switcher-noop {
+  display: none;
+}
