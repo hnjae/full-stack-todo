@@ -70,13 +70,27 @@ const todoListApi = userApi
           },
         ],
       }),
+
+      deleteTodoList: build.mutation<TodoList, string>({
+        query: (todoListId) => ({
+          url: `todo-lists/${todoListId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: [
+          {
+            type: TODO_LIST_TAG_TYPE,
+            id: 'LIST',
+          },
+        ],
+      }),
     }),
   });
 
 export const {
-  useGetTodoListsQuery,
   useAddTodoListMutation,
   useBatchUpdateTodoListMutation,
+  useDeleteTodoListMutation,
+  useGetTodoListsQuery,
 } = todoListApi;
 
 export default todoListApi;

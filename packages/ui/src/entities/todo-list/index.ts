@@ -3,5 +3,6 @@ export {
   default as todoListApi,
   useAddTodoListMutation,
   useBatchUpdateTodoListMutation,
+  useDeleteTodoListMutation,
   useGetTodoListsQuery,
 } from './api/todoListApi';
