@@ -1,8 +1,9 @@
 // NOTE: This page assumes that the user is logged in when loaded.
 
-import { PlusOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Divider,
+  Dropdown,
   Input,
   Layout,
   theme,
@@ -24,6 +25,21 @@ const { Content, Sider } = Layout;
 const MIN_INTEGER = -2147483648; // -2^31
 const MAX_INTEGER = 2147483647; // 2^31 - 1 (4bit integer)
 const ORDER_DEFAULT_SPACING = 65536; // 2^16
+
+const tempItem = [
+  {
+    label: '1st menu item',
+    key: '1',
+  },
+  {
+    label: '2nd menu item',
+    key: '2',
+  },
+  {
+    label: '3rd menu item',
+    key: '3',
+  },
+];
 
 const generateUniqueName = function (
   proposedName: string,
@@ -82,7 +98,50 @@ export default function WebAppPage() {
     return todoLists?.map((todoList) => {
       return {
         key: todoList.id,
-        title: todoList.name,
+        title: (
+          <div
+            style={{
+              display: 'flex',
+              gap: '2px', // Adds space between the two main flex items
+            }}
+          >
+            <div
+              style={{
+                flexGrow: 1,
+                width: 0,
+              }}
+            >
+              <Dropdown menu={{ items: tempItem }} trigger={['contextMenu']}>
+                <div
+                  style={{
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    display: 'block',
+                  }}
+                >
+                  {todoList.name}
+                </div>
+              </Dropdown>
+            </div>
+            <div
+              style={{
+                flexShrink: 0,
+              }}
+            >
+              <Dropdown menu={{ items: tempItem }} trigger={['click']}>
+                <a onClick={(e) => e.preventDefault()}>
+                  <EllipsisOutlined
+                    style={{
+                      color: token.colorIcon,
+                      display: 'block',
+                    }}
+                  />
+                </a>
+              </Dropdown>
+            </div>
+          </div>
+        ),
         disableCheckbox: true,
       };
     });
