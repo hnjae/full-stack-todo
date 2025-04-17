@@ -6,12 +6,13 @@ import {
   EllipsisOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
+import type { MenuProps, ModalProps } from 'antd';
 import {
   Divider,
   Dropdown,
   Input,
   Layout,
+  Modal,
   theme,
   Tree,
   TreeDataNode,
@@ -31,7 +32,7 @@ import { MainHeader } from 'src/widgets/header';
 const { Content, Sider } = Layout;
 
 const MIN_INTEGER = -2147483648; // -2^31
-const MAX_INTEGER = 2147483647; // 2^31 - 1 (4bit integer)
+const MAX_INTEGER = 2147483647; // 2^31 - 1 (4 byte integer)
 const ORDER_DEFAULT_SPACING = 65536; // 2^16
 
 const generateUniqueName = function (
@@ -73,6 +74,13 @@ const balanceItems = function <T extends { order: number }>(
   });
 };
 
+interface ModalState {
+  title?: string;
+  open: boolean;
+  children?: React.ReactNode;
+  onOk?: ModalProps['onOk'];
+}
+
 export default function WebAppPage() {
   const { token } = theme.useToken();
 
@@ -86,8 +94,11 @@ export default function WebAppPage() {
   const [batchUpdateTodoListTrigger] = useBatchUpdateTodoListMutation();
   const [deleteTodoListTrigger] = useDeleteTodoListMutation();
 
-  const [inputValue, setInputValue] = useState('');
+  const [modalState, setModalState] = useState<ModalState>({
+    open: false,
+  });
 
+  const [inputValue, setInputValue] = useState('');
   const handleRename = function (todoList: TodoList) {
     // TODO: 구현
     console.log('Renaming todo list with ID:', todoList.id);
@@ -95,17 +106,20 @@ export default function WebAppPage() {
   };
 
   const handleDelete = function (todoList: TodoList) {
-    // TODO: modal 창 구현
-    if (
-      !window.confirm(
-        `Are you sure you want to delete list ID: ${todoList.name}?`,
-      )
-    ) {
-      return;
-    }
-
-    console.log('Deleting todo list with ID:', todoList.id);
-    deleteTodoListTrigger(todoList.id);
+    setModalState({
+      title: 'Delete todo list?',
+      open: true,
+      children: (
+        <p>
+          <b>"{todoList.name}"</b> will be permanently deleted.
+        </p>
+      ),
+      onOk: () => {
+        console.log('Deleting todo list with ID:', todoList.id);
+        deleteTodoListTrigger(todoList.id);
+        setModalState({ open: false });
+      },
+    });
   };
 
   const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
@@ -342,96 +356,110 @@ export default function WebAppPage() {
   } = theme.useToken();
 
   return (
-    <Layout
-      style={{
-        height: '97dvh',
-      }}
-    >
-      <MainHeader />
-      <Layout>
-        <Sider
-          collapsed={false}
-          style={{
-            background: colorBgContainer,
-          }}
-        >
-          <div
+    <>
+      <Layout
+        style={{
+          height: '97dvh',
+        }}
+      >
+        <MainHeader />
+        <Layout>
+          <Sider
+            collapsed={false}
             style={{
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
+              background: colorBgContainer,
             }}
           >
             <div
               style={{
-                paddingTop: '8px',
-                overflowY: 'auto',
-                overflowX: 'hidden',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
-              <Tree
-                className="todo-list-tree"
-                draggable
-                allowDrop={({ dropPosition }) => dropPosition !== 0}
-                blockNode
-                defaultSelectedKeys={
-                  todoListTreeData?.[0] != null
-                    ? [todoListTreeData[0].key]
-                    : undefined
-                }
-                onDrop={onDrop}
-                treeData={todoListTreeData}
-              />
-            </div>
-
-            <div style={{ flexShrink: 0 }}>
-              {todoLists != null && todoLists.length > 0 ? <Divider /> : null}
-
-              <Input
-                addonBefore={<PlusOutlined />}
-                placeholder="New List"
-                variant="filled"
-                value={inputValue}
-                onPressEnter={handleEnter}
-                onChange={(event) => setInputValue(event.target.value)}
+              <div
                 style={{
-                  paddingRight: '8px',
+                  paddingTop: '8px',
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
                 }}
-              />
+              >
+                <Tree
+                  className="todo-list-tree"
+                  draggable
+                  allowDrop={({ dropPosition }) => dropPosition !== 0}
+                  blockNode
+                  defaultSelectedKeys={
+                    todoListTreeData?.[0] != null
+                      ? [todoListTreeData[0].key]
+                      : undefined
+                  }
+                  onDrop={onDrop}
+                  treeData={todoListTreeData}
+                />
+              </div>
+
+              <div style={{ flexShrink: 0 }}>
+                {todoLists != null && todoLists.length > 0 ? <Divider /> : null}
+
+                <Input
+                  addonBefore={<PlusOutlined />}
+                  placeholder="New List"
+                  variant="filled"
+                  value={inputValue}
+                  onPressEnter={handleEnter}
+                  onChange={(event) => setInputValue(event.target.value)}
+                  style={{
+                    paddingRight: '8px',
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        </Sider>
-        <Content
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingBottom: '20vh',
-            background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
-          }}
-        >
-          {isGetTodoListsLoading && isAddTodoListsLoading ? (
-            <div>
-              Loading ... <br />
-            </div>
-          ) : (
-            <div>
-              Not Loading <br />
-            </div>
-          )}
-          {isGetTodoListsFetching ? (
-            <div>
-              Fetching ...
-              <br />
-            </div>
-          ) : (
-            <div>
-              Not Fetching
-              <br />
-            </div>
-          )}
-        </Content>
+          </Sider>
+          <Content
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingBottom: '20vh',
+              background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
+            }}
+          >
+            {isGetTodoListsLoading && isAddTodoListsLoading ? (
+              <div>
+                Loading ... <br />
+              </div>
+            ) : (
+              <div>
+                Not Loading <br />
+              </div>
+            )}
+            {isGetTodoListsFetching ? (
+              <div>
+                Fetching ...
+                <br />
+              </div>
+            ) : (
+              <div>
+                Not Fetching
+                <br />
+              </div>
+            )}
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+      <Modal
+        title={modalState.title}
+        open={modalState.open}
+        onOk={modalState.onOk}
+        onCancel={() => {
+          setModalState({
+            open: false,
+          });
+        }}
+      >
+        {modalState.children}
+      </Modal>
+    </>
   );
 }
