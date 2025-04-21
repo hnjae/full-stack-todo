@@ -81,6 +81,10 @@ interface ModalState {
   onOk?: ModalProps['onOk'];
 }
 
+interface TodoListRenameModalState {
+  id: string | null;
+}
+
 export default function WebAppPage() {
   const { token } = theme.useToken();
 
@@ -91,18 +95,25 @@ export default function WebAppPage() {
   } = useGetTodoListsQuery();
   const [addTodoListTrigger, { isLoading: isAddTodoListsLoading }] =
     useAddTodoListMutation();
-  const [batchUpdateTodoListTrigger] = useBatchUpdateTodoListMutation();
+  const [batchUpdateTodoListTrigger, { error }] =
+    useBatchUpdateTodoListMutation();
   const [deleteTodoListTrigger] = useDeleteTodoListMutation();
 
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
   });
 
-  const [inputValue, setInputValue] = useState('');
+  const [todoListRenameModal, setTodoListRenameModal] =
+    useState<TodoListRenameModalState>({ id: null });
+
+  const [newListInputValue, setNewListInputValue] = useState('');
+  const [inputModalValue, setInputModalValue] = useState('');
+
   const handleRename = function (todoList: TodoList) {
-    // TODO: 구현
-    console.log('Renaming todo list with ID:', todoList.id);
-    alert('TODO: Implement rename functionality');
+    setInputModalValue('');
+    setTodoListRenameModal({
+      id: todoList.id,
+    });
   };
 
   const handleDelete = function (todoList: TodoList) {
@@ -232,7 +243,7 @@ export default function WebAppPage() {
       name: name,
       order: order,
     });
-    setInputValue('');
+    setNewListInputValue('');
   };
 
   const onDrop: TreeProps['onDrop'] = function (info) {
@@ -406,9 +417,9 @@ export default function WebAppPage() {
                   addonBefore={<PlusOutlined />}
                   placeholder="New List"
                   variant="filled"
-                  value={inputValue}
+                  value={newListInputValue}
                   onPressEnter={handleEnter}
-                  onChange={(event) => setInputValue(event.target.value)}
+                  onChange={(event) => setNewListInputValue(event.target.value)}
                   style={{
                     paddingRight: '8px',
                   }}
@@ -459,6 +470,54 @@ export default function WebAppPage() {
         }}
       >
         {modalState.children}
+      </Modal>
+      <Modal
+        title="Rename todo list:"
+        open={todoListRenameModal.id != null}
+        onOk={(e) => {
+          if (inputModalValue === '' || todoListRenameModal.id == null) {
+            return;
+          }
+
+          batchUpdateTodoListTrigger([
+            {
+              id: todoListRenameModal.id,
+              payload: {
+                name: generateUniqueName(inputModalValue, todoLists ?? []),
+              },
+            },
+          ]);
+
+          setTodoListRenameModal({ id: null });
+        }}
+        onCancel={() => {
+          setTodoListRenameModal({ id: null });
+        }}
+      >
+        <Input
+          placeholder="New name"
+          autoFocus
+          value={inputModalValue}
+          onChange={(event) => {
+            setInputModalValue(event.target.value);
+          }}
+          onPressEnter={(e) => {
+            if (inputModalValue === '' || todoListRenameModal.id == null) {
+              return;
+            }
+
+            batchUpdateTodoListTrigger([
+              {
+                id: todoListRenameModal.id,
+                payload: {
+                  name: generateUniqueName(inputModalValue, todoLists ?? []),
+                },
+              },
+            ]);
+
+            setTodoListRenameModal({ id: null });
+          }}
+        />
       </Modal>
     </>
   );
