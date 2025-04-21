@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps, ModalProps } from 'antd';
 import {
+  ConfigProvider,
   Divider,
   Dropdown,
   Input,
@@ -193,7 +194,7 @@ export default function WebAppPage() {
                   <EllipsisOutlined
                     style={{
                       color: token.colorIcon,
-                      display: 'block',
+                      verticalAlign: 'middle',
                     }}
                   />
                 </a>
@@ -395,19 +396,32 @@ export default function WebAppPage() {
                   overflowX: 'hidden',
                 }}
               >
-                <Tree
-                  className="todo-list-tree"
-                  draggable
-                  allowDrop={({ dropPosition }) => dropPosition !== 0}
-                  blockNode
-                  defaultSelectedKeys={
-                    todoListTreeData?.[0] != null
-                      ? [todoListTreeData[0].key]
-                      : undefined
-                  }
-                  onDrop={onDrop}
-                  treeData={todoListTreeData}
-                />
+                <ConfigProvider
+                  theme={{
+                    token: {
+                      fontSize: 15, // default: 14
+                    },
+                    components: {
+                      Tree: {
+                        titleHeight: 32, // default: 24
+                      },
+                    },
+                  }}
+                >
+                  <Tree
+                    className="todo-list-tree"
+                    draggable
+                    allowDrop={({ dropPosition }) => dropPosition !== 0}
+                    blockNode
+                    defaultSelectedKeys={
+                      todoListTreeData?.[0] != null
+                        ? [todoListTreeData[0].key]
+                        : undefined
+                    }
+                    onDrop={onDrop}
+                    treeData={todoListTreeData}
+                  />
+                </ConfigProvider>
               </div>
 
               <div style={{ flexShrink: 0 }}>
