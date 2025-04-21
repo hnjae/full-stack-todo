@@ -69,6 +69,48 @@ const todoListApi = userApi
             id: 'LIST',
           },
         ],
+
+        // optimistic update
+        async onQueryStarted(updateTodoLists, { dispatch, queryFulfilled }) {
+          const patchResult = dispatch(
+            todoListApi.util.updateQueryData(
+              'getTodoLists',
+              undefined,
+              (draft) => {
+                // NOTE: the results must be sorted
+
+                for (const updateTodoList of updateTodoLists) {
+                  const { id, payload } = updateTodoList;
+
+                  const index = draft.findIndex(
+                    (todoList) => todoList.id === id,
+                  );
+
+                  if (index === -1) {
+                    continue;
+                  }
+
+                  const todoList = draft[index];
+                  const patch = {
+                    ...todoList,
+                    ...payload,
+                  };
+
+                  draft[index] = patch;
+                }
+
+                draft.sort((a, b) => a.order - b.order);
+              },
+            ),
+          );
+
+          try {
+            await queryFulfilled; // Wait for the actual server request to complete
+          } catch (error) {
+            patchResult.undo();
+            console.error('Failed to update todo-list(s): ', error);
+          }
+        },
       }),
 
       deleteTodoList: build.mutation<TodoList, string>({
@@ -82,6 +124,27 @@ const todoListApi = userApi
             id: 'LIST',
           },
         ],
+
+        async onQueryStarted(id, { dispatch, queryFulfilled }) {
+          const patchResult = dispatch(
+            todoListApi.util.updateQueryData(
+              'getTodoLists',
+              undefined,
+              (draft) => {
+                // NOTE: the results must be sorted
+
+                return draft.filter((todoList) => todoList.id !== id);
+              },
+            ),
+          );
+
+          try {
+            await queryFulfilled; // Wait for the actual server request to complete
+          } catch (error) {
+            patchResult.undo();
+            console.error('Failed to delete a todo-list: ', error);
+          }
+        },
       }),
     }),
   });

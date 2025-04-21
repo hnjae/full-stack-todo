@@ -95,10 +95,10 @@ export default function WebAppPage() {
     isFetching: isGetTodoListsFetching,
   } = useGetTodoListsQuery();
 
-  const [addTodoList, { isLoading: isAddTodoListsLoading }] =
-    useAddTodoListMutation();
-  const [batchUpdateTodoList] = useBatchUpdateTodoListMutation();
-  const [deleteTodoList] = useDeleteTodoListMutation();
+  const [addTodoList, addTodoListResult] = useAddTodoListMutation();
+  const [batchUpdateTodoList, batchUpdateTodoListResult] =
+    useBatchUpdateTodoListMutation();
+  const [deleteTodoList, deleteTodoListResult] = useDeleteTodoListMutation();
 
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
@@ -450,7 +450,10 @@ export default function WebAppPage() {
               background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
             }}
           >
-            {isGetTodoListsLoading && isAddTodoListsLoading ? (
+            {isGetTodoListsLoading ||
+            addTodoListResult.isLoading ||
+            batchUpdateTodoListResult.isLoading ||
+            deleteTodoListResult.isLoading ? (
               <div>
                 Loading ... <br />
               </div>
