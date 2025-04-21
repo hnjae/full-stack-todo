@@ -93,11 +93,11 @@ export default function WebAppPage() {
     isLoading: isGetTodoListsLoading,
     isFetching: isGetTodoListsFetching,
   } = useGetTodoListsQuery();
-  const [addTodoListTrigger, { isLoading: isAddTodoListsLoading }] =
+
+  const [addTodoList, { isLoading: isAddTodoListsLoading }] =
     useAddTodoListMutation();
-  const [batchUpdateTodoListTrigger, { error }] =
-    useBatchUpdateTodoListMutation();
-  const [deleteTodoListTrigger] = useDeleteTodoListMutation();
+  const [batchUpdateTodoList] = useBatchUpdateTodoListMutation();
+  const [deleteTodoList] = useDeleteTodoListMutation();
 
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
@@ -127,7 +127,7 @@ export default function WebAppPage() {
       ),
       onOk: () => {
         console.log('Deleting todo list with ID:', todoList.id);
-        deleteTodoListTrigger(todoList.id);
+        deleteTodoList(todoList.id);
         setModalState({ open: false });
       },
     });
@@ -233,13 +233,13 @@ export default function WebAppPage() {
             order: todoList.order,
           },
         }));
-        batchUpdateTodoListTrigger(updateTodoLists);
+        batchUpdateTodoList(updateTodoLists);
 
         order = balancedLists[balancedLists.length - 1].order;
       }
     }
 
-    addTodoListTrigger({
+    addTodoList({
       name: name,
       order: order,
     });
@@ -358,7 +358,7 @@ export default function WebAppPage() {
     }
 
     if (updateTodoLists.length !== 0) {
-      batchUpdateTodoListTrigger(updateTodoLists);
+      batchUpdateTodoList(updateTodoLists);
     }
   };
 
@@ -474,12 +474,12 @@ export default function WebAppPage() {
       <Modal
         title="Rename todo list:"
         open={todoListRenameModal.id != null}
-        onOk={(e) => {
+        onOk={() => {
           if (inputModalValue === '' || todoListRenameModal.id == null) {
             return;
           }
 
-          batchUpdateTodoListTrigger([
+          batchUpdateTodoList([
             {
               id: todoListRenameModal.id,
               payload: {
@@ -501,12 +501,12 @@ export default function WebAppPage() {
           onChange={(event) => {
             setInputModalValue(event.target.value);
           }}
-          onPressEnter={(e) => {
+          onPressEnter={() => {
             if (inputModalValue === '' || todoListRenameModal.id == null) {
               return;
             }
 
-            batchUpdateTodoListTrigger([
+            batchUpdateTodoList([
               {
                 id: todoListRenameModal.id,
                 payload: {
