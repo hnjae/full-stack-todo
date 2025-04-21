@@ -99,6 +99,8 @@ export default function WebAppPage() {
   const [batchUpdateTodoList, batchUpdateTodoListResult] =
     useBatchUpdateTodoListMutation();
   const [deleteTodoList, deleteTodoListResult] = useDeleteTodoListMutation();
+  const [todoListSelectedKey, setTodoListSelectedKey] =
+    useState<React.Key | null>(null);
 
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
@@ -208,7 +210,9 @@ export default function WebAppPage() {
   }, [todoLists]);
 
   // TODO: change selected list <2025-04-02>
-  const handleEnter = function (event: React.KeyboardEvent<HTMLInputElement>) {
+  const handleEnter = async function (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) {
     let proposedName = event.currentTarget.value.trim();
     if (proposedName === '') {
       proposedName = 'New List';
@@ -240,10 +244,17 @@ export default function WebAppPage() {
       }
     }
 
-    addTodoList({
-      name: name,
-      order: order,
-    });
+    try {
+      const newTodoList = await addTodoList({
+        name: name,
+        order: order,
+      }).unwrap();
+      setTodoListSelectedKey(newTodoList.id);
+      console.log('New todo list added:', newTodoList);
+    } catch (error) {
+      console.log('Error adding todo list:', error);
+    }
+
     setNewListInputValue('');
   };
 
@@ -413,10 +424,22 @@ export default function WebAppPage() {
                     draggable
                     allowDrop={({ dropPosition }) => dropPosition !== 0}
                     blockNode
-                    defaultSelectedKeys={
-                      todoListTreeData?.[0] != null
-                        ? [todoListTreeData[0].key]
-                        : undefined
+                    onDragStart={({ event, node }) => {
+                      setTodoListSelectedKey(node.key);
+                    }}
+                    onSelect={(selectedKeys) => {
+                      if (selectedKeys.length === 0) {
+                        return;
+                      }
+
+                      setTodoListSelectedKey(selectedKeys[0]);
+                    }}
+                    selectedKeys={
+                      todoListSelectedKey != null
+                        ? [todoListSelectedKey]
+                        : todoLists?.[0]?.id != null
+                          ? [todoLists?.[0]?.id]
+                          : undefined
                     }
                     onDrop={onDrop}
                     treeData={todoListTreeData}
