@@ -3,10 +3,10 @@ import {
   HomeOutlined,
   LoginOutlined,
   LogoutOutlined,
+  SyncOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Layout, Menu, MenuProps, Modal } from 'antd';
-import { CSSProperties } from 'react';
+import { Layout, Menu, MenuProps, Modal, theme } from 'antd';
 import {
   clearAccessToken,
   selectIsAuthenticated,
@@ -17,23 +17,6 @@ import {
 const { Header } = Layout;
 
 const HEADER_HEIGHT = 32;
-const MENU_PADDING = 16;
-
-const headerStyle: CSSProperties = {
-  height: HEADER_HEIGHT,
-  padding: 0,
-  lineHeight: `${HEADER_HEIGHT}px`,
-  display: 'flex',
-  alignItems: 'center',
-};
-
-const menuStyle: CSSProperties = {
-  height: HEADER_HEIGHT,
-  padding: `0 ${MENU_PADDING}px`,
-  lineHeight: `${HEADER_HEIGHT}px`,
-  flex: 1,
-  minWidth: 0,
-};
 
 type ItemTypeWithRequiredKey = Required<MenuProps>['items'][number] & {
   key: string;
@@ -43,6 +26,10 @@ export default function MainHeader() {
   const router = useRouterState();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  const {
+    token: { colorBgContainer, colorBorder },
+  } = theme.useToken();
 
   // use router path for key
   const noAuthItems: ItemTypeWithRequiredKey[] = [
@@ -100,15 +87,32 @@ export default function MainHeader() {
   const isLogin = useAppSelector(selectIsAuthenticated);
 
   return (
-    <Header className="foo" style={headerStyle}>
+    <Header
+      style={{
+        padding: '2px',
+        display: 'flex',
+        alignItems: 'center',
+
+        height: HEADER_HEIGHT,
+        lineHeight: `${HEADER_HEIGHT}px`,
+        background: colorBgContainer,
+        borderBottom: '1px solid',
+        borderBottomColor: colorBorder,
+      }}
+    >
       <Menu
-        theme="light"
         mode="horizontal"
+        theme="light"
         defaultSelectedKeys={[router.location.pathname]}
         items={(isLogin && authItems) || noAuthItems}
         style={{
-          ...menuStyle,
+          height: 'inherit',
+          lineHeight: 'inherit',
+          flex: 1,
+          minWidth: 0,
           justifyContent: 'flex-end',
+          backgroundColor: 'transparent',
+          borderBottom: 'none',
         }}
       />
     </Header>
