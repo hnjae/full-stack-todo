@@ -6,28 +6,23 @@ import {
   EllipsisOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import type { MenuProps, ModalProps } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   ConfigProvider,
   Divider,
   Dropdown,
   Input,
   Layout,
-  Modal,
   theme,
   Tree,
   TreeDataNode,
   TreeProps,
 } from 'antd';
 import { useMemo, useState } from 'react';
+import { useGetTodoListsQuery } from 'src/entities/todo-list';
 import {
-  TodoList,
-  useAddTodoListMutation,
-  useBatchUpdateTodoListMutation,
-  useDeleteTodoListMutation,
-  useGetTodoListsQuery,
-} from 'src/entities/todo-list';
-import {
+  DeleteTodoListModal,
+  DeleteTodoListModalState,
   RenameTodoListModal,
   RenameTodoListModalState,
   useHandleAddingTodoList,
@@ -36,13 +31,6 @@ import {
 import { MainHeader } from 'src/widgets/header';
 
 const { Content, Sider } = Layout;
-
-interface ModalState {
-  title?: string;
-  open: boolean;
-  children?: React.ReactNode;
-  onOk?: ModalProps['onOk'];
-}
 
 export default function WebAppPage() {
   const { token } = theme.useToken();
@@ -53,39 +41,18 @@ export default function WebAppPage() {
     isFetching: isGetTodoListsFetching,
   } = useGetTodoListsQuery();
 
-  const [deleteTodoList, deleteTodoListResult] = useDeleteTodoListMutation({
-    fixedCacheKey: 'deleteTodoList',
-  });
   const [todoListSelectedKey, setTodoListSelectedKey] =
     useState<React.Key | null>(null);
 
-  const [modalState, setModalState] = useState<ModalState>({
-    open: false,
-  });
   const [renameTodoListModalState, setRenameTodoListModalState] =
     useState<RenameTodoListModalState>(null);
+  const [deleteTodoListModalState, setDeleteTodoListModalState] =
+    useState<DeleteTodoListModalState>(null);
 
   const reorderTodoList = useReorderTodoList();
   const handleAddingTodoList = useHandleAddingTodoList();
 
   const [newListInputValue, setNewListInputValue] = useState('');
-
-  const handleDelete = function (todoList: TodoList) {
-    setModalState({
-      title: 'Delete todo list?',
-      open: true,
-      children: (
-        <p>
-          <b>"{todoList.name}"</b> will be permanently deleted.
-        </p>
-      ),
-      onOk: () => {
-        console.log('Deleting todo list with ID:', todoList.id);
-        deleteTodoList(todoList.id);
-        setModalState({ open: false });
-      },
-    });
-  };
 
   const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
     // NOTE: todoLists is already sorted by `order``
@@ -105,7 +72,7 @@ export default function WebAppPage() {
           key: 'delete',
           danger: true,
           onClick: () => {
-            handleDelete(todoList);
+            setDeleteTodoListModalState(todoList);
           },
         },
       ];
@@ -286,7 +253,7 @@ export default function WebAppPage() {
               background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
             }}
           >
-            {isGetTodoListsLoading || deleteTodoListResult.isLoading ? (
+            {isGetTodoListsLoading ? (
               <div>
                 Loading ... <br />
               </div>
@@ -309,18 +276,10 @@ export default function WebAppPage() {
           </Content>
         </Layout>
       </Layout>
-      <Modal
-        title={modalState.title}
-        open={modalState.open}
-        onOk={modalState.onOk}
-        onCancel={() => {
-          setModalState({
-            open: false,
-          });
-        }}
-      >
-        {modalState.children}
-      </Modal>
+      <DeleteTodoListModal
+        modalState={deleteTodoListModalState}
+        setModalState={setDeleteTodoListModalState}
+      />
       <RenameTodoListModal
         modalState={renameTodoListModalState}
         setModalState={setRenameTodoListModalState}
