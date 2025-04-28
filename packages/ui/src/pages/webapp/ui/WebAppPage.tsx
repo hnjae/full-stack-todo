@@ -21,7 +21,10 @@ import {
 } from 'antd';
 import { useMemo, useState } from 'react';
 import {
+  balanceItems,
+  generateUniqueName,
   TodoList,
+  TODOLIST_ORDER_SPACING,
   UpdateTodoList,
   useAddTodoListMutation,
   useBatchUpdateTodoListMutation,
@@ -34,46 +37,6 @@ const { Content, Sider } = Layout;
 
 const MIN_INTEGER = -2147483648; // -2^31
 const MAX_INTEGER = 2147483647; // 2^31 - 1 (4 byte integer)
-const ORDER_DEFAULT_SPACING = 65536; // 2^16
-
-const generateUniqueName = function (
-  proposedName: string,
-  items: readonly { name: string }[],
-): string {
-  if (items.length === 0) {
-    return proposedName;
-  }
-
-  const names = new Set(items.map((item) => item.name));
-
-  if (!names.has(proposedName)) {
-    return proposedName;
-  }
-
-  let idx = 1;
-  let potentialName = `${proposedName} (${idx})`;
-  while (names.has(potentialName)) {
-    idx += 1;
-    potentialName = `${proposedName} (${idx})`;
-  }
-
-  return potentialName;
-};
-
-const balanceItems = function <T extends { order: number }>(
-  sortedItems: readonly T[],
-): T[] {
-  if (sortedItems.length === 0) {
-    return [];
-  }
-
-  const newOrderMin =
-    -Math.floor(sortedItems.length / 2) * ORDER_DEFAULT_SPACING;
-
-  return sortedItems.map((item, idx) => {
-    return { ...item, order: newOrderMin + ORDER_DEFAULT_SPACING * idx };
-  });
-};
 
 interface ModalState {
   title?: string;
@@ -231,8 +194,8 @@ export default function WebAppPage() {
       const lastOrder = todoLists[todoLists.length - 1].order;
       name = generateUniqueName(proposedName, todoLists);
 
-      if (lastOrder <= MAX_INTEGER - ORDER_DEFAULT_SPACING) {
-        order = lastOrder + ORDER_DEFAULT_SPACING;
+      if (lastOrder <= MAX_INTEGER - TODOLIST_ORDER_SPACING) {
+        order = lastOrder + TODOLIST_ORDER_SPACING;
       } else {
         console.log('Balancing todo-lists');
 
@@ -284,9 +247,9 @@ export default function WebAppPage() {
     if (dropPosIdx === 0) {
       let newOrder;
 
-      if (todoLists[0].order >= MIN_INTEGER + ORDER_DEFAULT_SPACING) {
+      if (todoLists[0].order >= MIN_INTEGER + TODOLIST_ORDER_SPACING) {
         updateTodoLists = [];
-        newOrder = todoLists[0].order - ORDER_DEFAULT_SPACING;
+        newOrder = todoLists[0].order - TODOLIST_ORDER_SPACING;
       } else {
         console.log('Balancing todo-lists');
 
@@ -299,7 +262,7 @@ export default function WebAppPage() {
             },
           }));
 
-        newOrder = todoLists[0].order - ORDER_DEFAULT_SPACING;
+        newOrder = todoLists[0].order - TODOLIST_ORDER_SPACING;
       }
 
       updateTodoLists.push({
@@ -315,11 +278,11 @@ export default function WebAppPage() {
 
       if (
         todoLists[todoLists.length - 1].order <=
-        MAX_INTEGER - ORDER_DEFAULT_SPACING
+        MAX_INTEGER - TODOLIST_ORDER_SPACING
       ) {
         updateTodoLists = [];
         newOrder =
-          todoLists[todoLists.length - 1].order + ORDER_DEFAULT_SPACING;
+          todoLists[todoLists.length - 1].order + TODOLIST_ORDER_SPACING;
       } else {
         console.log('Balancing todo-lists');
         updateTodoLists = balanceItems(todoLists)
@@ -332,7 +295,7 @@ export default function WebAppPage() {
           }));
 
         newOrder =
-          todoLists[todoLists.length - 1].order + ORDER_DEFAULT_SPACING;
+          todoLists[todoLists.length - 1].order + TODOLIST_ORDER_SPACING;
       }
 
       updateTodoLists.push({
