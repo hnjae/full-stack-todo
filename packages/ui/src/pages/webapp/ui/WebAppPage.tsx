@@ -95,10 +95,16 @@ export default function WebAppPage() {
     isFetching: isGetTodoListsFetching,
   } = useGetTodoListsQuery();
 
-  const [addTodoList, addTodoListResult] = useAddTodoListMutation();
+  const [addTodoList, addTodoListResult] = useAddTodoListMutation({
+    fixedCacheKey: 'addTodoList',
+  });
   const [batchUpdateTodoList, batchUpdateTodoListResult] =
-    useBatchUpdateTodoListMutation();
-  const [deleteTodoList, deleteTodoListResult] = useDeleteTodoListMutation();
+    useBatchUpdateTodoListMutation({
+      fixedCacheKey: 'batchUpdateTodoList',
+    });
+  const [deleteTodoList, deleteTodoListResult] = useDeleteTodoListMutation({
+    fixedCacheKey: 'deleteTodoList',
+  });
   const [todoListSelectedKey, setTodoListSelectedKey] =
     useState<React.Key | null>(null);
 
