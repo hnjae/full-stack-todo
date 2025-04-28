@@ -25,18 +25,16 @@ import {
   generateUniqueName,
   TodoList,
   TODOLIST_ORDER_SPACING,
-  UpdateTodoList,
   useAddTodoListMutation,
   useBatchUpdateTodoListMutation,
   useDeleteTodoListMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
+import { useReorderTodoList } from 'src/features/todo-list';
+import { MAX_INTEGER } from 'src/shared/config';
 import { MainHeader } from 'src/widgets/header';
 
 const { Content, Sider } = Layout;
-
-const MIN_INTEGER = -2147483648; // -2^31
-const MAX_INTEGER = 2147483647; // 2^31 - 1 (4 byte integer)
 
 interface ModalState {
   title?: string;
@@ -74,6 +72,8 @@ export default function WebAppPage() {
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
   });
+
+  const reorderTodoList = useReorderTodoList();
 
   const [todoListRenameModal, setTodoListRenameModal] =
     useState<TodoListRenameModalState>({ id: null });
@@ -228,119 +228,16 @@ export default function WebAppPage() {
   };
 
   const onDrop: TreeProps['onDrop'] = function (info) {
-    if (todoLists == null || todoLists.length === 0) {
-      return;
-    }
-
     // NOTE: const dropPos = info.dropPosition; // e.g.) -1, 1, ,2 ,3
     const dropPosIdx = info.dropPosition === -1 ? 0 : info.dropPosition;
     const dragNodePosIdx = Number(info.dragNode.pos.split('-')[1]);
     const dragNodeKey = info.dragNode.key;
 
-    if (dragNodePosIdx === dropPosIdx) {
-      return;
-    }
-
-    let updateTodoLists: UpdateTodoList[];
-
-    // Drop at the beginning
-    if (dropPosIdx === 0) {
-      let newOrder;
-
-      if (todoLists[0].order >= MIN_INTEGER + TODOLIST_ORDER_SPACING) {
-        updateTodoLists = [];
-        newOrder = todoLists[0].order - TODOLIST_ORDER_SPACING;
-      } else {
-        console.log('Balancing todo-lists');
-
-        updateTodoLists = balanceItems(todoLists)
-          .filter((todoList) => todoList.id !== dragNodeKey)
-          .map((todoList) => ({
-            id: todoList.id,
-            payload: {
-              order: todoList.order,
-            },
-          }));
-
-        newOrder = todoLists[0].order - TODOLIST_ORDER_SPACING;
-      }
-
-      updateTodoLists.push({
-        id: dragNodeKey as string,
-        payload: {
-          order: newOrder,
-        },
-      });
-
-      // Drop at the end
-    } else if (dropPosIdx === todoLists.length) {
-      let newOrder;
-
-      if (
-        todoLists[todoLists.length - 1].order <=
-        MAX_INTEGER - TODOLIST_ORDER_SPACING
-      ) {
-        updateTodoLists = [];
-        newOrder =
-          todoLists[todoLists.length - 1].order + TODOLIST_ORDER_SPACING;
-      } else {
-        console.log('Balancing todo-lists');
-        updateTodoLists = balanceItems(todoLists)
-          .filter((todoList) => todoList.id !== dragNodeKey)
-          .map((todoList) => ({
-            id: todoList.id,
-            payload: {
-              order: todoList.order,
-            },
-          }));
-
-        newOrder =
-          todoLists[todoLists.length - 1].order + TODOLIST_ORDER_SPACING;
-      }
-
-      updateTodoLists.push({
-        id: dragNodeKey as string,
-        payload: {
-          order: newOrder,
-        },
-      });
-
-      // Drop in the middle
-    } else {
-      let before = todoLists[dropPosIdx - 1].order;
-      let after = todoLists[dropPosIdx].order;
-
-      if (after - before > 1) {
-        updateTodoLists = [];
-      } else {
-        console.log('Balancing todo-lists');
-        const balancedLists = balanceItems(todoLists);
-
-        updateTodoLists = balancedLists
-          .filter((todoList) => todoList.id !== dragNodeKey)
-          .map((todoList) => ({
-            id: todoList.id,
-            payload: {
-              order: todoList.order,
-            },
-          }));
-
-        before = balancedLists[dropPosIdx - 1].order;
-        after = balancedLists[dropPosIdx].order;
-      }
-
-      const newOrder = Math.floor((after - before) / 2) + before;
-      updateTodoLists.push({
-        id: dragNodeKey as string,
-        payload: {
-          order: newOrder,
-        },
-      });
-    }
-
-    if (updateTodoLists.length !== 0) {
-      batchUpdateTodoList(updateTodoLists);
-    }
+    reorderTodoList({
+      dropPosIdx,
+      dragListPosIdx: dragNodePosIdx,
+      dragListKey: dragNodeKey,
+    });
   };
 
   const {
