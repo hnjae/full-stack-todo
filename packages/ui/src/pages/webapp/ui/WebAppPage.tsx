@@ -21,20 +21,18 @@ import {
 } from 'antd';
 import { useMemo, useState } from 'react';
 import {
-  balanceItems,
-  generateUniqueName,
   TodoList,
-  TODOLIST_ORDER_SPACING,
   useAddTodoListMutation,
   useBatchUpdateTodoListMutation,
   useDeleteTodoListMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
 import {
+  RenameTodoListModal,
+  RenameTodoListModalState,
   useHandleAddingTodoList,
   useReorderTodoList,
 } from 'src/features/todo-list';
-import { MAX_INTEGER } from 'src/shared/config';
 import { MainHeader } from 'src/widgets/header';
 
 const { Content, Sider } = Layout;
@@ -46,10 +44,6 @@ interface ModalState {
   onOk?: ModalProps['onOk'];
 }
 
-interface TodoListRenameModalState {
-  id: string | null;
-}
-
 export default function WebAppPage() {
   const { token } = theme.useToken();
 
@@ -59,13 +53,6 @@ export default function WebAppPage() {
     isFetching: isGetTodoListsFetching,
   } = useGetTodoListsQuery();
 
-  const [addTodoList, addTodoListResult] = useAddTodoListMutation({
-    fixedCacheKey: 'addTodoList',
-  });
-  const [batchUpdateTodoList, batchUpdateTodoListResult] =
-    useBatchUpdateTodoListMutation({
-      fixedCacheKey: 'batchUpdateTodoList',
-    });
   const [deleteTodoList, deleteTodoListResult] = useDeleteTodoListMutation({
     fixedCacheKey: 'deleteTodoList',
   });
@@ -75,22 +62,13 @@ export default function WebAppPage() {
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
   });
+  const [renameTodoListModalState, setRenameTodoListModalState] =
+    useState<RenameTodoListModalState>(null);
 
   const reorderTodoList = useReorderTodoList();
   const handleAddingTodoList = useHandleAddingTodoList();
 
-  const [todoListRenameModal, setTodoListRenameModal] =
-    useState<TodoListRenameModalState>({ id: null });
-
   const [newListInputValue, setNewListInputValue] = useState('');
-  const [inputModalValue, setInputModalValue] = useState('');
-
-  const handleRename = function (todoList: TodoList) {
-    setInputModalValue('');
-    setTodoListRenameModal({
-      id: todoList.id,
-    });
-  };
 
   const handleDelete = function (todoList: TodoList) {
     setModalState({
@@ -118,7 +96,7 @@ export default function WebAppPage() {
           label: 'Rename',
           key: 'rename',
           onClick: () => {
-            handleRename(todoList);
+            setRenameTodoListModalState(todoList);
           },
         },
         {
@@ -308,10 +286,7 @@ export default function WebAppPage() {
               background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
             }}
           >
-            {isGetTodoListsLoading ||
-            addTodoListResult.isLoading ||
-            batchUpdateTodoListResult.isLoading ||
-            deleteTodoListResult.isLoading ? (
+            {isGetTodoListsLoading || deleteTodoListResult.isLoading ? (
               <div>
                 Loading ... <br />
               </div>
@@ -346,54 +321,10 @@ export default function WebAppPage() {
       >
         {modalState.children}
       </Modal>
-      <Modal
-        title="Rename todo list:"
-        open={todoListRenameModal.id != null}
-        onOk={() => {
-          if (inputModalValue === '' || todoListRenameModal.id == null) {
-            return;
-          }
-
-          batchUpdateTodoList([
-            {
-              id: todoListRenameModal.id,
-              payload: {
-                name: generateUniqueName(inputModalValue, todoLists ?? []),
-              },
-            },
-          ]);
-
-          setTodoListRenameModal({ id: null });
-        }}
-        onCancel={() => {
-          setTodoListRenameModal({ id: null });
-        }}
-      >
-        <Input
-          placeholder="New name"
-          autoFocus
-          value={inputModalValue}
-          onChange={(event) => {
-            setInputModalValue(event.target.value);
-          }}
-          onPressEnter={() => {
-            if (inputModalValue === '' || todoListRenameModal.id == null) {
-              return;
-            }
-
-            batchUpdateTodoList([
-              {
-                id: todoListRenameModal.id,
-                payload: {
-                  name: generateUniqueName(inputModalValue, todoLists ?? []),
-                },
-              },
-            ]);
-
-            setTodoListRenameModal({ id: null });
-          }}
-        />
-      </Modal>
+      <RenameTodoListModal
+        modalState={renameTodoListModalState}
+        setModalState={setRenameTodoListModalState}
+      />
     </>
   );
 }
