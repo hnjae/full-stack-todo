@@ -30,7 +30,10 @@ import {
   useDeleteTodoListMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
-import { useReorderTodoList } from 'src/features/todo-list';
+import {
+  useHandleAddingTodoList,
+  useReorderTodoList,
+} from 'src/features/todo-list';
 import { MAX_INTEGER } from 'src/shared/config';
 import { MainHeader } from 'src/widgets/header';
 
@@ -74,6 +77,7 @@ export default function WebAppPage() {
   });
 
   const reorderTodoList = useReorderTodoList();
+  const handleAddingTodoList = useHandleAddingTodoList();
 
   const [todoListRenameModal, setTodoListRenameModal] =
     useState<TodoListRenameModalState>({ id: null });
@@ -178,52 +182,17 @@ export default function WebAppPage() {
     });
   }, [todoLists]);
 
-  // TODO: change selected list <2025-04-02>
   const handleEnter = async function (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) {
     let proposedName = event.currentTarget.value.trim();
+
     if (proposedName === '') {
       proposedName = 'New List';
     }
 
-    let order = 0;
-    let name = proposedName;
-
-    if (todoLists != null && todoLists.length > 0) {
-      const lastOrder = todoLists[todoLists.length - 1].order;
-      name = generateUniqueName(proposedName, todoLists);
-
-      if (lastOrder <= MAX_INTEGER - TODOLIST_ORDER_SPACING) {
-        order = lastOrder + TODOLIST_ORDER_SPACING;
-      } else {
-        console.log('Balancing todo-lists');
-
-        const balancedLists = balanceItems(todoLists);
-
-        const updateTodoLists = balancedLists.map((todoList) => ({
-          id: todoList.id,
-          payload: {
-            order: todoList.order,
-          },
-        }));
-        batchUpdateTodoList(updateTodoLists);
-
-        order = balancedLists[balancedLists.length - 1].order;
-      }
-    }
-
-    try {
-      const newTodoList = await addTodoList({
-        name: name,
-        order: order,
-      }).unwrap();
-      setTodoListSelectedKey(newTodoList.id);
-      console.log('New todo list added:', newTodoList);
-    } catch (error) {
-      console.log('Error adding todo list:', error);
-    }
-
+    const newTodoList = await handleAddingTodoList(proposedName);
+    setTodoListSelectedKey(newTodoList.id);
     setNewListInputValue('');
   };
 

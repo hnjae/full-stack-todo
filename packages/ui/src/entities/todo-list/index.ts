@@ -1,4 +1,4 @@
-export type { TodoList, UpdateTodoList } from './api/todoListApi';
+export type { AddTodoList, TodoList, UpdateTodoList } from './api/todoListApi';
 export {
   default as todoListApi,
   useAddTodoListMutation,
