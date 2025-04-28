@@ -7,6 +7,13 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps, Modal, theme } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  useAddTodoListMutation,
+  useBatchUpdateTodoListMutation,
+  useDeleteTodoListMutation,
+  useGetTodoListsQuery,
+} from 'src/entities/todo-list';
 import {
   clearAccessToken,
   selectIsAuthenticated,
@@ -86,6 +93,57 @@ export default function MainHeader() {
 
   const isLogin = useAppSelector(selectIsAuthenticated);
 
+  const {
+    isLoading: isGetTodoListsLoading,
+    isFetching: isGetTodoListsFetching,
+  } = useGetTodoListsQuery();
+  const [, { isLoading: isAddTodoListLoading }] = useAddTodoListMutation({
+    fixedCacheKey: 'addTodoList',
+  });
+  const [, { isLoading: isDeleteTodoListLoading }] = useDeleteTodoListMutation({
+    fixedCacheKey: 'deleteTodoList',
+  });
+  const [, { isLoading: isBatchUpdateTodoListLoading }] =
+    useBatchUpdateTodoListMutation({
+      fixedCacheKey: 'batchUpdateTodoList',
+    });
+  const isLoading = useMemo(
+    () =>
+      isGetTodoListsLoading ||
+      isGetTodoListsFetching ||
+      isAddTodoListLoading ||
+      isDeleteTodoListLoading ||
+      isBatchUpdateTodoListLoading,
+    [
+      isGetTodoListsLoading,
+      isGetTodoListsFetching,
+      isAddTodoListLoading,
+      isDeleteTodoListLoading,
+      isBatchUpdateTodoListLoading,
+    ],
+  );
+
+  const [rotateSpinner, setRotateSpinner] = useState(isLoading);
+
+  // Rotate spinner 500ms more loading
+  useEffect(() => {
+    let timeoutId: number | null = null;
+
+    if (isLoading) {
+      setRotateSpinner(true);
+    } else if (rotateSpinner) {
+      timeoutId = setTimeout(() => {
+        setRotateSpinner(false);
+      }, 500);
+    }
+
+    return () => {
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isLoading, rotateSpinner]);
+
   return (
     <Header
       style={{
@@ -100,6 +158,13 @@ export default function MainHeader() {
         borderBottomColor: colorBorder,
       }}
     >
+      {isLogin && (
+        <SyncOutlined
+          className={[rotateSpinner ? 'animate-spin' : [], 'p-1']
+            .flat()
+            .join(' ')}
+        />
+      )}
       <Menu
         mode="horizontal"
         theme="light"
