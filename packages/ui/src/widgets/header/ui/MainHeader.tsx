@@ -7,19 +7,14 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps, Modal, theme } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  useAddTodoListMutation,
-  useBatchUpdateTodoListMutation,
-  useDeleteTodoListMutation,
-  useGetTodoListsQuery,
-} from 'src/entities/todo-list';
 import {
   clearAccessToken,
   selectIsAuthenticated,
   useAppDispatch,
   useAppSelector,
 } from 'src/shared/model';
+
+import useSpinnerStatus from '../lib/useSpinnerStatus';
 
 const { Header } = Layout;
 
@@ -92,57 +87,7 @@ export default function MainHeader() {
   ];
 
   const isLogin = useAppSelector(selectIsAuthenticated);
-
-  const {
-    isLoading: isGetTodoListsLoading,
-    isFetching: isGetTodoListsFetching,
-  } = useGetTodoListsQuery();
-  const [, { isLoading: isAddTodoListLoading }] = useAddTodoListMutation({
-    fixedCacheKey: 'addTodoList',
-  });
-  const [, { isLoading: isDeleteTodoListLoading }] = useDeleteTodoListMutation({
-    fixedCacheKey: 'deleteTodoList',
-  });
-  const [, { isLoading: isBatchUpdateTodoListLoading }] =
-    useBatchUpdateTodoListMutation({
-      fixedCacheKey: 'batchUpdateTodoList',
-    });
-  const isLoading = useMemo(
-    () =>
-      isGetTodoListsLoading ||
-      isGetTodoListsFetching ||
-      isAddTodoListLoading ||
-      isDeleteTodoListLoading ||
-      isBatchUpdateTodoListLoading,
-    [
-      isGetTodoListsLoading,
-      isGetTodoListsFetching,
-      isAddTodoListLoading,
-      isDeleteTodoListLoading,
-      isBatchUpdateTodoListLoading,
-    ],
-  );
-
-  const [rotateSpinner, setRotateSpinner] = useState(isLoading);
-
-  // Rotate spinner 500ms more loading
-  useEffect(() => {
-    let timeoutId: number | null = null;
-
-    if (isLoading) {
-      setRotateSpinner(true);
-    } else if (rotateSpinner) {
-      timeoutId = setTimeout(() => {
-        setRotateSpinner(false);
-      }, 500);
-    }
-
-    return () => {
-      if (timeoutId != null) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [isLoading, rotateSpinner]);
+  const isSpinnerSpin = useSpinnerStatus();
 
   return (
     <Header
@@ -160,7 +105,7 @@ export default function MainHeader() {
     >
       {isLogin && (
         <SyncOutlined
-          className={[rotateSpinner ? 'animate-spin' : [], 'p-1']
+          className={[isSpinnerSpin ? 'animate-spin' : [], 'p-1']
             .flat()
             .join(' ')}
         />
