@@ -8,11 +8,11 @@ export interface TodoList {
   updatedAt: string;
 }
 
-type CreateTodoList = Omit<TodoList, 'id' | 'createdAt' | 'updatedAt'>;
+export type AddTodoList = Omit<TodoList, 'id' | 'createdAt' | 'updatedAt'>;
 
 export interface UpdateTodoList {
   id: string;
-  payload: Partial<CreateTodoList>;
+  payload: Partial<AddTodoList>;
 }
 
 const TODO_LIST_TAG_TYPE = 'TodoList' as const;
@@ -43,7 +43,7 @@ const todoListApi = userApi
               ],
       }),
 
-      addTodoList: build.mutation<TodoList, CreateTodoList>({
+      addTodoList: build.mutation<TodoList, AddTodoList>({
         query: (newTodoList) => ({
           url: 'todo-lists',
           method: 'POST',
