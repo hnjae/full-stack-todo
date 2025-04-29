@@ -1,18 +1,21 @@
 #!/usr/bin/env -S just --justfile
 
+_:
+    @just --list
+
 format-lock:
     pnpm prettier --write pnpm-lock.yaml
 
 run-db:
     podman run \
-      --name="todo-dev-db" \
-      --rm \
-      --replace \
-      -e "POSTGRES_USER=devuser" \
-      -e "POSTGRES_PASSWORD=devpasswrod" \
-      -p '5432:5432/tcp' \
-      -v "todo-postgres:/var/lib/postgresql/data" \
-      "docker.io/postgres:16"
+        --name="todo-dev-db" \
+        --rm \
+        --replace \
+        -e "POSTGRES_USER=devuser" \
+        -e "POSTGRES_PASSWORD=devpasswrod" \
+        -p '5432:5432/tcp' \
+        -v "todo-postgres:/var/lib/postgresql/data" \
+        "docker.io/postgres:16"
 
 [working-directory('packages/api')]
 db-seed:
