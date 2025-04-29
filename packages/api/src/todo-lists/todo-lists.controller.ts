@@ -32,9 +32,12 @@ export class TodoListsController {
   constructor(private readonly todoListsService: TodoListsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all todo-lists.' })
-  async getAll(@Param('userId') userId: string): Promise<TodoListDto[]> {
-    return this.todoListsService.getAll(userId);
+  @ApiOperation({
+    summary:
+      'Get all todo lists. The results are sorted by the `order` attribute.',
+  })
+  async getAllSorted(@Param('userId') userId: string): Promise<TodoListDto[]> {
+    return this.todoListsService.getAllSorted(userId);
   }
 
   @Post()
@@ -51,7 +54,13 @@ export class TodoListsController {
       return todoList;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // catch something if required
+        if (error.code == 'P2002') {
+          // "Unique constraint failed on the {constraint}"
+          throw new HttpException(
+            'A TodoList with the same name already exists.',
+            HttpStatus.CONFLICT,
+          );
+        }
       }
 
       throw error;
@@ -75,7 +84,13 @@ export class TodoListsController {
       return await this.todoListsService.batchUpdate(updateItems);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // catch something if required
+        if (error.code == 'P2002') {
+          // "Unique constraint failed on the {constraint}"
+          throw new HttpException(
+            'A TodoList with the same name already exists.',
+            HttpStatus.CONFLICT,
+          );
+        }
       }
 
       throw error;
@@ -120,6 +135,14 @@ export class TodoListsController {
           throw new HttpException(
             'Todo list does not exists.',
             HttpStatus.NOT_FOUND,
+          );
+        }
+
+        if (error.code == 'P2002') {
+          // "Unique constraint failed on the {constraint}"
+          throw new HttpException(
+            'A TodoList with the same name already exists.',
+            HttpStatus.CONFLICT,
           );
         }
       }

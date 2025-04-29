@@ -13,9 +13,12 @@ import {
 export class TodoListsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAll(userId: string): Promise<TodoListDto[]> {
+  async getAllSorted(userId: string): Promise<TodoListDto[]> {
     const todoLists = await this.prismaService.todoList.findMany({
       where: { userId: userId },
+      orderBy: {
+        order: 'asc',
+      },
     });
 
     return todoLists;

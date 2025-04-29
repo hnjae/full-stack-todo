@@ -53,3 +53,4 @@ const userApi = createApi({
 });
 
 export default userApi;
+export const { useGetUserInfoQuery } = userApi;
