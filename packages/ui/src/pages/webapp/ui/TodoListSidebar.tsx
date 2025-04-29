@@ -74,36 +74,15 @@ export default function TodoListSidebar({
       return {
         key: todoList.id,
         title: (
-          <div
-            style={{
-              display: 'flex',
-              gap: '2px', // Adds space between the two main flex items
-            }}
-          >
-            <div
-              style={{
-                flexGrow: 1,
-                width: 0,
-              }}
-            >
+          <div className="flex gap-x-2">
+            <div className="grow-1 w-0">
               <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
-                <div
-                  style={{
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    display: 'block',
-                  }}
-                >
+                <div className="text-ellipsis whitespace-nowrap overflow-hidden block">
                   {todoList.name}
                 </div>
               </Dropdown>
             </div>
-            <div
-              style={{
-                flexShrink: 0,
-              }}
-            >
+            <div className="shrink-0">
               <Dropdown menu={{ items: menuItems }} trigger={['click']}>
                 <a onClick={(e) => e.preventDefault()}>
                   <EllipsisOutlined
@@ -155,20 +134,8 @@ export default function TodoListSidebar({
         background: token.colorBgContainer,
       }}
     >
-      <div
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div
-          style={{
-            paddingTop: '8px',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-          }}
-        >
+      <div className="flex flex-col h-full">
+        <div className="p-1 pt-2 overflow-y-auto overflow-x-hidden">
           <ConfigProvider
             theme={{
               token: {
@@ -209,7 +176,7 @@ export default function TodoListSidebar({
           </ConfigProvider>
         </div>
 
-        <div style={{ flexShrink: 0 }}>
+        <div className="shrink-0">
           {todoLists != null && todoLists.length > 0 ? <Divider /> : null}
 
           <Input
@@ -219,9 +186,7 @@ export default function TodoListSidebar({
             value={newListInputValue}
             onPressEnter={handleEnter}
             onChange={(event) => setNewListInputValue(event.target.value)}
-            style={{
-              paddingRight: '8px',
-            }}
+            className="pl-1 pr-1"
           />
         </div>
       </div>

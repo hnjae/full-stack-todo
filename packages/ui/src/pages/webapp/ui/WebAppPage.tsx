@@ -28,11 +28,7 @@ export default function WebAppPage() {
 
   return (
     <>
-      <Layout
-        style={{
-          height: '97dvh',
-        }}
-      >
+      <Layout className="h-dvh">
         <MainHeader />
         <Layout>
           <TodoListSidebar
@@ -42,11 +38,8 @@ export default function WebAppPage() {
             setDeleteTodoListModalState={setDeleteTodoListModalState}
           />
           <Content
+            className="flex items-center justify-center pb-[20vh]"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingBottom: '20vh',
               background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
             }}
           >
