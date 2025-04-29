@@ -64,6 +64,8 @@ const baseQueryWithReAuth: BaseQueryFn<
       refreshTokenService.remove();
       api.dispatch(clearAccessToken());
     }
+  } else if (result.error) {
+    console.error('Error: ', result.error);
   }
 
   return result;

@@ -1,1 +1,1 @@
-export { default as userApi } from './api/userApi';
+export { useGetUserInfoQuery, default as userApi } from './api/userApi';

@@ -57,9 +57,9 @@ accessToken2: jsonpath "$.access_token"
 refreshToken2: jsonpath "$.refresh_token"
 tokenType2: jsonpath "$.token_type"
 
-###############################################################################
+##############################################################################
 # Test APIs
-###############################################################################
+##############################################################################
 
 ##################
 # Testing Tokens #
@@ -79,7 +79,7 @@ HTTP 403
 # Testing todo list Creation/Reading #
 ######################################
 
-# create new todo-list
+# TC-001: create new todo-list
 POST http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -92,12 +92,33 @@ HTTP 201
 todoListId: jsonpath "$.id"
 todoListName: jsonpath "$.name"
 
+# TC-002: create new todo-list with same name (P2002; Unique constraint failed on the `name` test)
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{todoListName}}",
+  "order": {{random_int_number}}
+}
+HTTP 409
+
+# TC-003: create new todo-list with missing arguments
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{newUuid}}"
+}
+HTTP 400 # Bad Request
+
+# TC-004: Read all todo-list
 GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 [Asserts]
 jsonpath "$[0].id" == "{{todoListId}}"
 
+# TC-005: Read created todo-list
 GET http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
@@ -121,6 +142,7 @@ HTTP 400 # Bad Request
 # Testing updates #
 ###################
 
+# TC-001: patch todo-list with valid data
 PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -133,7 +155,29 @@ HTTP 200
 [Asserts]
 jsonpath "$.name" == "{{newName}}"
 
-# update non-existing todo-list
+# TC-002: Scenario-causing P2002 (Unique constraint failed on the `name`)
+# Step 1: create new todo-list
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "TC-002-{{newUuid}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+_todoListName: jsonpath "$.name"
+
+# Step 2: Patch other todo-list with that name
+PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{_todoListName}}"
+}
+HTTP 409
+
+# TC-003: update non-existing todo-list
 PATCH http://{{host}}/users/{{userId}}/todo-lists/{{newUuid}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -142,7 +186,7 @@ content-type: application/json
 }
 HTTP 404
 
-# patching with invalid data
+# TC-004: patching with invalid data
 PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -152,7 +196,7 @@ content-type: application/json
 }
 HTTP 400
 
-# patching with should-not-exist property
+# TC-005: patching with should-not-exist property
 PATCH http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -166,7 +210,8 @@ HTTP 400
 # Testing batch updates #
 #########################
 
-# create another todo-list
+# TC-001: update todo-list(s) with valid data
+# Step 1: create another todo-list
 POST http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -179,7 +224,7 @@ HTTP 201
 todoListId2: jsonpath "$.id"
 todoListName2: jsonpath "$.name"
 
-# update multiple todo-lists
+# Step2: update multiple todo-lists
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -207,7 +252,7 @@ jsonpath "$[0].name" == "{{newName1}}"
 jsonpath "$[0].order" == 9392
 jsonpath "$[1].name" == "{{newName2}}"
 
-# payload not provided
+# TC-002: payload not provided
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -218,7 +263,7 @@ content-type: application/json
 ]
 HTTP 400 # bad-request
 
-# id not provided
+# TC-003: id not provided
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -231,7 +276,7 @@ content-type: application/json
 ]
 HTTP 400 # bad-request
 
-# extra data in payload (`forbidNonWhitelisted` should filter this)
+# TC-004: extra data in payload (`forbidNonWhitelisted` should filter this)
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -246,8 +291,7 @@ content-type: application/json
 ]
 HTTP 400
 
-
-# invalid payload
+# TC-005: invalid payload
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -268,7 +312,7 @@ content-type: application/json
 ]
 HTTP 400
 
-# empty  payload
+# TC-006: empty payload
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -280,7 +324,7 @@ content-type: application/json
 ]
 HTTP 200
 
-# one of todo-list does not exist
+# TC-007: one of todo-list does not exist
 PATCH http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -297,6 +341,39 @@ content-type: application/json
   }
 ]
 HTTP 404 # not-found
+
+# TC-008: Scenario-causing P2002 (Unique constraint failed on the `name`)
+# Step 1: create new todo-list
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "TC-002-{{newUuid}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+_todoListName: jsonpath "$.name"
+
+# Step 2: Patch other todo-list with that name
+PATCH http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+[
+  {
+    "id": "{{todoListId}}",
+    "payload": {
+      "name": "{{_todoListName}}"
+   }
+ },
+  {
+    "id": "{{todoListId2}}",
+    "payload": {
+      "name": "{{newUuid}}"
+    }
+  }
+]
+HTTP 409 # conflict
 
 ####################
 # Testing deletion #
