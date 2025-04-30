@@ -12,14 +12,6 @@ import {
 export class TodosService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAll(userId: string): Promise<TodoDto[]> {
-    const todos = await this.prismaService.todo.findMany({
-      where: { userId: userId },
-    });
-
-    return todos;
-  }
-
   async create(userId: string, createTodoDto: CreateTodoDto): Promise<TodoDto> {
     const todo = await this.prismaService.todo.create({
       data: {
@@ -31,12 +23,28 @@ export class TodosService {
     return todo;
   }
 
+  async getAll(userId: string): Promise<TodoDto[]> {
+    const todos = await this.prismaService.todo.findMany({
+      where: { userId: userId },
+    });
+
+    return todos;
+  }
+
   async get(todoId: string): Promise<TodoDto> {
     const todo = await this.prismaService.todo.findUniqueOrThrow({
       where: { id: todoId },
     });
 
     return todo;
+  }
+
+  async getTodosByList(todoListId: string): Promise<TodoDto[]> {
+    const todos = await this.prismaService.todo.findMany({
+      where: { todoListId: todoListId },
+    });
+
+    return todos;
   }
 
   async update(todoId: string, updateTodoDto: UpdateTodoDto): Promise<TodoDto> {

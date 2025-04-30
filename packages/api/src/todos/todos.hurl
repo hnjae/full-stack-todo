@@ -112,6 +112,71 @@ GET http://{{host}}/users/{{userId}}/todos/{{newUuid}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 404 # NOT_FOUND
 
+###########################################
+# Testing todo querying with todo-list id #
+###########################################
+# Step 1: Create a new todo list
+POST http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "name": "{{newUuid}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+_todoListId: jsonpath "$['id']"
+
+# Step 2: Check if the todo list is empty
+GET http://{{host}}/users/{{userId}}/todos?todoListId={{_todoListId}}
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 200
+[Asserts]
+jsonpath "$" count == 0
+
+# Step 3: Create two new todo
+POST http://{{host}}/users/{{userId}}/todos
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "title": "Buy milk {{newUuid}}",
+  "completed": false,
+  "todoListId": "{{_todoListId}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+_todoId1: jsonpath "$['id']"
+
+POST http://{{host}}/users/{{userId}}/todos
+Authorization: {{tokenType}} {{accessToken}}
+content-type: application/json
+{
+  "title": "Buy milk {{newUuid}}",
+  "completed": false,
+  "todoListId": "{{_todoListId}}",
+  "order": {{random_int_number}}
+}
+HTTP 201
+[Captures]
+_todoId2: jsonpath "$['id']"
+
+# Step 4: Check todos
+GET http://{{host}}/users/{{userId}}/todos?todoListId={{_todoListId}}
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 200
+[Asserts]
+jsonpath "$" count == 2
+jsonpath "$[*].id" includes "{{_todoId1}}"
+jsonpath "$[*].id" includes "{{_todoId2}}"
+
+# Step 5: Read non-existing todo list
+GET http://{{host}}/users/{{userId}}/todos?todoListId={{newUuid}}
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 200
+[Asserts]
+jsonpath "$" count == 0
+
 ######################
 # Testing Validation #
 ######################
