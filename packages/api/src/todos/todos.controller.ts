@@ -9,6 +9,7 @@ import {
   ParseArrayPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam } from '@nestjs/swagger';
@@ -31,12 +32,6 @@ import { TodosService } from './todos.service';
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Get all todos.' })
-  async getAll(@Param('userId') userId: string): Promise<TodoDto[]> {
-    return this.todosService.getAll(userId);
-  }
-
   @Post()
   @ApiOperation({ summary: 'Create a todo.' })
   async create(
@@ -52,6 +47,40 @@ export class TodosController {
           throw new HttpException(
             'Foreign key constraint failed.',
             HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get todos.' })
+  async get(
+    @Param('userId') userId: string,
+    @Query('todoListId') todoListId?: string,
+  ): Promise<TodoDto[]> {
+    if (todoListId == null) {
+      return this.todosService.getAll(userId);
+    }
+
+    const todos = await this.todosService.getTodosByList(todoListId);
+    return todos;
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a todo.' })
+  async getById(@Param('id') todoId: string): Promise<TodoDto> {
+    try {
+      const todo = await this.todosService.get(todoId);
+      return todo;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code == 'P2025') {
+          throw new HttpException(
+            'Todo does not exists.',
+            HttpStatus.NOT_FOUND,
           );
         }
       }
@@ -78,26 +107,6 @@ export class TodosController {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // catch something if required
-      }
-
-      throw error;
-    }
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a todo.' })
-  async get(@Param('id') todoId: string): Promise<TodoDto> {
-    try {
-      const todo = await this.todosService.get(todoId);
-      return todo;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == 'P2025') {
-          throw new HttpException(
-            'Todo does not exists.',
-            HttpStatus.NOT_FOUND,
-          );
-        }
       }
 
       throw error;
