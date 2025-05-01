@@ -7,7 +7,7 @@ import {
   TODOLIST_ORDER_SPACING,
   UpdateTodoList,
   useAddTodoListMutation,
-  useBatchUpdateTodoListMutation,
+  useBatchUpdateTodoListsMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
 import { MAX_INTEGER } from 'src/shared/config';
@@ -72,7 +72,7 @@ const calc = function ({
 export default function () {
   const { data: todoLists } = useGetTodoListsQuery();
 
-  const [batchUpdateTodoList] = useBatchUpdateTodoListMutation({
+  const [batchUpdateTodoList] = useBatchUpdateTodoListsMutation({
     fixedCacheKey: 'batchUpdateTodoList',
   });
 
