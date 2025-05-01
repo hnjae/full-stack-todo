@@ -56,7 +56,7 @@ export class TodosController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get todos.' })
+  @ApiOperation({ summary: 'Get sorted todos.' })
   async get(
     @Param('userId') userId: string,
     @Query('todoListId') todoListId?: string,
