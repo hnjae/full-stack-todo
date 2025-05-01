@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   generateUniqueName,
   TodoList,
-  useBatchUpdateTodoListMutation,
+  useBatchUpdateTodoListsMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
 
@@ -18,7 +18,7 @@ export default function RenameTodoListModal({
 }) {
   const { data: todoLists } = useGetTodoListsQuery();
 
-  const [batchUpdateTodoList] = useBatchUpdateTodoListMutation({
+  const [batchUpdateTodoList] = useBatchUpdateTodoListsMutation({
     fixedCacheKey: 'batchUpdateTodoList',
   });
 

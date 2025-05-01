@@ -57,7 +57,7 @@ const todoListApi = userApi
         ],
       }),
 
-      batchUpdateTodoList: build.mutation<TodoList, UpdateTodoList[]>({
+      batchUpdateTodoLists: build.mutation<TodoList[], UpdateTodoList[]>({
         query: (arg) => ({
           url: 'todo-lists',
           method: 'PATCH',
@@ -151,7 +151,7 @@ const todoListApi = userApi
 
 export const {
   useAddTodoListMutation,
-  useBatchUpdateTodoListMutation,
+  useBatchUpdateTodoListsMutation,
   useDeleteTodoListMutation,
   useGetTodoListsQuery,
 } = todoListApi;

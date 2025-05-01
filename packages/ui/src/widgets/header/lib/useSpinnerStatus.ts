@@ -3,7 +3,7 @@ const MIN_SPIN_TIME = 500;
 import { useEffect, useMemo, useState } from 'react';
 import {
   useAddTodoListMutation,
-  useBatchUpdateTodoListMutation,
+  useBatchUpdateTodoListsMutation,
   useDeleteTodoListMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
@@ -20,7 +20,7 @@ export default function () {
     fixedCacheKey: 'deleteTodoList',
   });
   const [, { isLoading: isBatchUpdateTodoListLoading }] =
-    useBatchUpdateTodoListMutation({
+    useBatchUpdateTodoListsMutation({
       fixedCacheKey: 'batchUpdateTodoList',
     });
   const isLoading = useMemo(
