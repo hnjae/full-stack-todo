@@ -108,7 +108,7 @@ const todoListApi = userApi
             await queryFulfilled; // Wait for the actual server request to complete
           } catch (error) {
             patchResult.undo();
-            console.error('Failed to update todo-list(s): ', error);
+            console.error('Failed to optimistic update todo-list(s): ', error);
           }
         },
       }),
@@ -142,7 +142,7 @@ const todoListApi = userApi
             await queryFulfilled; // Wait for the actual server request to complete
           } catch (error) {
             patchResult.undo();
-            console.error('Failed to delete a todo-list: ', error);
+            console.error('Failed to optimistic delete a todo-list: ', error);
           }
         },
       }),
