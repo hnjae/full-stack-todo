@@ -1,6 +1,6 @@
 // NOTE: This page assumes that the user is logged in when loaded.
 
-import { Layout, theme } from 'antd';
+import { Layout } from 'antd';
 import { useState } from 'react';
 import {
   DeleteTodoListModal,
@@ -10,13 +10,10 @@ import {
 } from 'src/features/todo-list';
 import { MainHeader } from 'src/widgets/header';
 
+import TodoContent from './TodoContent';
 import TodoListSidebar from './TodoListSidebar';
 
-const { Content } = Layout;
-
 export default function WebAppPage() {
-  const { token } = theme.useToken();
-
   const [selectedTodoListId, setSelectedTodoListId] = useState<string | null>(
     null,
   );
@@ -37,19 +34,7 @@ export default function WebAppPage() {
             setRenameTodoListModalState={setRenameTodoListModalState}
             setDeleteTodoListModalState={setDeleteTodoListModalState}
           />
-          <Content
-            className="flex items-center justify-center pb-[20vh]"
-            style={{
-              background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
-            }}
-          >
-            {selectedTodoListId == null && (
-              <div>
-                No Todo list has been selected. Please choose a list from the
-                left or create a new one.
-              </div>
-            )}
-          </Content>
+          <TodoContent selectedTodoListId={selectedTodoListId} />
         </Layout>
       </Layout>
       <DeleteTodoListModal
