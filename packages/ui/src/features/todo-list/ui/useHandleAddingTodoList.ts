@@ -1,16 +1,15 @@
 import { useCallback } from 'react';
 import {
   AddTodoList,
-  balanceItems,
   generateUniqueName,
   TodoList,
-  TODOLIST_ORDER_SPACING,
   UpdateTodoList,
   useAddTodoListMutation,
   useBatchUpdateTodoListsMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
 import { MAX_INTEGER } from 'src/shared/config';
+import { balanceItems, ORDER_SPACING } from 'src/shared/lib';
 
 const calc = function ({
   todoLists,
@@ -35,7 +34,7 @@ const calc = function ({
   const lastOrder = todoLists[todoLists.length - 1].order;
   name = generateUniqueName(proposedName, todoLists);
 
-  if (lastOrder > MAX_INTEGER - TODOLIST_ORDER_SPACING) {
+  if (lastOrder > MAX_INTEGER - ORDER_SPACING) {
     console.log('Balancing todo-lists');
 
     const balancedLists = balanceItems(todoLists);
@@ -58,7 +57,7 @@ const calc = function ({
     ];
   }
 
-  order = lastOrder + TODOLIST_ORDER_SPACING;
+  order = lastOrder + ORDER_SPACING;
 
   return [
     [],
