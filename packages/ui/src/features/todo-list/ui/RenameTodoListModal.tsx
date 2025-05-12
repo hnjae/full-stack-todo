@@ -18,8 +18,8 @@ export default function RenameTodoListModal({
 }) {
   const { data: todoLists } = useGetTodoListsQuery();
 
-  const [batchUpdateTodoList] = useBatchUpdateTodoListsMutation({
-    fixedCacheKey: 'batchUpdateTodoList',
+  const [batchUpdateTodoLists] = useBatchUpdateTodoListsMutation({
+    fixedCacheKey: 'batchUpdateTodoLists',
   });
 
   const [inputModalValue, setInputModalValue] = useState('');
@@ -29,7 +29,7 @@ export default function RenameTodoListModal({
       return;
     }
 
-    batchUpdateTodoList([
+    batchUpdateTodoLists([
       {
         id: modalState.id,
         payload: {
