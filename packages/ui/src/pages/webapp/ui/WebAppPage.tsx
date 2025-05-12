@@ -1,6 +1,6 @@
 // NOTE: This page assumes that the user is logged in when loaded.
 
-import { Layout } from 'antd';
+import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import {
   DeleteTodoListModal,
@@ -10,8 +10,10 @@ import {
 } from 'src/features/todo-list';
 import { MainHeader } from 'src/widgets/header';
 
-import TodoContent from './TodoContent';
 import TodoListSidebar from './TodoListSidebar';
+import TodoListView from './TodoListView';
+
+const { Content } = Layout;
 
 export default function WebAppPage() {
   const [selectedTodoListId, setSelectedTodoListId] = useState<string | null>(
@@ -22,6 +24,8 @@ export default function WebAppPage() {
     useState<RenameTodoListModalState>(null);
   const [deleteTodoListModalState, setDeleteTodoListModalState] =
     useState<DeleteTodoListModalState>(null);
+
+  const { token } = theme.useToken();
 
   return (
     <>
@@ -34,7 +38,21 @@ export default function WebAppPage() {
             setRenameTodoListModalState={setRenameTodoListModalState}
             setDeleteTodoListModalState={setDeleteTodoListModalState}
           />
-          <TodoContent selectedTodoListId={selectedTodoListId} />
+          <Content
+            className="flex flex-col p-4"
+            style={{
+              background: `color-mix(in srgb, ${token.colorBgLayout}, black 2%)`,
+            }}
+          >
+            {selectedTodoListId == null ? (
+              <div className="flex justify-center items-center h-full">
+                No Todo list has been selected. Please choose a list from the
+                left or create a new one.
+              </div>
+            ) : (
+              <TodoListView selectedTodoListId={selectedTodoListId} />
+            )}
+          </Content>
         </Layout>
       </Layout>
       <DeleteTodoListModal
