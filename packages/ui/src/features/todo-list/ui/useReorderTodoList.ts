@@ -138,8 +138,8 @@ const calcUpdateTodoList = function ({
 export default function () {
   const { data: todoLists } = useGetTodoListsQuery();
 
-  const [batchUpdateTodoList] = useBatchUpdateTodoListsMutation({
-    fixedCacheKey: 'batchUpdateTodoList',
+  const [batchUpdateTodoLists] = useBatchUpdateTodoListsMutation({
+    fixedCacheKey: 'batchUpdateTodoLists',
   });
 
   const reorderTodoList = useCallback(
@@ -160,12 +160,12 @@ export default function () {
       });
 
       if (updateTodoLists.length !== 0) {
-        batchUpdateTodoList(updateTodoLists);
+        batchUpdateTodoLists(updateTodoLists);
       }
 
       return;
     },
-    [todoLists, batchUpdateTodoList],
+    [todoLists, batchUpdateTodoLists],
   );
 
   return reorderTodoList;

@@ -10,8 +10,8 @@ import { getNextOrderAndBalancedItems } from 'src/shared/lib';
 export default function () {
   const { data: todoLists } = useGetTodoListsQuery();
 
-  const [batchUpdateTodoList] = useBatchUpdateTodoListsMutation({
-    fixedCacheKey: 'batchUpdateTodoList',
+  const [batchUpdateTodoLists] = useBatchUpdateTodoListsMutation({
+    fixedCacheKey: 'batchUpdateTodoLists',
   });
 
   const [addTodoList] = useAddTodoListMutation({
@@ -34,7 +34,7 @@ export default function () {
 
       if (updateTodoLists != null && updateTodoLists.length !== 0) {
         console.log('Balancing todo-lists');
-        batchUpdateTodoList(updateTodoLists);
+        batchUpdateTodoLists(updateTodoLists);
       }
 
       const newTodoList = {
@@ -47,7 +47,7 @@ export default function () {
 
       return newList;
     },
-    [todoLists, batchUpdateTodoList, addTodoList],
+    [todoLists, batchUpdateTodoLists, addTodoList],
   );
 
   return handleNewTodoList;
