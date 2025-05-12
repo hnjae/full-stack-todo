@@ -164,11 +164,7 @@ export default function TodoListSidebar({
                 setSelectedTodoListId(selectedKeys[0] as string);
               }}
               selectedKeys={
-                selectedTodoListId != null
-                  ? [selectedTodoListId]
-                  : todoLists?.[0]?.id != null
-                    ? [todoLists?.[0]?.id]
-                    : undefined
+                selectedTodoListId != null ? [selectedTodoListId] : undefined
               }
               onDrop={onDrop}
               treeData={todoListTreeData}
