@@ -1,5 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Card, Input, Layout, theme } from 'antd';
+import { useMemo } from 'react';
+import { useGetTodosFromListQuery } from 'src/entities/todo';
 
 const { Content } = Layout;
 
@@ -9,12 +11,24 @@ export default function TodoContent({
   selectedTodoListId: string | null;
 }) {
   const { token } = theme.useToken();
-  const card = (
-    <div className="m-2">
-      <Card className="h-fit" variant="borderless">
-        Card content
-      </Card>
-    </div>
+
+  const { data: todos } = useGetTodosFromListQuery(
+    selectedTodoListId ?? 'dummy-id',
+    {
+      skip: selectedTodoListId == null,
+    },
+  );
+
+  const todoCard = useMemo(
+    () =>
+      todos?.map((todo) => (
+        <div className="m-2">
+          <Card className="h-fit" variant="borderless">
+            {todo.title}
+          </Card>
+        </div>
+      )),
+    [todos],
   );
 
   return (
@@ -35,15 +49,9 @@ export default function TodoContent({
             addonBefore={<PlusOutlined />}
             size="large"
             placeholder="New Todo"
-            className="mb-2"
+            className="mb-2 pl-2 pr-2"
           />
-          <div className="overflow-y-auto">
-            {card}
-            {card}
-            {card}
-            {card}
-            {card}
-          </div>
+          <div className="overflow-y-auto">{todoCard}</div>
         </>
       )}
     </Content>
