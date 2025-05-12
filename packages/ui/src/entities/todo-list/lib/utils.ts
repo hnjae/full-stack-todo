@@ -1,8 +1,8 @@
 const generateUniqueName = function (
   proposedName: string,
-  items: readonly { name: string }[],
+  items: readonly { name: string }[] | null | undefined,
 ): string {
-  if (items.length === 0) {
+  if (items == null || items.length === 0) {
     return proposedName;
   }
 
