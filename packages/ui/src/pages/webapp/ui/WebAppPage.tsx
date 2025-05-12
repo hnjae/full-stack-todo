@@ -2,6 +2,7 @@
 
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
+import { DeleteTodoModal, DeleteTodoModalState } from 'src/features/todo';
 import {
   DeleteTodoListModal,
   DeleteTodoListModalState,
@@ -24,6 +25,8 @@ export default function WebAppPage() {
     useState<RenameTodoListModalState>(null);
   const [deleteTodoListModalState, setDeleteTodoListModalState] =
     useState<DeleteTodoListModalState>(null);
+  const [deleteTodoModalState, setDeleteTodoModalState] =
+    useState<DeleteTodoModalState>(null);
 
   const { token } = theme.useToken();
 
@@ -50,7 +53,10 @@ export default function WebAppPage() {
                 left or create a new one.
               </div>
             ) : (
-              <TodoListView selectedTodoListId={selectedTodoListId} />
+              <TodoListView
+                selectedTodoListId={selectedTodoListId}
+                setDeleteTodoModalState={setDeleteTodoModalState}
+              />
             )}
           </Content>
         </Layout>
@@ -62,6 +68,10 @@ export default function WebAppPage() {
       <RenameTodoListModal
         modalState={renameTodoListModalState}
         setModalState={setRenameTodoListModalState}
+      />
+      <DeleteTodoModal
+        modalState={deleteTodoModalState}
+        setModalState={setDeleteTodoModalState}
       />
     </>
   );
