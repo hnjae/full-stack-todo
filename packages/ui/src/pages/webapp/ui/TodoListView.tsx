@@ -1,26 +1,68 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Card, Input } from 'antd';
+import {
+  DeleteOutlined,
+  EllipsisOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import { Card, Dropdown, Input, MenuProps, theme } from 'antd';
 import { useMemo, useState } from 'react';
-import { useGetTodosFromListQuery } from 'src/entities/todo';
-import { useHandleAddingTodo } from 'src/features/todo';
+import { Todo, useGetTodosFromListQuery } from 'src/entities/todo';
+import { DeleteTodoModalState, useHandleAddingTodo } from 'src/features/todo';
+
+type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
 export default function TodoContent({
   selectedTodoListId,
+  setDeleteTodoModalState,
 }: {
   selectedTodoListId: string;
+  setDeleteTodoModalState: SetState<DeleteTodoModalState>;
 }) {
   const { data: todos } = useGetTodosFromListQuery(selectedTodoListId);
   const handleAddingTodo = useHandleAddingTodo(selectedTodoListId);
 
+  const { token } = theme.useToken();
+
   const todoCard = useMemo(
     () =>
-      todos?.map((todo) => (
-        <div className="m-2" key={todo.id}>
-          <Card className="h-fit" variant="borderless">
-            {todo.title}
-          </Card>
-        </div>
-      )),
+      todos?.map((todo) => {
+        const menuItems: MenuProps['items'] = [
+          {
+            icon: <DeleteOutlined />,
+            label: 'Delete',
+            key: 'delete',
+            danger: true,
+            onClick: () => {
+              setDeleteTodoModalState(todo);
+            },
+          },
+        ];
+        return (
+          <div className="m-2" key={todo.id}>
+            <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
+              <Card className="h-fit" variant="borderless">
+                <div className="flex gap-x-2">
+                  <div className="grow-1 w-0 text-ellipsis whitespace-nowrap overflow-hidden block">
+                    {todo.title}
+                  </div>
+
+                  <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                    <div className="shrink-0">
+                      <a onClick={(e) => e.preventDefault()}>
+                        <EllipsisOutlined
+                          style={{
+                            color: token.colorIcon,
+                            verticalAlign: 'middle',
+                          }}
+                        />
+                      </a>
+                    </div>
+                  </Dropdown>
+                </div>
+              </Card>
+            </Dropdown>
+          </div>
+        );
+      }),
     [todos],
   );
 
