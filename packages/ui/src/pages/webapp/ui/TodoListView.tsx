@@ -7,14 +7,13 @@ import {
 import {
   Card,
   Checkbox,
-  CheckboxProps,
   ConfigProvider,
   Dropdown,
   Input,
   MenuProps,
   theme,
 } from 'antd';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Todo, useGetTodosFromListQuery } from 'src/entities/todo';
 import {
   DeleteTodoModalState,
@@ -25,6 +24,94 @@ import {
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
+interface TodoCardProps {
+  todo: Todo;
+  listId: string;
+  setRenameTodoModalState: SetState<RenameTodoModalState>;
+  setDeleteTodoModalState: SetState<DeleteTodoModalState>;
+}
+
+const TodoCard = function ({
+  todo,
+  listId,
+  setRenameTodoModalState,
+  setDeleteTodoModalState,
+}: TodoCardProps) {
+  const { token } = theme.useToken();
+  const updateTodosCompletion = useUpdateTodosCompletion(listId);
+
+  const menuItems: MenuProps['items'] = [
+    {
+      icon: <EditOutlined />,
+      label: 'Rename',
+      key: 'rename',
+      onClick: () => {
+        setRenameTodoModalState(todo);
+      },
+    },
+    {
+      icon: <DeleteOutlined />,
+      label: 'Delete',
+      key: 'delete',
+      danger: true,
+      onClick: () => {
+        setDeleteTodoModalState(todo);
+      },
+    },
+  ];
+
+  return (
+    <div className="m-2">
+      <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
+        <Card className="h-fit" variant="borderless">
+          <div className={`flex items-center gap-x-2`}>
+            <ConfigProvider
+              theme={{
+                components: {
+                  Checkbox: {
+                    colorPrimary: todo.completed
+                      ? token.colorTextDisabled
+                      : token.colorPrimary,
+                  },
+                },
+              }}
+            >
+              <Checkbox
+                checked={todo.completed}
+                onChange={(e) => {
+                  updateTodosCompletion([todo.id], e.target.checked);
+                }}
+              />
+            </ConfigProvider>
+            <div
+              className={`grow w-0 text-ellipsis whitespace-nowrap overflow-hidden ${todo.completed ? 'line-through' : ''}`}
+              style={{
+                color: todo.completed
+                  ? token.colorTextDisabled
+                  : token.colorText,
+              }}
+            >
+              {todo.title}
+            </div>
+            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+              <div className="shrink-0">
+                <a onClick={(e) => e.preventDefault()}>
+                  <EllipsisOutlined
+                    style={{
+                      color: token.colorIcon,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                </a>
+              </div>
+            </Dropdown>
+          </div>
+        </Card>
+      </Dropdown>
+    </div>
+  );
+};
+
 export default function TodoContent({
   selectedTodoListId,
   setDeleteTodoModalState,
@@ -34,92 +121,12 @@ export default function TodoContent({
   setDeleteTodoModalState: SetState<DeleteTodoModalState>;
   setRenameTodoModalState: SetState<RenameTodoModalState>;
 }) {
-  const { token } = theme.useToken();
-
   const { data: todos } = useGetTodosFromListQuery(selectedTodoListId);
   const handleAddingTodo = useHandleAddingTodo(selectedTodoListId);
-  const updateTodosCompletion = useUpdateTodosCompletion(selectedTodoListId);
-
-  const todoCard = useMemo(
-    () =>
-      todos?.map((todo) => {
-        const menuItems: MenuProps['items'] = [
-          {
-            icon: <EditOutlined />,
-            label: 'Rename',
-            key: 'rename',
-            onClick: () => {
-              setRenameTodoModalState(todo);
-            },
-          },
-          {
-            icon: <DeleteOutlined />,
-            label: 'Delete',
-            key: 'delete',
-            danger: true,
-            onClick: () => {
-              setDeleteTodoModalState(todo);
-            },
-          },
-        ];
-        return (
-          <div className="m-2" key={todo.id}>
-            <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
-              <Card className="h-fit" variant="borderless">
-                <div className={`flex items-center gap-x-2`}>
-                  <ConfigProvider
-                    theme={{
-                      components: {
-                        Checkbox: {
-                          colorPrimary: todo.completed
-                            ? token.colorTextDisabled
-                            : token.colorPrimary,
-                        },
-                      },
-                    }}
-                  >
-                    <Checkbox
-                      style={{}}
-                      checked={todo.completed}
-                      onChange={(e) => {
-                        updateTodosCompletion([todo.id], e.target.checked);
-                      }}
-                    />
-                  </ConfigProvider>
-                  <div
-                    className={`grow-1 w-0 text-ellipsis whitespace-nowrap overflow-hidden ${todo.completed ? 'line-through' : ''}`}
-                    style={{
-                      color: todo.completed
-                        ? token.colorTextDisabled
-                        : token.colorText,
-                    }}
-                  >
-                    {todo.title}
-                  </div>
-                  <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                    <div className="shrink-0">
-                      <a onClick={(e) => e.preventDefault()}>
-                        <EllipsisOutlined
-                          style={{
-                            color: token.colorIcon,
-                            verticalAlign: 'middle',
-                          }}
-                        />
-                      </a>
-                    </div>
-                  </Dropdown>
-                </div>
-              </Card>
-            </Dropdown>
-          </div>
-        );
-      }),
-    [todos],
-  );
 
   const [inputValue, setInputValue] = useState('');
 
-  const handleEnter = async function (
+  const handleInputPressEnter = async function (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) {
     const todoTitle = event.currentTarget.value.trim();
@@ -146,10 +153,20 @@ export default function TodoContent({
         placeholder="New Todo"
         className="mb-2 pl-2 pr-2"
         value={inputValue}
-        onPressEnter={handleEnter}
+        onPressEnter={handleInputPressEnter}
         onChange={(event) => setInputValue(event.target.value)}
       />
-      <div className="overflow-y-auto">{todoCard}</div>
+      <div className="h-full overflow-y-auto">
+        {todos?.map((todo) => (
+          <TodoCard
+            key={todo.id}
+            todo={todo}
+            listId={selectedTodoListId}
+            setRenameTodoModalState={setRenameTodoModalState}
+            setDeleteTodoModalState={setDeleteTodoModalState}
+          />
+        ))}
+      </div>
     </>
   );
 }
