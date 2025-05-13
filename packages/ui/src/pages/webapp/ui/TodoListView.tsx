@@ -4,13 +4,23 @@ import {
   EllipsisOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { Card, Dropdown, Input, MenuProps, theme } from 'antd';
+import {
+  Card,
+  Checkbox,
+  CheckboxProps,
+  ConfigProvider,
+  Dropdown,
+  Input,
+  MenuProps,
+  theme,
+} from 'antd';
 import { useMemo, useState } from 'react';
 import { Todo, useGetTodosFromListQuery } from 'src/entities/todo';
 import {
   DeleteTodoModalState,
   RenameTodoModalState,
   useHandleAddingTodo,
+  useUpdateTodosCompletion,
 } from 'src/features/todo';
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
@@ -24,10 +34,11 @@ export default function TodoContent({
   setDeleteTodoModalState: SetState<DeleteTodoModalState>;
   setRenameTodoModalState: SetState<RenameTodoModalState>;
 }) {
+  const { token } = theme.useToken();
+
   const { data: todos } = useGetTodosFromListQuery(selectedTodoListId);
   const handleAddingTodo = useHandleAddingTodo(selectedTodoListId);
-
-  const { token } = theme.useToken();
+  const updateTodosCompletion = useUpdateTodosCompletion(selectedTodoListId);
 
   const todoCard = useMemo(
     () =>
@@ -55,11 +66,36 @@ export default function TodoContent({
           <div className="m-2" key={todo.id}>
             <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
               <Card className="h-fit" variant="borderless">
-                <div className="flex gap-x-2">
-                  <div className="grow-1 w-0 text-ellipsis whitespace-nowrap overflow-hidden block">
+                <div className={`flex items-center gap-x-2`}>
+                  <ConfigProvider
+                    theme={{
+                      components: {
+                        Checkbox: {
+                          colorPrimary: todo.completed
+                            ? token.colorTextDisabled
+                            : token.colorPrimary,
+                        },
+                      },
+                    }}
+                  >
+                    <Checkbox
+                      style={{}}
+                      checked={todo.completed}
+                      onChange={(e) => {
+                        updateTodosCompletion([todo.id], e.target.checked);
+                      }}
+                    />
+                  </ConfigProvider>
+                  <div
+                    className={`grow-1 w-0 text-ellipsis whitespace-nowrap overflow-hidden ${todo.completed ? 'line-through' : ''}`}
+                    style={{
+                      color: todo.completed
+                        ? token.colorTextDisabled
+                        : token.colorText,
+                    }}
+                  >
                     {todo.title}
                   </div>
-
                   <Dropdown menu={{ items: menuItems }} trigger={['click']}>
                     <div className="shrink-0">
                       <a onClick={(e) => e.preventDefault()}>
@@ -101,6 +137,7 @@ export default function TodoContent({
 
     setInputValue('');
   };
+
   return (
     <>
       <Input
