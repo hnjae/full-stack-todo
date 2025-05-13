@@ -51,23 +51,22 @@ export default function TodoListSidebar({
   const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
     // NOTE: todoLists is already sorted by `order``
     return todoLists?.map((todoList) => {
+      const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+        if (key === 'rename') setRenameTodoListModalState(todoList);
+        if (key === 'delete') setDeleteTodoListModalState(todoList);
+      };
+
       const menuItems: MenuProps['items'] = [
         {
           icon: <EditOutlined />,
           label: 'Rename',
           key: 'rename',
-          onClick: () => {
-            setRenameTodoListModalState(todoList);
-          },
         },
         {
           icon: <DeleteOutlined />,
           label: 'Delete',
           key: 'delete',
           danger: true,
-          onClick: () => {
-            setDeleteTodoListModalState(todoList);
-          },
         },
       ];
 
@@ -76,14 +75,20 @@ export default function TodoListSidebar({
         title: (
           <div className="flex gap-x-2">
             <div className="grow-1 w-0">
-              <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
+              <Dropdown
+                menu={{ items: menuItems, onClick: handleMenuClick }}
+                trigger={['contextMenu']}
+              >
                 <div className="text-ellipsis whitespace-nowrap overflow-hidden block">
                   {todoList.name}
                 </div>
               </Dropdown>
             </div>
             <div className="shrink-0">
-              <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+              <Dropdown
+                menu={{ items: menuItems, onClick: handleMenuClick }}
+                trigger={['click']}
+              >
                 <a onClick={(e) => e.preventDefault()}>
                   <EllipsisOutlined
                     style={{
