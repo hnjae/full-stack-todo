@@ -167,15 +167,23 @@ export default function TodoContent({
         onChange={(event) => setInputValue(event.target.value)}
       />
       <div className="h-full overflow-y-auto">
-        {todos?.map((todo) => (
-          <TodoCard
-            key={todo.id}
-            todo={todo}
-            listId={selectedTodoListId}
-            setRenameTodoModalState={setRenameTodoModalState}
-            setDeleteTodoModalState={setDeleteTodoModalState}
-          />
-        ))}
+        {todos
+          ?.toSorted((a, b) => {
+            if (a.completed === b.completed) {
+              return a.order - b.order;
+            }
+
+            return a.completed ? 1 : -1;
+          })
+          ?.map((todo) => (
+            <TodoCard
+              key={todo.id}
+              todo={todo}
+              listId={selectedTodoListId}
+              setRenameTodoModalState={setRenameTodoModalState}
+              setDeleteTodoModalState={setDeleteTodoModalState}
+            />
+          ))}
       </div>
     </>
   );
