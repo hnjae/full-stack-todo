@@ -40,29 +40,31 @@ const TodoCard = function ({
   const { token } = theme.useToken();
   const updateTodosCompletion = useUpdateTodosCompletion(listId);
 
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'rename') setRenameTodoModalState(todo);
+    if (key === 'delete') setDeleteTodoModalState(todo);
+  };
+
   const menuItems: MenuProps['items'] = [
     {
       icon: <EditOutlined />,
       label: 'Rename',
       key: 'rename',
-      onClick: () => {
-        setRenameTodoModalState(todo);
-      },
     },
     {
       icon: <DeleteOutlined />,
       label: 'Delete',
       key: 'delete',
       danger: true,
-      onClick: () => {
-        setDeleteTodoModalState(todo);
-      },
     },
   ];
 
   return (
     <div className="m-2">
-      <Dropdown menu={{ items: menuItems }} trigger={['contextMenu']}>
+      <Dropdown
+        menu={{ items: menuItems, onClick: handleMenuClick }}
+        trigger={['contextMenu']}
+      >
         <Card className="h-fit" variant="borderless">
           <div className={`flex items-center gap-x-2`}>
             <ConfigProvider
@@ -93,7 +95,10 @@ const TodoCard = function ({
             >
               {todo.title}
             </div>
-            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Dropdown
+              menu={{ items: menuItems, onClick: handleMenuClick }}
+              trigger={['click']}
+            >
               <div className="shrink-0">
                 <a onClick={(e) => e.preventDefault()}>
                   <EllipsisOutlined
