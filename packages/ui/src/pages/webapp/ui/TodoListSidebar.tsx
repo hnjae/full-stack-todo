@@ -73,33 +73,36 @@ export default function TodoListSidebar({
       return {
         key: todoList.id,
         title: (
-          <div className="flex gap-x-2">
-            <div className="grow-1 w-0">
-              <Dropdown
-                menu={{ items: menuItems, onClick: handleMenuClick }}
-                trigger={['contextMenu']}
-              >
-                <div className="text-ellipsis whitespace-nowrap overflow-hidden block">
-                  {todoList.name}
-                </div>
-              </Dropdown>
-            </div>
-            <div className="shrink-0">
+          <Dropdown
+            menu={{ items: menuItems, onClick: handleMenuClick }}
+            trigger={['contextMenu']}
+          >
+            <div className="flex gap-x-2">
+              <div className="grow-1 w-0 text-ellipsis whitespace-nowrap overflow-hidden block">
+                {todoList.name}
+              </div>
               <Dropdown
                 menu={{ items: menuItems, onClick: handleMenuClick }}
                 trigger={['click']}
               >
-                <a onClick={(e) => e.preventDefault()}>
+                <button
+                  className="shrink-0 cursor-pointer"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
                   <EllipsisOutlined
                     style={{
                       color: token.colorIcon,
                       verticalAlign: 'middle',
                     }}
                   />
-                </a>
+                </button>
               </Dropdown>
             </div>
-          </div>
+          </Dropdown>
         ),
         disableCheckbox: true,
       };

@@ -60,11 +60,11 @@ const TodoCard = function ({
   ];
 
   return (
-    <div className="m-2">
-      <Dropdown
-        menu={{ items: menuItems, onClick: handleMenuClick }}
-        trigger={['contextMenu']}
-      >
+    <Dropdown
+      menu={{ items: menuItems, onClick: handleMenuClick }}
+      trigger={['contextMenu']}
+    >
+      <div className="m-2">
         <Card className="h-fit" variant="borderless">
           <div className={`flex items-center gap-x-2`}>
             <ConfigProvider
@@ -99,21 +99,26 @@ const TodoCard = function ({
               menu={{ items: menuItems, onClick: handleMenuClick }}
               trigger={['click']}
             >
-              <div className="shrink-0">
-                <a onClick={(e) => e.preventDefault()}>
-                  <EllipsisOutlined
-                    style={{
-                      color: token.colorIcon,
-                      verticalAlign: 'middle',
-                    }}
-                  />
-                </a>
-              </div>
+              <button
+                className="shrink-0 cursor-pointer"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <EllipsisOutlined
+                  style={{
+                    color: token.colorIcon,
+                    verticalAlign: 'middle',
+                  }}
+                />
+              </button>
             </Dropdown>
           </div>
         </Card>
-      </Dropdown>
-    </div>
+      </div>
+    </Dropdown>
   );
 };
 
