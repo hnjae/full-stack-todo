@@ -45,7 +45,7 @@ const TodoCard = function ({
   const { token } = theme.useToken();
   const updateTodosCompletion = useUpdateTodosCompletion();
 
-  const { ref } = useDraggable<TodoReference>({
+  const { ref, isDragging } = useDraggable<TodoReference>({
     id: todo.id,
     data: {
       id: todo.id,
@@ -78,19 +78,28 @@ const TodoCard = function ({
         menu={{ items: menuItems, onClick: handleMenuClick }}
         trigger={['contextMenu']}
       >
-        <Card className="h-fit" variant="borderless">
-          <div className={`flex items-center gap-x-2`}>
-            <ConfigProvider
-              theme={{
-                components: {
-                  Checkbox: {
-                    colorPrimary: todo.completed
-                      ? token.colorTextDisabled
-                      : token.colorPrimary,
-                  },
-                },
-              }}
-            >
+        <ConfigProvider
+          theme={{
+            token: {
+              fontSize: 15,
+            },
+            components: {
+              Card: {
+                bodyPadding: 14,
+              },
+              Checkbox: {
+                colorPrimary: todo.completed
+                  ? token.colorTextDisabled
+                  : token.colorPrimary,
+              },
+            },
+          }}
+        >
+          <Card
+            className={`h-fit ${isDragging ? 'opacity-60' : ''}`}
+            variant="borderless"
+          >
+            <div className={`flex items-center gap-x-2`}>
               <Checkbox
                 checked={todo.completed}
                 onChange={(e) => {
@@ -100,39 +109,39 @@ const TodoCard = function ({
                   );
                 }}
               />
-            </ConfigProvider>
-            <div
-              className={`grow w-0 text-ellipsis whitespace-nowrap overflow-hidden ${todo.completed ? 'line-through' : ''}`}
-              style={{
-                color: todo.completed
-                  ? token.colorTextDisabled
-                  : token.colorText,
-              }}
-            >
-              {todo.title}
-            </div>
-            <Dropdown
-              menu={{ items: menuItems, onClick: handleMenuClick }}
-              trigger={['click']}
-            >
-              <button
-                className="shrink-0 cursor-pointer"
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+              <div
+                className={`grow w-0 text-ellipsis whitespace-nowrap overflow-hidden ${todo.completed ? 'line-through' : ''}`}
+                style={{
+                  color: todo.completed
+                    ? token.colorTextDisabled
+                    : token.colorText,
                 }}
               >
-                <EllipsisOutlined
-                  style={{
-                    color: token.colorIcon,
-                    verticalAlign: 'middle',
+                {todo.title}
+              </div>
+              <Dropdown
+                menu={{ items: menuItems, onClick: handleMenuClick }}
+                trigger={['click']}
+              >
+                <button
+                  className="shrink-0 cursor-pointer"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                   }}
-                />
-              </button>
-            </Dropdown>
-          </div>
-        </Card>
+                >
+                  <EllipsisOutlined
+                    style={{
+                      color: token.colorIcon,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                </button>
+              </Dropdown>
+            </div>
+          </Card>
+        </ConfigProvider>
       </Dropdown>
     </div>
   );
