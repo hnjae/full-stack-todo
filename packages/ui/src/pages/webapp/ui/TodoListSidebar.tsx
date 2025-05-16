@@ -4,6 +4,7 @@ import {
   EllipsisOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+import { useDroppable } from '@dnd-kit/react';
 import type { MenuProps } from 'antd';
 import {
   ConfigProvider,
@@ -13,11 +14,10 @@ import {
   Layout,
   theme,
   Tree,
-  TreeDataNode,
   TreeProps,
 } from 'antd';
-import { useMemo, useState } from 'react';
-import { useGetTodoListsQuery } from 'src/entities/todo-list';
+import { useState } from 'react';
+import { TodoList, useGetTodoListsQuery } from 'src/entities/todo-list';
 import {
   DeleteTodoListModalState,
   RenameTodoListModalState,
@@ -28,6 +28,77 @@ import {
 const { Sider } = Layout;
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
+
+interface ListItemProps {
+  todoList: TodoList;
+  setRenameTodoListModalState: SetState<RenameTodoListModalState>;
+  setDeleteTodoListModalState: SetState<DeleteTodoListModalState>;
+}
+
+const ListItem = function ({
+  todoList,
+  setRenameTodoListModalState,
+  setDeleteTodoListModalState,
+}: ListItemProps) {
+  const { token } = theme.useToken();
+  const { ref } = useDroppable({
+    id: todoList.id,
+  });
+
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'rename') setRenameTodoListModalState(todoList);
+    if (key === 'delete') setDeleteTodoListModalState(todoList);
+  };
+
+  const menuItems: MenuProps['items'] = [
+    {
+      icon: <EditOutlined />,
+      label: 'Rename',
+      key: 'rename',
+    },
+    {
+      icon: <DeleteOutlined />,
+      label: 'Delete',
+      key: 'delete',
+      danger: true,
+    },
+  ];
+
+  return (
+    <div ref={ref}>
+      <Dropdown
+        menu={{ items: menuItems, onClick: handleMenuClick }}
+        trigger={['contextMenu']}
+      >
+        <div className="flex gap-x-2">
+          <div className="grow-1 w-0 text-ellipsis whitespace-nowrap overflow-hidden block">
+            {todoList.name}
+          </div>
+          <Dropdown
+            menu={{ items: menuItems, onClick: handleMenuClick }}
+            trigger={['click']}
+          >
+            <button
+              className="shrink-0 cursor-pointer"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <EllipsisOutlined
+                style={{
+                  color: token.colorIcon,
+                  verticalAlign: 'middle',
+                }}
+              />
+            </button>
+          </Dropdown>
+        </div>
+      </Dropdown>
+    </div>
+  );
+};
 
 export default function TodoListSidebar({
   selectedTodoListId,
@@ -48,66 +119,6 @@ export default function TodoListSidebar({
 
   const { token } = theme.useToken();
 
-  const todoListTreeData: TreeDataNode[] | undefined = useMemo(() => {
-    // NOTE: todoLists is already sorted by `order``
-    return todoLists?.map((todoList) => {
-      const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-        if (key === 'rename') setRenameTodoListModalState(todoList);
-        if (key === 'delete') setDeleteTodoListModalState(todoList);
-      };
-
-      const menuItems: MenuProps['items'] = [
-        {
-          icon: <EditOutlined />,
-          label: 'Rename',
-          key: 'rename',
-        },
-        {
-          icon: <DeleteOutlined />,
-          label: 'Delete',
-          key: 'delete',
-          danger: true,
-        },
-      ];
-
-      return {
-        key: todoList.id,
-        title: (
-          <Dropdown
-            menu={{ items: menuItems, onClick: handleMenuClick }}
-            trigger={['contextMenu']}
-          >
-            <div className="flex gap-x-2">
-              <div className="grow-1 w-0 text-ellipsis whitespace-nowrap overflow-hidden block">
-                {todoList.name}
-              </div>
-              <Dropdown
-                menu={{ items: menuItems, onClick: handleMenuClick }}
-                trigger={['click']}
-              >
-                <button
-                  className="shrink-0 cursor-pointer"
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                >
-                  <EllipsisOutlined
-                    style={{
-                      color: token.colorIcon,
-                      verticalAlign: 'middle',
-                    }}
-                  />
-                </button>
-              </Dropdown>
-            </div>
-          </Dropdown>
-        ),
-        disableCheckbox: true,
-      };
-    });
-  }, [todoLists]);
   const onDrop: TreeProps['onDrop'] = function (info) {
     // NOTE: const dropPos = info.dropPosition; // e.g.) -1, 1, ,2 ,3
     const dropPosIdx = info.dropPosition === -1 ? 0 : info.dropPosition;
@@ -175,7 +186,17 @@ export default function TodoListSidebar({
                 selectedTodoListId != null ? [selectedTodoListId] : undefined
               }
               onDrop={onDrop}
-              treeData={todoListTreeData}
+              treeData={todoLists?.map((todoList) => ({
+                key: todoList.id,
+                title: (
+                  <ListItem
+                    todoList={todoList}
+                    setRenameTodoListModalState={setRenameTodoListModalState}
+                    setDeleteTodoListModalState={setDeleteTodoListModalState}
+                  />
+                ),
+                disableCheckbox: true,
+              }))}
             />
           </ConfigProvider>
         </div>

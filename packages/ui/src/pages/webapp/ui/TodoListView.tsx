@@ -4,6 +4,7 @@ import {
   EllipsisOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+import { useDraggable } from '@dnd-kit/react';
 import {
   Card,
   Checkbox,
@@ -18,6 +19,7 @@ import { Todo, useGetTodosFromListQuery } from 'src/entities/todo';
 import {
   DeleteTodoModalState,
   RenameTodoModalState,
+  TodoReference,
   useHandleAddingTodo,
   useUpdateTodosCompletion,
 } from 'src/features/todo';
@@ -40,6 +42,14 @@ const TodoCard = function ({
   const { token } = theme.useToken();
   const updateTodosCompletion = useUpdateTodosCompletion(listId);
 
+  const { ref } = useDraggable<TodoReference>({
+    id: todo.id,
+    data: {
+      id: todo.id,
+      listId: todo.todoListId,
+    },
+  });
+
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
     if (key === 'rename') setRenameTodoModalState(todo);
     if (key === 'delete') setDeleteTodoModalState(todo);
@@ -60,11 +70,11 @@ const TodoCard = function ({
   ];
 
   return (
-    <Dropdown
-      menu={{ items: menuItems, onClick: handleMenuClick }}
-      trigger={['contextMenu']}
-    >
-      <div className="m-2">
+    <div ref={ref} className="m-2">
+      <Dropdown
+        menu={{ items: menuItems, onClick: handleMenuClick }}
+        trigger={['contextMenu']}
+      >
         <Card className="h-fit" variant="borderless">
           <div className={`flex items-center gap-x-2`}>
             <ConfigProvider
@@ -117,8 +127,8 @@ const TodoCard = function ({
             </Dropdown>
           </div>
         </Card>
-      </div>
-    </Dropdown>
+      </Dropdown>
+    </div>
   );
 };
 
