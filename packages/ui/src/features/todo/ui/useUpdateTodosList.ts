@@ -1,7 +1,12 @@
 import { useCallback } from 'react';
 import { useBatchUpdateTodosMutation } from 'src/entities/todo';
 
-export default function (todoListId: string) {
+export interface TodoReference {
+  id: string;
+  listId: string;
+}
+
+export default function () {
   const [batchUpdateTodos] = useBatchUpdateTodosMutation({
     fixedCacheKey: 'batchUpdateTodos',
   });
@@ -9,17 +14,17 @@ export default function (todoListId: string) {
   /**
    * @returns updated todos
    */
-  const updateTodosCompletion = useCallback(
-    async (ids: string[], completed: boolean) => {
-      const updateTodos = ids.map((id) => ({
+  const updateTodosList = useCallback(
+    async (refs: TodoReference[], newListId: string) => {
+      const updateTodos = refs.map((ref) => ({
         data: {
-          id: id,
+          id: ref.id,
           payload: {
-            completed,
+            todoListId: newListId,
           },
         },
         meta: {
-          originListId: todoListId,
+          originListId: ref.listId,
         },
       }));
 
@@ -32,5 +37,5 @@ export default function (todoListId: string) {
     [batchUpdateTodos],
   );
 
-  return updateTodosCompletion;
+  return updateTodosList;
 }
