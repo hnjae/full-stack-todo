@@ -1,10 +1,5 @@
 import { useCallback } from 'react';
-import { useBatchUpdateTodosMutation } from 'src/entities/todo';
-
-export interface TodoReference {
-  id: string;
-  listId: string;
-}
+import { TodoReference, useBatchUpdateTodosMutation } from 'src/entities/todo';
 
 export default function () {
   const [batchUpdateTodos] = useBatchUpdateTodosMutation({

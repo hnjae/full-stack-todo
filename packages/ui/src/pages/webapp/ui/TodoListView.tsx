@@ -15,11 +15,14 @@ import {
   theme,
 } from 'antd';
 import { useState } from 'react';
-import { Todo, useGetTodosFromListQuery } from 'src/entities/todo';
+import {
+  Todo,
+  TodoReference,
+  useGetTodosFromListQuery,
+} from 'src/entities/todo';
 import {
   DeleteTodoModalState,
   RenameTodoModalState,
-  TodoReference,
   useHandleAddingTodo,
   useUpdateTodosCompletion,
 } from 'src/features/todo';
@@ -40,7 +43,7 @@ const TodoCard = function ({
   setDeleteTodoModalState,
 }: TodoCardProps) {
   const { token } = theme.useToken();
-  const updateTodosCompletion = useUpdateTodosCompletion(listId);
+  const updateTodosCompletion = useUpdateTodosCompletion();
 
   const { ref } = useDraggable<TodoReference>({
     id: todo.id,
@@ -91,7 +94,10 @@ const TodoCard = function ({
               <Checkbox
                 checked={todo.completed}
                 onChange={(e) => {
-                  updateTodosCompletion([todo.id], e.target.checked);
+                  updateTodosCompletion(
+                    [{ id: todo.id, listId }],
+                    e.target.checked,
+                  );
                 }}
               />
             </ConfigProvider>

@@ -17,6 +17,11 @@ export interface Todo {
   todoListId: string;
 }
 
+export interface TodoReference {
+  id: string;
+  listId: string;
+}
+
 export type AddTodo = Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>;
 
 interface UpdateTodo {

@@ -1,4 +1,4 @@
-export type { AddTodo, Todo } from './api/todoApi';
+export type { AddTodo, Todo, TodoReference } from './api/todoApi';
 export {
   default as todoApi,
   useAddTodoMutation,

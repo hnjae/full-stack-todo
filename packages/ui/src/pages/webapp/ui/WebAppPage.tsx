@@ -3,12 +3,12 @@
 import { DragDropProvider } from '@dnd-kit/react';
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
+import { TodoReference } from 'src/entities/todo';
 import {
   DeleteTodoModal,
   DeleteTodoModalState,
   RenameTodoModal,
   RenameTodoModalState,
-  TodoReference,
   useUpdateTodosList,
 } from 'src/features/todo';
 import {
