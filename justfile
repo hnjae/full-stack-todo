@@ -12,7 +12,7 @@ run-db:
         --rm \
         --replace \
         -e "POSTGRES_USER=devuser" \
-        -e "POSTGRES_PASSWORD=devpasswrod" \
+        -e "POSTGRES_PASSWORD=devpassword" \
         -p '5432:5432/tcp' \
         -v "todo-postgres:/var/lib/postgresql/data" \
         "docker.io/postgres:16"
