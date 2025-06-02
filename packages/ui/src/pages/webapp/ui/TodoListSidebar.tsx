@@ -43,6 +43,7 @@ const ListItem = function ({
   const { token } = theme.useToken();
   const { ref } = useDroppable({
     id: todoList.id,
+    type: 'list',
   });
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {

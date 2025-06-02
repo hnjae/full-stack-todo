@@ -1,14 +1,16 @@
 // NOTE: This page assumes that the user is logged in when loaded.
 
+import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
-import { TodoReference } from 'src/entities/todo';
+import { TodoReference, useGetTodosFromListQuery } from 'src/entities/todo';
 import {
   DeleteTodoModal,
   DeleteTodoModalState,
   RenameTodoModal,
   RenameTodoModalState,
+  useReorderTodos,
   useUpdateTodosList,
 } from 'src/features/todo';
 import {
@@ -29,7 +31,12 @@ export default function WebAppPage() {
     null,
   );
 
+  // TODO: better selectedTodoListId null handling <2025-05-30>
+  const { data: todos } = useGetTodosFromListQuery(selectedTodoListId ?? '');
+
   const updateTodosList = useUpdateTodosList();
+  const reorderTodos = useReorderTodos();
+
   const [renameTodoListModalState, setRenameTodoListModalState] =
     useState<RenameTodoListModalState>(null);
   const [deleteTodoListModalState, setDeleteTodoListModalState] =
@@ -48,21 +55,34 @@ export default function WebAppPage() {
         <Layout>
           <DragDropProvider
             onDragEnd={(event) => {
-              if (event.canceled) return;
+              const { source, target, canceled } = event.operation;
 
-              const { source, target } = event.operation;
-              if (target?.id == null || source?.data == null) {
+              if (canceled || source == null || target == null) {
                 return;
               }
 
-              if (source.data.listId === target.id) {
-                return;
+              if (target.type === 'list') {
+                if (source.data.listId === target.id) {
+                  return;
+                }
+
+                updateTodosList(
+                  [source.data as TodoReference],
+                  target.id as string,
+                );
               }
 
-              updateTodosList(
-                [source.data as TodoReference],
-                target.id as string,
-              );
+              if (target.type === 'card') {
+                if (todos == null) {
+                  console.log('THIS SHOULD NOT HAPPEN');
+                  return;
+                }
+
+                // @ts-expect-error `event` is valid type for `move`
+                // (both defined in dnd-kit)
+                const newTodos = move(todos, event);
+                reorderTodos(newTodos);
+              }
             }}
           >
             <TodoListSidebar
