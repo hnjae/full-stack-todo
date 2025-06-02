@@ -1,6 +1,5 @@
 import {
   FormOutlined,
-  HomeOutlined,
   LoginOutlined,
   LogoutOutlined,
   SyncOutlined,
@@ -35,16 +34,6 @@ export default function MainHeader() {
 
   // use router path for key
   const noAuthItems: ItemTypeWithRequiredKey[] = [
-    {
-      key: '/',
-      label: 'Home',
-      icon: <HomeOutlined />,
-      onClick: () => {
-        navigate({
-          to: '/',
-        });
-      },
-    },
     {
       key: '/login',
       label: 'Login',
