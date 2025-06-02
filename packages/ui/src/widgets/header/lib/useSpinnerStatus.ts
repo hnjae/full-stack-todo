@@ -1,51 +1,27 @@
 const MIN_SPIN_TIME = 500;
 
-import { useEffect, useMemo, useState } from 'react';
-import {
-  useAddTodoListMutation,
-  useBatchUpdateTodoListMutation,
-  useDeleteTodoListMutation,
-  useGetTodoListsQuery,
-} from 'src/entities/todo-list';
+import { useEffect, useState } from 'react';
+import { useAppSelector } from 'src/shared/model';
 
 export default function () {
-  const {
-    isLoading: isGetTodoListsLoading,
-    isFetching: isGetTodoListsFetching,
-  } = useGetTodoListsQuery();
-  const [, { isLoading: isAddTodoListLoading }] = useAddTodoListMutation({
-    fixedCacheKey: 'addTodoList',
+  const isPending = useAppSelector(({ userApi }) => {
+    return (
+      Object.values(userApi.queries).some(
+        (query) => query?.status === 'pending',
+      ) ||
+      Object.values(userApi.queries).some(
+        (mutation) => mutation?.status === 'pending',
+      )
+    );
   });
-  const [, { isLoading: isDeleteTodoListLoading }] = useDeleteTodoListMutation({
-    fixedCacheKey: 'deleteTodoList',
-  });
-  const [, { isLoading: isBatchUpdateTodoListLoading }] =
-    useBatchUpdateTodoListMutation({
-      fixedCacheKey: 'batchUpdateTodoList',
-    });
-  const isLoading = useMemo(
-    () =>
-      isGetTodoListsLoading ||
-      isGetTodoListsFetching ||
-      isAddTodoListLoading ||
-      isDeleteTodoListLoading ||
-      isBatchUpdateTodoListLoading,
-    [
-      isGetTodoListsLoading,
-      isGetTodoListsFetching,
-      isAddTodoListLoading,
-      isDeleteTodoListLoading,
-      isBatchUpdateTodoListLoading,
-    ],
-  );
 
-  const [rotateSpinner, setRotateSpinner] = useState(isLoading);
+  const [rotateSpinner, setRotateSpinner] = useState(isPending);
 
   // Rotate spinner {MIN_SPIN_TIME}ms more loading
   useEffect(() => {
     let timeoutId: number | null = null;
 
-    if (isLoading) {
+    if (isPending) {
       setRotateSpinner(true);
     } else if (rotateSpinner) {
       timeoutId = setTimeout(() => {
@@ -58,7 +34,7 @@ export default function () {
         clearTimeout(timeoutId);
       }
     };
-  }, [isLoading, rotateSpinner]);
+  }, [isPending, rotateSpinner]);
 
   return rotateSpinner;
 }

@@ -26,6 +26,9 @@ export class TodosService {
   async getAll(userId: string): Promise<TodoDto[]> {
     const todos = await this.prismaService.todo.findMany({
       where: { userId: userId },
+      orderBy: {
+        order: 'asc',
+      },
     });
 
     return todos;
@@ -42,6 +45,9 @@ export class TodosService {
   async getTodosByList(todoListId: string): Promise<TodoDto[]> {
     const todos = await this.prismaService.todo.findMany({
       where: { todoListId: todoListId },
+      orderBy: {
+        order: 'asc',
+      },
     });
 
     return todos;
