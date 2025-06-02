@@ -11,13 +11,11 @@ import {
   useAppDispatch,
 } from 'src/shared/model';
 
-import FormData from '../model/FormData';
+import { FormData } from '../model/FormData';
 import AuthForm from './AuthForm';
 import AuthPageLayout from './AuthPageLayout';
 
 const { Text, Link } = Typography;
-
-// TODO: forgot password? 기능 <2024-12-31>
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
