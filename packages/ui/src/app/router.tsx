@@ -8,7 +8,6 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { FC } from 'react';
 import { LoginPage, SignupPage } from 'src/pages/auth';
-import HomePage from 'src/pages/HomePage';
 import { WebAppPage } from 'src/pages/webapp';
 import { selectIsAuthenticated, useAppSelector } from 'src/shared/model';
 
@@ -42,7 +41,13 @@ const routeTree = rootRoute.addChildren([
   createRoute({
     getParentRoute: getRootRoute,
     path: '/',
-    component: HomePage,
+    component: () => {
+      const isLogin = useAppSelector(selectIsAuthenticated);
+
+      return (
+        <>{isLogin ? <Navigate to="/webapp" /> : <Navigate to="/login" />}</>
+      );
+    },
   }),
   createRoute({
     getParentRoute: getRootRoute,
