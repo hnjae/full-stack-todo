@@ -4,7 +4,7 @@ import {
   EllipsisOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { useDraggable } from '@dnd-kit/react';
+import { useSortable } from '@dnd-kit/react/sortable';
 import {
   Card,
   Checkbox,
@@ -32,12 +32,14 @@ type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 interface TodoCardProps {
   todo: Todo;
   listId: string;
+  index: number;
   setRenameTodoModalState: SetState<RenameTodoModalState>;
   setDeleteTodoModalState: SetState<DeleteTodoModalState>;
 }
 
 const TodoCard = function ({
   todo,
+  index,
   listId,
   setRenameTodoModalState,
   setDeleteTodoModalState,
@@ -45,12 +47,15 @@ const TodoCard = function ({
   const { token } = theme.useToken();
   const updateTodosCompletion = useUpdateTodosCompletion();
 
-  const { ref, isDragging } = useDraggable<TodoReference>({
+  const { ref, isDragging } = useSortable<TodoReference>({
     id: todo.id,
+    index: index,
     data: {
       id: todo.id,
       listId: todo.todoListId,
     },
+    type: 'card',
+    disabled: todo.completed,
   });
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
@@ -200,10 +205,11 @@ export default function TodoContent({
 
             return a.completed ? 1 : -1;
           })
-          ?.map((todo) => (
+          ?.map((todo, index) => (
             <TodoCard
               key={todo.id}
               todo={todo}
+              index={index}
               listId={selectedTodoListId}
               setRenameTodoModalState={setRenameTodoModalState}
               setDeleteTodoModalState={setDeleteTodoModalState}
