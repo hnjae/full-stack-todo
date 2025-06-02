@@ -6,12 +6,8 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps, Modal, theme } from 'antd';
-import {
-  clearAccessToken,
-  selectIsAuthenticated,
-  useAppDispatch,
-  useAppSelector,
-} from 'src/shared/model';
+import { useLogout } from 'src/features/auth';
+import { selectIsAuthenticated, useAppSelector } from 'src/shared/model';
 
 import useSpinnerStatus from '../lib/useSpinnerStatus';
 
@@ -26,7 +22,7 @@ type ItemTypeWithRequiredKey = Required<MenuProps>['items'][number] & {
 export default function MainHeader() {
   const router = useRouterState();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const logout = useLogout();
 
   const {
     token: { colorBgContainer, colorBorder },
@@ -68,7 +64,7 @@ export default function MainHeader() {
           okText: 'Yes',
           cancelText: 'No',
           onOk: () => {
-            dispatch(clearAccessToken());
+            logout();
           },
         });
       },

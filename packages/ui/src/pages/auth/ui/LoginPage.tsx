@@ -1,15 +1,12 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
+import { useLogout } from 'src/features/auth';
 import {
   AuthenticationError,
   getTokens,
   refreshTokenService,
 } from 'src/shared/lib';
-import {
-  clearAccessToken,
-  setAccessToken,
-  useAppDispatch,
-} from 'src/shared/model';
+import { setAccessToken, useAppDispatch } from 'src/shared/model';
 
 import { FormData } from '../model/FormData';
 import AuthForm from './AuthForm';
@@ -19,6 +16,7 @@ const { Text, Link } = Typography;
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
+  const logout = useLogout();
   const [isLoading, setIsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -45,7 +43,7 @@ export default function LoginPage() {
       messageApi.error(msg);
       console.error('Login error:', error);
 
-      dispatch(clearAccessToken());
+      logout();
     } finally {
       setIsLoading(false);
     }
