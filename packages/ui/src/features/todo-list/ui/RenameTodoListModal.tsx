@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   generateUniqueName,
   TodoList,
-  useBatchUpdateTodoListMutation,
+  useBatchUpdateTodoListsMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
 
@@ -18,8 +18,8 @@ export default function RenameTodoListModal({
 }) {
   const { data: todoLists } = useGetTodoListsQuery();
 
-  const [batchUpdateTodoList] = useBatchUpdateTodoListMutation({
-    fixedCacheKey: 'batchUpdateTodoList',
+  const [batchUpdateTodoLists] = useBatchUpdateTodoListsMutation({
+    fixedCacheKey: 'batchUpdateTodoLists',
   });
 
   const [inputModalValue, setInputModalValue] = useState('');
@@ -29,7 +29,7 @@ export default function RenameTodoListModal({
       return;
     }
 
-    batchUpdateTodoList([
+    batchUpdateTodoLists([
       {
         id: modalState.id,
         payload: {

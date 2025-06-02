@@ -1,13 +1,12 @@
 import { useCallback } from 'react';
 import {
-  balanceItems,
   TodoList,
-  TODOLIST_ORDER_SPACING,
   UpdateTodoList,
-  useBatchUpdateTodoListMutation,
+  useBatchUpdateTodoListsMutation,
   useGetTodoListsQuery,
 } from 'src/entities/todo-list';
 import { MAX_INTEGER, MIN_INTEGER } from 'src/shared/config';
+import { balanceItems, ORDER_SPACING } from 'src/shared/lib';
 
 const calcUpdateTodoList = function ({
   todoLists,
@@ -37,9 +36,9 @@ const calcUpdateTodoList = function ({
     let newOrder;
 
     let updateTodoLists: UpdateTodoList[];
-    if (todoLists[0].order >= MIN_INTEGER + TODOLIST_ORDER_SPACING) {
+    if (todoLists[0].order >= MIN_INTEGER + ORDER_SPACING) {
       updateTodoLists = [];
-      newOrder = todoLists[0].order - TODOLIST_ORDER_SPACING;
+      newOrder = todoLists[0].order - ORDER_SPACING;
     } else {
       console.log('Balancing todo-lists');
       const balancedLists = balanceItems(todoLists);
@@ -53,7 +52,7 @@ const calcUpdateTodoList = function ({
           },
         }));
 
-      newOrder = balancedLists[0].order - TODOLIST_ORDER_SPACING;
+      newOrder = balancedLists[0].order - ORDER_SPACING;
     }
 
     updateTodoLists.push({
@@ -72,12 +71,9 @@ const calcUpdateTodoList = function ({
 
     let updateTodoLists: UpdateTodoList[];
 
-    if (
-      todoLists[todoLists.length - 1].order <=
-      MAX_INTEGER - TODOLIST_ORDER_SPACING
-    ) {
+    if (todoLists[todoLists.length - 1].order <= MAX_INTEGER - ORDER_SPACING) {
       updateTodoLists = [];
-      newOrder = todoLists[todoLists.length - 1].order + TODOLIST_ORDER_SPACING;
+      newOrder = todoLists[todoLists.length - 1].order + ORDER_SPACING;
     } else {
       console.log('Balancing todo-lists');
       const balancedLists = balanceItems(todoLists);
@@ -91,8 +87,7 @@ const calcUpdateTodoList = function ({
           },
         }));
 
-      newOrder =
-        balancedLists[balancedLists.length - 1].order - TODOLIST_ORDER_SPACING;
+      newOrder = balancedLists[balancedLists.length - 1].order - ORDER_SPACING;
     }
 
     updateTodoLists.push({
@@ -143,8 +138,8 @@ const calcUpdateTodoList = function ({
 export default function () {
   const { data: todoLists } = useGetTodoListsQuery();
 
-  const [batchUpdateTodoList] = useBatchUpdateTodoListMutation({
-    fixedCacheKey: 'batchUpdateTodoList',
+  const [batchUpdateTodoLists] = useBatchUpdateTodoListsMutation({
+    fixedCacheKey: 'batchUpdateTodoLists',
   });
 
   const reorderTodoList = useCallback(
@@ -165,12 +160,12 @@ export default function () {
       });
 
       if (updateTodoLists.length !== 0) {
-        batchUpdateTodoList(updateTodoLists);
+        batchUpdateTodoLists(updateTodoLists);
       }
 
       return;
     },
-    [todoLists, batchUpdateTodoList],
+    [todoLists, batchUpdateTodoLists],
   );
 
   return reorderTodoList;
