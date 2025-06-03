@@ -38,6 +38,7 @@ export default function RenameTodoListModal({
       },
     ]);
 
+    setInputModalValue('');
     setModalState(null);
   };
 
