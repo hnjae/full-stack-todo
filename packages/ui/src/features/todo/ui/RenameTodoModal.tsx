@@ -27,11 +27,6 @@ export default function RenameTodoModal({
     }
 
     setInputModalValue(modalState.title);
-
-    // HACK: Wait for the modal to open before focusing
-    setTimeout(() => {
-      inputRef?.current?.focus();
-    }, 10);
   }, [modalState]);
 
   const handleRename = () => {
@@ -64,6 +59,9 @@ export default function RenameTodoModal({
       onOk={handleRename}
       onCancel={() => {
         setModalState(null);
+      }}
+      afterOpenChange={() => {
+        inputRef.current?.focus();
       }}
     >
       <Input
