@@ -3,8 +3,9 @@
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
 import { Layout, theme } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TodoReference, useGetTodosFromListQuery } from 'src/entities/todo';
+import { useGetTodoListsQuery } from 'src/entities/todo-list';
 import {
   DeleteTodoModal,
   DeleteTodoModalState,
@@ -31,8 +32,8 @@ export default function WebAppPage() {
     null,
   );
 
-  // TODO: better selectedTodoListId null handling <2025-05-30>
   const { data: todos } = useGetTodosFromListQuery(selectedTodoListId ?? '');
+  const { data: todoLists } = useGetTodoListsQuery();
 
   const updateTodosList = useUpdateTodosList();
   const reorderTodos = useReorderTodos();
@@ -47,6 +48,18 @@ export default function WebAppPage() {
     useState<RenameTodoModalState>(null);
 
   const { token } = theme.useToken();
+
+  useEffect(() => {
+    if (
+      selectedTodoListId != null ||
+      todoLists == null ||
+      todoLists.length === 0
+    ) {
+      return;
+    }
+
+    setSelectedTodoListId(todoLists[0].id);
+  }, [todoLists, selectedTodoListId]);
 
   return (
     <>
