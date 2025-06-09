@@ -45,10 +45,16 @@ const todoApi = userApi
   .injectEndpoints({
     endpoints: (build) => ({
       getTodosFromList: build.query<Todo[], string>({
-        query: (todoListId) => ({
-          url: `todos?todoListId=${todoListId}`,
-          method: 'GET',
-        }),
+        query: (todoListId) => {
+          if (todoListId === '') {
+            throw new Error('todoListId must not be empty');
+          }
+
+          return {
+            url: `todos?todoListId=${todoListId}`,
+            method: 'GET',
+          };
+        },
         providesTags: (result, _, todoListId) =>
           result != null
             ? [
