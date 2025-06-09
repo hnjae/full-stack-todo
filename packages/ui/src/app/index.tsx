@@ -36,7 +36,7 @@ const App = function () {
         console.log('Successfully got access token.');
         setAuthInitialized(true);
       } catch (error) {
-        console.log('Failed to get accesss token:', error);
+        console.log('Failed to get access token:', error);
         refreshTokenService.remove();
         setAuthInitialized(false);
       }
