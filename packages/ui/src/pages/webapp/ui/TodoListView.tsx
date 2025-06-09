@@ -78,11 +78,11 @@ const TodoCard = function ({
   ];
 
   return (
-    <div ref={ref} className="m-2">
-      <Dropdown
-        menu={{ items: menuItems, onClick: handleMenuClick }}
-        trigger={['contextMenu']}
-      >
+    <Dropdown
+      menu={{ items: menuItems, onClick: handleMenuClick }}
+      trigger={['contextMenu']}
+    >
+      <div ref={ref} className="m-2">
         <ConfigProvider
           theme={{
             token: {
@@ -147,8 +147,8 @@ const TodoCard = function ({
             </div>
           </Card>
         </ConfigProvider>
-      </Dropdown>
-    </div>
+      </div>
+    </Dropdown>
   );
 };
 
