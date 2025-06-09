@@ -115,7 +115,7 @@ HTTP 404 # NOT_FOUND
 ###########################################
 # Testing todo querying with todo-list id #
 ###########################################
-# Step 1: Create a new todo list
+# Setup 1: Create a new todo list
 POST http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -127,14 +127,14 @@ HTTP 201
 [Captures]
 _todoListId: jsonpath "$['id']"
 
-# Step 2: Check if the todo list is empty
+# Verify 1: Check if the todo list is empty
 GET http://{{host}}/users/{{userId}}/todos?todoListId={{_todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 [Asserts]
 jsonpath "$" count == 0
 
-# Step 3: Create two new todo
+# Setup 2: Create two new todo #1
 POST http://{{host}}/users/{{userId}}/todos
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -148,6 +148,7 @@ HTTP 201
 [Captures]
 _todoId1: jsonpath "$['id']"
 
+# Setup 3: Create two new todo #2
 POST http://{{host}}/users/{{userId}}/todos
 Authorization: {{tokenType}} {{accessToken}}
 content-type: application/json
@@ -161,7 +162,7 @@ HTTP 201
 [Captures]
 _todoId2: jsonpath "$['id']"
 
-# Step 4: Check todos
+# Verify 2: Check todos
 GET http://{{host}}/users/{{userId}}/todos?todoListId={{_todoListId}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
@@ -170,12 +171,17 @@ jsonpath "$" count == 2
 jsonpath "$[*].id" includes "{{_todoId1}}"
 jsonpath "$[*].id" includes "{{_todoId2}}"
 
-# Step 5: Read non-existing todo list
+# Verify 3: Read non-existing todo list
 GET http://{{host}}/users/{{userId}}/todos?todoListId={{newUuid}}
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 [Asserts]
 jsonpath "$" count == 0
+
+# Verify 4: Testing todo querying with empty todo-list id
+GET http://{{host}}/users/{{userId}}/todos?todoListId=
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 400
 
 ######################
 # Testing Validation #
