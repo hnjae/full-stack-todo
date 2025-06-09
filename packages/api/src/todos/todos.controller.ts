@@ -65,6 +65,10 @@ export class TodosController {
       return this.todosService.getAll(userId);
     }
 
+    if (todoListId === '') {
+      throw new HttpException('todoListId is required', HttpStatus.BAD_REQUEST);
+    }
+
     const todos = await this.todosService.getTodosByList(todoListId);
     return todos;
   }
