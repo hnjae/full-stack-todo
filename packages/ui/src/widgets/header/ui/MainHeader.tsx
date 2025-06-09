@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Layout, Menu, MenuProps, Modal, theme } from 'antd';
+import { useState } from 'react';
 import { useLogout } from 'src/features/auth';
 import { selectIsAuthenticated, useAppSelector } from 'src/shared/model';
 
@@ -19,10 +20,37 @@ type ItemTypeWithRequiredKey = Required<MenuProps>['items'][number] & {
   key: string;
 };
 
+interface ModalProps {
+  isOpen: boolean;
+  close: () => void;
+}
+
+const LogoutModal = function ({ isOpen: open, close }: ModalProps) {
+  const logout = useLogout();
+
+  return (
+    <Modal
+      title="Logout"
+      open={open}
+      okText="Yes"
+      cancelText="No"
+      onOk={() => {
+        logout();
+        close();
+      }}
+      onCancel={() => {
+        close();
+      }}
+    >
+      "Are you sure you want to logout?"
+    </Modal>
+  );
+};
+
 export default function MainHeader() {
   const router = useRouterState();
   const navigate = useNavigate();
-  const logout = useLogout();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     token: { colorBgContainer, colorBorder },
@@ -58,15 +86,7 @@ export default function MainHeader() {
       label: 'Logout',
       icon: <LogoutOutlined />,
       onClick: () => {
-        Modal.confirm({
-          title: 'Logout',
-          content: 'Are you sure you want to logout?',
-          okText: 'Yes',
-          cancelText: 'No',
-          onOk: () => {
-            logout();
-          },
-        });
+        setIsModalOpen(true);
       },
     },
   ];
@@ -98,7 +118,7 @@ export default function MainHeader() {
       <Menu
         mode="horizontal"
         theme="light"
-        defaultSelectedKeys={[router.location.pathname]}
+        selectedKeys={(isLogin && []) || [router.location.pathname]}
         items={(isLogin && authItems) || noAuthItems}
         style={{
           height: 'inherit',
@@ -110,6 +130,9 @@ export default function MainHeader() {
           borderBottom: 'none',
         }}
       />
+      {isLogin && (
+        <LogoutModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} />
+      )}
     </Header>
   );
 }
