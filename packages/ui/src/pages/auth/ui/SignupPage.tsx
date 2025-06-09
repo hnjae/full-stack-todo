@@ -1,5 +1,6 @@
 import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
+import { useLogin } from 'src/features/auth';
 import { env } from 'src/shared/config';
 
 import { FormData, FormDataSchema } from '../model/FormData';
@@ -8,6 +9,8 @@ import AuthPageLayout from './AuthPageLayout';
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const login = useLogin();
+
   const onFinish = async function (rawData: FormData) {
     setIsLoading(true);
 
@@ -52,8 +55,12 @@ export default function SignupPage() {
       throw new Error(msg);
     }
 
-    // TODO: redirect <2024-12-30>
     message.success('Registration successful');
+    const formParams = new URLSearchParams();
+    formParams.append('grant_type', 'password');
+    formParams.append('username', data.email);
+    formParams.append('password', data.password);
+    login(formParams);
   };
 
   return (
