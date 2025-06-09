@@ -2,6 +2,7 @@
 
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
+import { skipToken } from '@reduxjs/toolkit/query/react';
 import { Layout, theme } from 'antd';
 import { useEffect, useState } from 'react';
 import { TodoReference, useGetTodosFromListQuery } from 'src/entities/todo';
@@ -32,7 +33,9 @@ export default function WebAppPage() {
     null,
   );
 
-  const { data: todos } = useGetTodosFromListQuery(selectedTodoListId ?? '');
+  const { data: todos } = useGetTodosFromListQuery(
+    selectedTodoListId ?? skipToken,
+  );
   const { data: todoLists } = useGetTodoListsQuery();
 
   const updateTodosList = useUpdateTodosList();
