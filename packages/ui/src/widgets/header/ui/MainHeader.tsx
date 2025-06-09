@@ -5,7 +5,7 @@ import {
   SyncOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Layout, Menu, MenuProps, Modal, theme } from 'antd';
+import { Button, Layout, Menu, MenuProps, Modal, theme } from 'antd';
 import { useState } from 'react';
 import { useLogout } from 'src/features/auth';
 import { selectIsAuthenticated, useAppSelector } from 'src/shared/model';
@@ -80,17 +80,6 @@ export default function MainHeader() {
     },
   ];
 
-  const authItems: ItemTypeWithRequiredKey[] = [
-    {
-      key: '/logout',
-      label: 'Logout',
-      icon: <LogoutOutlined />,
-      onClick: () => {
-        setIsModalOpen(true);
-      },
-    },
-  ];
-
   const isLogin = useAppSelector(selectIsAuthenticated);
   const isSpinnerSpin = useSpinnerStatus();
 
@@ -119,7 +108,7 @@ export default function MainHeader() {
         mode="horizontal"
         theme="light"
         selectedKeys={(isLogin && []) || [router.location.pathname]}
-        items={(isLogin && authItems) || noAuthItems}
+        items={(isLogin && []) || noAuthItems}
         style={{
           height: 'inherit',
           lineHeight: 'inherit',
@@ -131,7 +120,22 @@ export default function MainHeader() {
         }}
       />
       {isLogin && (
-        <LogoutModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} />
+        <>
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            onClick={() => {
+              setIsModalOpen(true);
+            }}
+            style={{ marginLeft: 'auto' }}
+          >
+            Logout
+          </Button>
+          <LogoutModal
+            isOpen={isModalOpen}
+            close={() => setIsModalOpen(false)}
+          />
+        </>
       )}
     </Header>
   );
