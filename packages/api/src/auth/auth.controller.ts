@@ -5,12 +5,11 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { CreateUserDto, UserDto } from 'src/users/users.dto';
+import { CreateUserDto } from 'src/users/users.dto';
 
 import { AuthService } from './auth.service';
 import { AuthUserId, TokenEndpointGuard } from './token-endpoint-guard';
@@ -27,8 +26,8 @@ export class AuthController {
       return user;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == 'P2002') {
-          // "Unique constraint failed on the {constraint}"
+        // "Unique constraint failed on the {constraint}"
+        if (error.code == 'P2002' && error.meta?.modelName == 'User') {
           throw new HttpException('User already exists', HttpStatus.CONFLICT);
         }
       }
