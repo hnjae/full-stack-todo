@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TodoListsService } from 'src/todo-lists/todo-lists.service';
 
 import { CreateUserDto, UpdateUserDto, UserDto } from './users.dto';
 
@@ -11,7 +12,10 @@ function excludeSensitive(user: UserDto): Omit<UserDto, 'password'> {
 
 @Injectable()
 export class UsersService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private todoListsService: TodoListsService,
+  ) {}
 
   async getAll() {
     const users = await this.prismaService.user.findMany();
@@ -25,6 +29,11 @@ export class UsersService {
 
     const user = await this.prismaService.user.create({
       data: { email: email, password: hashedPassword },
+    });
+
+    await this.todoListsService.create(user.id, {
+      name: 'inbox',
+      order: 0,
     });
 
     return excludeSensitive(user);
