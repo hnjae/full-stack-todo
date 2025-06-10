@@ -1,6 +1,6 @@
 import { ColProps, Form } from 'antd';
 
-import FormData from '../model/FormData';
+import { FormData } from '../model/FormData';
 
 interface AuthFormProps {
   name: string;

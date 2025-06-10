@@ -75,6 +75,15 @@ GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType2}} {{accessToken2}}
 HTTP 403
 
+##############################################
+# Testing if a new user owns one to-do list. #
+##############################################
+GET http://{{host}}/users/{{userId}}/todo-lists
+Authorization: {{tokenType}} {{accessToken}}
+HTTP 200
+[Asserts]
+jsonpath "$[0].name" == "inbox"
+
 ######################################
 # Testing todo list Creation/Reading #
 ######################################
@@ -116,7 +125,7 @@ GET http://{{host}}/users/{{userId}}/todo-lists
 Authorization: {{tokenType}} {{accessToken}}
 HTTP 200
 [Asserts]
-jsonpath "$[0].id" == "{{todoListId}}"
+jsonpath "$[?(@.id == '{{todoListId}}')]" count == 1
 
 # TC-005: Read created todo-list
 GET http://{{host}}/users/{{userId}}/todo-lists/{{todoListId}}

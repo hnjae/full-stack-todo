@@ -1,26 +1,17 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import {
-  AuthenticationError,
-  getTokens,
-  refreshTokenService,
-} from 'src/shared/lib';
-import {
-  clearAccessToken,
-  setAccessToken,
-  useAppDispatch,
-} from 'src/shared/model';
+import { useLogin, useLogout } from 'src/features/auth';
+import { AuthenticationError } from 'src/shared/lib';
 
-import FormData from '../model/FormData';
+import { FormData } from '../model/FormData';
 import AuthForm from './AuthForm';
 import AuthPageLayout from './AuthPageLayout';
 
 const { Text, Link } = Typography;
 
-// TODO: forgot password? 기능 <2024-12-31>
-
 export default function LoginPage() {
-  const dispatch = useAppDispatch();
+  const login = useLogin();
+  const logout = useLogout();
   const [isLoading, setIsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -33,10 +24,7 @@ export default function LoginPage() {
       formParams.append('username', data.email);
       formParams.append('password', data.password);
 
-      const { accessToken, refreshToken } = await getTokens(formParams);
-
-      refreshTokenService.set(refreshToken);
-      dispatch(setAccessToken(accessToken));
+      await login(formParams);
     } catch (error) {
       const msgFailedReason =
         error instanceof AuthenticationError
@@ -47,7 +35,7 @@ export default function LoginPage() {
       messageApi.error(msg);
       console.error('Login error:', error);
 
-      dispatch(clearAccessToken());
+      await logout();
     } finally {
       setIsLoading(false);
     }

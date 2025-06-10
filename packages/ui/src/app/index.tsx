@@ -24,6 +24,7 @@ const App = function () {
           throw new Error('No refresh token found');
         }
 
+        // NOTE: Redux provider가 제공되기 전이므로, 여기서는 `useLogin` 훅을 사용할 수 없다.
         const formParams = new URLSearchParams();
         formParams.append('grant_type', 'refresh_token');
         formParams.append('refresh_token', refreshToken);
@@ -36,7 +37,7 @@ const App = function () {
         console.log('Successfully got access token.');
         setAuthInitialized(true);
       } catch (error) {
-        console.log('Failed to get accesss token:', error);
+        console.log('Failed to get access token:', error);
         refreshTokenService.remove();
         setAuthInitialized(false);
       }

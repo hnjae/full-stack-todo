@@ -1,18 +1,20 @@
 import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
+import { useLogin } from 'src/features/auth';
 import { env } from 'src/shared/config';
 
-import FormData from '../model/FormData';
+import { FormData, FormDataSchema } from '../model/FormData';
 import AuthForm from './AuthForm';
 import AuthPageLayout from './AuthPageLayout';
 
-// TODO: 이메일 인증? <2024-12-23>
-// TODO: card 를 적당히 화면 중앙에 뛰우기 <2024-12-24>
-
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const onFinish = async function (data: FormData) {
+  const login = useLogin();
+
+  const onFinish = async function (rawData: FormData) {
     setIsLoading(true);
+
+    const data = FormDataSchema.parse(rawData);
 
     const response = await fetch(`${env.API_URL}/auth/register`, {
       method: 'POST',
@@ -53,8 +55,12 @@ export default function SignupPage() {
       throw new Error(msg);
     }
 
-    // TODO: redirect <2024-12-30>
     message.success('Registration successful');
+    const formParams = new URLSearchParams();
+    formParams.append('grant_type', 'password');
+    formParams.append('username', data.email);
+    formParams.append('password', data.password);
+    login(formParams);
   };
 
   return (

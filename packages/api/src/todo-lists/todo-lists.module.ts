@@ -7,5 +7,6 @@ import { TodoListsService } from './todo-lists.service';
 @Module({
   controllers: [TodoListsController],
   providers: [PrismaService, TodoListsService],
+  exports: [TodoListsService],
 })
 export class TodoListsModule {}

@@ -1,5 +1,5 @@
-import { Input, Modal } from 'antd';
-import { useState } from 'react';
+import { Input, InputRef, Modal } from 'antd';
+import { useRef, useState } from 'react';
 import {
   generateUniqueName,
   TodoList,
@@ -22,6 +22,7 @@ export default function RenameTodoListModal({
     fixedCacheKey: 'batchUpdateTodoLists',
   });
 
+  const inputRef = useRef<InputRef>(null);
   const [inputModalValue, setInputModalValue] = useState('');
 
   const handleRename = () => {
@@ -38,6 +39,7 @@ export default function RenameTodoListModal({
       },
     ]);
 
+    setInputModalValue('');
     setModalState(null);
   };
 
@@ -49,10 +51,13 @@ export default function RenameTodoListModal({
       onCancel={() => {
         setModalState(null);
       }}
+      afterOpenChange={() => {
+        inputRef.current?.focus();
+      }}
     >
       <Input
         placeholder="New name"
-        autoFocus
+        ref={inputRef}
         value={inputModalValue}
         onChange={(event) => {
           setInputModalValue(event.target.value);

@@ -28,14 +28,14 @@ export class TodoListsService {
     userId: string,
     createTodoListDto: CreateTodoListDto,
   ): Promise<TodoListDto> {
-    const todo = await this.prismaService.todoList.create({
+    const todoList = await this.prismaService.todoList.create({
       data: {
         ...createTodoListDto,
         userId: userId,
       },
     });
 
-    return todo;
+    return todoList;
   }
 
   async get(todoListId: string): Promise<TodoListDto> {
@@ -50,12 +50,12 @@ export class TodoListsService {
     todoListId: string,
     updateTodoListDto: UpdateTodoListDto,
   ): Promise<TodoListDto> {
-    const todo = await this.prismaService.todoList.update({
+    const todoList = await this.prismaService.todoList.update({
       where: { id: todoListId },
       data: updateTodoListDto,
     });
 
-    return todo;
+    return todoList;
   }
 
   async batchUpdate(
@@ -88,10 +88,10 @@ export class TodoListsService {
   }
 
   async delete(todoListId: string): Promise<TodoListDto> {
-    const todo = await this.prismaService.todoList.delete({
+    const todoList = await this.prismaService.todoList.delete({
       where: { id: todoListId },
     });
 
-    return todo;
+    return todoList;
   }
 }
