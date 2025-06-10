@@ -22,32 +22,6 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // TODO: remove or guard this in production <2025-02-05>
-  @Get()
-  async getAll() {
-    return this.usersService.getAll();
-  }
-
-  // TODO: delete this endpoint in production <2025-03-23>
-  @Post()
-  @ApiOperation({ summary: 'Create user' })
-  async create(@Body() createUserDto: CreateUserDto) {
-    try {
-      const user = await this.usersService.create(createUserDto);
-
-      return user;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == 'P2002') {
-          // "Unique constraint failed on the {constraint}"
-          throw new HttpException('User already exists', HttpStatus.CONFLICT);
-        }
-      }
-
-      throw error;
-    }
-  }
-
   @Get(':userId')
   @UseGuards(JwtAuthGuard, UserMatchGuard)
   @ApiBearerAuth()

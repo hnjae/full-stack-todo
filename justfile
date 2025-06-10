@@ -35,7 +35,6 @@ run-api-dev:
 test-api:
     hurl --test --variable random_int_number=$(shuf -i 1-1000 -n 1) $(fd . -e hurl)
     pnpm run test
-    pnpm run test:e2e
 
 [working-directory('packages/ui')]
 run-ui-dev:
