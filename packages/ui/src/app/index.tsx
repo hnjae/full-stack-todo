@@ -1,5 +1,4 @@
 import './style.css';
-import '@fontsource/material-icons-outlined';
 
 import { RouterProvider } from '@tanstack/react-router';
 import { Spin } from 'antd';

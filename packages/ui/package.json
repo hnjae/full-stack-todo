@@ -12,7 +12,6 @@
     "@ant-design/icons": "^5.6.1",
     "@dnd-kit/helpers": "^0.1.17",
     "@dnd-kit/react": "^0.1.12",
-    "@fontsource/material-icons-outlined": "^5.1.1",
     "@reduxjs/toolkit": "^2.5.1",
     "@tailwindcss/postcss": "^4.0.7",
     "@tanstack/react-router": "^1.106.0",
