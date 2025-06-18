@@ -1,0 +1,32 @@
+# Files in the project root directory to be ignored.
+*.md
+.containerignore
+.editorconfig
+.git
+.github
+.gitignore
+.husky
+Containerfile
+LICENSE
+commitlint.config.ts
+eslint.config.js
+justfile
+lint-staged.config.js
+prettier.config.js
+tsconfig.eslint.json
+
+# Files to ignore, including those in subdirectories
+.direnv
+.env.development
+.envrc
+dist
+flake.lock
+flake.nix
+node_modules
+**/.direnv
+**/.env.development
+**/.envrc
+**/dist
+**/flake.lock
+**/flake.nix
+**/node_modules

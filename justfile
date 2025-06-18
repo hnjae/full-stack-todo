@@ -18,6 +18,14 @@ run-db:
         -v "todo-postgres:/var/lib/postgresql/data" \
         "docker.io/postgres:16"
 
+[positional-arguments]
+@build target:
+    if [ "$1" != "all" ]; then \
+        buildah build --layers --target "$1"; \
+    else \
+        buildah build --layers; \
+    fi
+
 [working-directory('packages/api')]
 init-db:
     direnv exec . prisma migrate dev --name "init"
