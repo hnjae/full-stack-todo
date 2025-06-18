@@ -21,7 +21,7 @@ WORKDIR /prod/api
 COPY --from=build /prod/api /prod/api
 RUN pnpm exec prisma generate
 EXPOSE 80
-CMD ["pnpm", "start:prod"]
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm start:prod"]
 
 FROM docker.io/library/nginx:1.28 AS ui
 COPY --from=build /prod/ui/dist /usr/share/nginx/html
