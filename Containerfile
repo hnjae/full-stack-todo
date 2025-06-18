@@ -25,4 +25,5 @@ CMD ["pnpm", "start:prod"]
 
 FROM docker.io/library/nginx:1.28 AS ui
 COPY --from=build /prod/ui/dist /usr/share/nginx/html
+COPY --from=build /prod/ui/nginx/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
