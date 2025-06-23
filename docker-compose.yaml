@@ -1,0 +1,40 @@
+name: full-stack-todo
+volumes:
+  db-data:
+    driver: local
+services:
+  db:
+    image: docker.io/library/postgres:17
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dbname
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'db-data:/var/lib/postgresql/data'
+    restart: unless-stopped
+  api:
+    build:
+      context: .
+      dockerfile: Containerfile
+      target: api
+    ports:
+      - '5000:80'
+    environment:
+      JWT_SECRET: secret
+      APP_URL: http://127.0.0.1:5001
+      DATABASE_URL: postgres://user:password@db:5432/dbname
+    depends_on:
+      - db
+    restart: unless-stopped
+  ui:
+    build:
+      context: .
+      dockerfile: Containerfile
+      target: ui
+    ports:
+      - '5001:80'
+    depends_on:
+      - api
+    restart: unless-stopped
