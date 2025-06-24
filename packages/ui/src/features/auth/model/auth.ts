@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getTokens, refreshTokenService } from 'src/shared/lib';
 import { setAccessToken } from 'src/shared/model';
+import { clearAccessToken } from 'src/shared/model';
 
 export const login = createAsyncThunk(
   'auth/login',
@@ -9,5 +10,14 @@ export const login = createAsyncThunk(
     refreshTokenService.set(refreshToken);
     dispatch(setAccessToken(accessToken));
     console.log('Successfully got access token.');
+  },
+);
+
+export const logout = createAsyncThunk(
+  'auth/logout',
+  async (_: void, { dispatch }) => {
+    refreshTokenService.remove();
+    dispatch(clearAccessToken());
+    console.log('Successfully logout.');
   },
 );

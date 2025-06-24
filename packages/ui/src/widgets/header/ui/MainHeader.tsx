@@ -7,8 +7,12 @@ import {
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button, Layout, Menu, MenuProps, Modal, theme } from 'antd';
 import { useState } from 'react';
-import { useLogout } from 'src/features/auth';
-import { selectIsAuthenticated, useAppSelector } from 'src/shared/model';
+import { logout } from 'src/features/auth';
+import {
+  selectIsAuthenticated,
+  useAppDispatch,
+  useAppSelector,
+} from 'src/shared/model';
 
 import useSpinnerStatus from '../lib/useSpinnerStatus';
 
@@ -26,8 +30,7 @@ interface ModalProps {
 }
 
 const LogoutModal = function ({ isOpen: open, close }: ModalProps) {
-  const logout = useLogout();
-
+  const dispatch = useAppDispatch();
   return (
     <Modal
       title="Logout"
@@ -35,7 +38,7 @@ const LogoutModal = function ({ isOpen: open, close }: ModalProps) {
       okText="Yes"
       cancelText="No"
       onOk={() => {
-        logout();
+        dispatch(logout());
         close();
       }}
       onCancel={() => {

@@ -1,6 +1,6 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import { login, useLogout } from 'src/features/auth';
+import { login, logout } from 'src/features/auth';
 import { AuthenticationError } from 'src/shared/lib';
 import { useAppDispatch } from 'src/shared/model';
 
@@ -11,7 +11,6 @@ import AuthPageLayout from './AuthPageLayout';
 const { Text, Link } = Typography;
 
 export default function LoginPage() {
-  const logout = useLogout();
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -36,7 +35,7 @@ export default function LoginPage() {
       messageApi.error(msg);
       console.error('Login error:', error);
 
-      await logout();
+      dispatch(logout());
     } finally {
       setIsLoading(false);
     }

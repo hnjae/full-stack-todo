@@ -5,7 +5,7 @@ import { Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { login } from 'src/features/auth';
+import { login, logout } from 'src/features/auth';
 import { refreshTokenService } from 'src/shared/lib';
 
 import router from './router';
@@ -30,7 +30,7 @@ const App = function () {
         setAuthInitialized(true);
       } catch (error) {
         console.log('Failed to get access token:', error);
-        refreshTokenService.remove();
+        store.dispatch(logout());
         setAuthInitialized(false);
       }
     };
