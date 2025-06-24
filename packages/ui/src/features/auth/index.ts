@@ -1,2 +1,2 @@
-export { default as useLogin } from './ui/login';
+export { login } from './model/auth';
 export { default as useLogout } from './ui/logout';

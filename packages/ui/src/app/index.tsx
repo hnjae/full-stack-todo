@@ -5,8 +5,8 @@ import { Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { getTokens, refreshTokenService } from 'src/shared/lib';
-import { setAccessToken } from 'src/shared/model';
+import { login } from 'src/features/auth';
+import { refreshTokenService } from 'src/shared/lib';
 
 import router from './router';
 import { store } from './store';
@@ -23,17 +23,10 @@ const App = function () {
           throw new Error('No refresh token found');
         }
 
-        // NOTE: Redux provider가 제공되기 전이므로, 여기서는 `useLogin` 훅을 사용할 수 없다.
         const formParams = new URLSearchParams();
         formParams.append('grant_type', 'refresh_token');
         formParams.append('refresh_token', refreshToken);
-
-        const { accessToken, refreshToken: newRefreshToken } =
-          await getTokens(formParams);
-
-        refreshTokenService.set(newRefreshToken);
-        store.dispatch(setAccessToken(accessToken));
-        console.log('Successfully got access token.');
+        store.dispatch(login(formParams));
         setAuthInitialized(true);
       } catch (error) {
         console.log('Failed to get access token:', error);
