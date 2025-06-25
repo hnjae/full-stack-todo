@@ -9,7 +9,7 @@ export const login = createAsyncThunk(
     const { accessToken, refreshToken } = await getTokens(formParams);
     refreshTokenService.set(refreshToken);
     dispatch(setAccessToken(accessToken));
-    console.log('Successfully got access token.');
+    console.log('Successfully obtained access/refresh tokens.');
   },
 );
 
@@ -18,6 +18,6 @@ export const logout = createAsyncThunk(
   async (_: void, { dispatch }) => {
     refreshTokenService.remove();
     dispatch(clearAccessToken());
-    console.log('Successfully logout.');
+    console.log('Successfully removed access/refresh tokens.');
   },
 );
