@@ -1,7 +1,8 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import { useLogin, useLogout } from 'src/features/auth';
+import { login, logout } from 'src/shared/auth';
 import { AuthenticationError } from 'src/shared/lib';
+import { useAppDispatch } from 'src/shared/model';
 
 import { FormData } from '../model/FormData';
 import AuthForm from './AuthForm';
@@ -10,8 +11,7 @@ import AuthPageLayout from './AuthPageLayout';
 const { Text, Link } = Typography;
 
 export default function LoginPage() {
-  const login = useLogin();
-  const logout = useLogout();
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -24,7 +24,7 @@ export default function LoginPage() {
       formParams.append('username', data.email);
       formParams.append('password', data.password);
 
-      await login(formParams);
+      dispatch(login(formParams));
     } catch (error) {
       const msgFailedReason =
         error instanceof AuthenticationError
@@ -35,7 +35,7 @@ export default function LoginPage() {
       messageApi.error(msg);
       console.error('Login error:', error);
 
-      await logout();
+      dispatch(logout());
     } finally {
       setIsLoading(false);
     }

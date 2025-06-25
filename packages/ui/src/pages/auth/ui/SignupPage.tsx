@@ -1,7 +1,8 @@
 import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
-import { useLogin } from 'src/features/auth';
+import { login } from 'src/shared/auth';
 import { env } from 'src/shared/config';
+import { useAppDispatch } from 'src/shared/model';
 
 import { FormData, FormDataSchema } from '../model/FormData';
 import AuthForm from './AuthForm';
@@ -9,7 +10,7 @@ import AuthPageLayout from './AuthPageLayout';
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const login = useLogin();
+  const dispatch = useAppDispatch();
 
   const onFinish = async function (rawData: FormData) {
     setIsLoading(true);
@@ -60,7 +61,7 @@ export default function SignupPage() {
     formParams.append('grant_type', 'password');
     formParams.append('username', data.email);
     formParams.append('password', data.password);
-    login(formParams);
+    dispatch(login(formParams));
   };
 
   return (

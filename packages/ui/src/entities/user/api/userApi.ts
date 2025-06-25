@@ -5,7 +5,7 @@ import {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
 import { baseQueryWithReAuth } from 'src/shared/api';
-import { selectUserId } from 'src/shared/model';
+import { selectUserId } from 'src/shared/auth';
 
 interface User {
   id: string;
