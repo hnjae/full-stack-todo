@@ -2,7 +2,7 @@ import './style.css';
 
 import { RouterProvider } from '@tanstack/react-router';
 import { Spin } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { initializeAuth } from 'src/shared/auth';
