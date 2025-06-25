@@ -1,6 +1,6 @@
 import { Button, Form, Input, message } from 'antd';
 import { useState } from 'react';
-import { login } from 'src/features/auth';
+import { login } from 'src/shared/auth';
 import { env } from 'src/shared/config';
 import { useAppDispatch } from 'src/shared/model';
 

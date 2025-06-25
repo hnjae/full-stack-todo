@@ -7,7 +7,7 @@ import {
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button, Layout, Menu, MenuProps, Modal, theme } from 'antd';
 import { useState } from 'react';
-import { logout } from 'src/features/auth';
+import { logout } from 'src/shared/auth';
 import {
   selectIsAuthenticated,
   useAppDispatch,

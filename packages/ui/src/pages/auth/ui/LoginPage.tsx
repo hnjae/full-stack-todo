@@ -1,6 +1,6 @@
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
-import { login, logout } from 'src/features/auth';
+import { login, logout } from 'src/shared/auth';
 import { AuthenticationError } from 'src/shared/lib';
 import { useAppDispatch } from 'src/shared/model';
 

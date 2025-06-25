@@ -5,7 +5,7 @@ import { Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { login, logout } from 'src/features/auth';
+import { login, logout } from 'src/shared/auth';
 import { refreshTokenService } from 'src/shared/lib';
 
 import router from './router';
