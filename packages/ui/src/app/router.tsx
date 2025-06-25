@@ -26,8 +26,7 @@ function RootComponent() {
 const rootRoute = createRootRoute({
   component: RootComponent,
   notFoundComponent: () => {
-    const isLogin = useAppSelector(selectUserId) != null;
-    return <>{isLogin ? <Navigate to="/webapp" /> : <Navigate to="/" />}</>;
+    return <Navigate to="/" />;
   },
 });
 
