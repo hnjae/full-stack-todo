@@ -27,8 +27,6 @@ export const authSlice = createSlice({
 });
 
 export const { setAccessToken, clearAccessToken } = authSlice.actions;
-export const selectIsAuthenticated = (state: RootState) =>
-  state.auth.accessToken !== null;
 export const authReducer = authSlice.reducer;
 
 export const selectUserId = createSelector(

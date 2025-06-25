@@ -7,12 +7,8 @@ import {
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button, Layout, Menu, MenuProps, Modal, theme } from 'antd';
 import { useState } from 'react';
-import { logout } from 'src/shared/auth';
-import {
-  selectIsAuthenticated,
-  useAppDispatch,
-  useAppSelector,
-} from 'src/shared/model';
+import { logout, selectUserId } from 'src/shared/auth';
+import { useAppDispatch, useAppSelector } from 'src/shared/model';
 
 import useSpinnerStatus from '../lib/useSpinnerStatus';
 
@@ -83,7 +79,7 @@ export default function MainHeader() {
     },
   ];
 
-  const isLogin = useAppSelector(selectIsAuthenticated);
+  const isLogin = useAppSelector(selectUserId) != null;
   const isSpinnerSpin = useSpinnerStatus();
 
   return (

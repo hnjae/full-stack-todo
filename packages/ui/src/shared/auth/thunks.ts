@@ -1,7 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getTokens, refreshTokenService } from 'src/shared/lib';
-import { setAccessToken } from 'src/shared/model';
-import { clearAccessToken } from 'src/shared/model';
+
+import { setAccessToken } from './authSlice';
+import { clearAccessToken } from './authSlice';
 
 export const login = createAsyncThunk(
   'auth/login',
