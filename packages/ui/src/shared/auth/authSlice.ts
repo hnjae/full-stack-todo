@@ -7,10 +7,12 @@ import { jwtDecode } from 'jwt-decode';
 
 export interface AuthState {
   accessToken: string | null;
+  initialized: boolean;
 }
 
 const initialState: AuthState = {
   accessToken: null,
+  initialized: false,
 };
 
 export const authSlice = createSlice({
@@ -19,6 +21,10 @@ export const authSlice = createSlice({
   reducers: {
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
+      state.initialized = true;
+    },
+    setAuthInitialized: (state) => {
+      state.initialized = true;
     },
     clearAccessToken: (state) => {
       state.accessToken = null;
@@ -26,7 +32,8 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setAccessToken, clearAccessToken } = authSlice.actions;
+export const { setAccessToken, setAuthInitialized, clearAccessToken } =
+  authSlice.actions;
 export const authReducer = authSlice.reducer;
 
 export const selectUserId = createSelector(
@@ -40,4 +47,9 @@ export const selectUserId = createSelector(
     const decoded = jwtDecode(token);
     return decoded.sub;
   },
+);
+
+export const selectAuthInitialized = createSelector(
+  (state: RootState) => state.auth.initialized,
+  (initialized) => initialized,
 );
