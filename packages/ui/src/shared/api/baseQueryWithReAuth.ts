@@ -4,13 +4,9 @@ import type {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query';
+import { login, logout } from 'src/shared/auth';
 import { env } from 'src/shared/config';
-import {
-  AuthenticationError,
-  getTokens,
-  refreshTokenService,
-} from 'src/shared/lib';
-import { clearAccessToken, setAccessToken } from 'src/shared/model';
+import { AuthenticationError, refreshTokenService } from 'src/shared/lib';
 
 const baseQueryWithAuth = fetchBaseQuery({
   baseUrl: `${env.API_URL}`,
@@ -44,11 +40,7 @@ const baseQueryWithReAuth: BaseQueryFn<
       formParams.append('grant_type', 'refresh_token');
       formParams.append('refresh_token', refreshTokenOld);
 
-      const { accessToken, refreshToken: refreshTokenNew } =
-        await getTokens(formParams);
-
-      refreshTokenService.set(refreshTokenNew);
-      api.dispatch(setAccessToken(accessToken));
+      api.dispatch(login(formParams));
 
       // retry the initial query
       result = await baseQueryWithAuth(args, api, extraOptions);
@@ -60,9 +52,7 @@ const baseQueryWithReAuth: BaseQueryFn<
       const msg = `Failed to renew the access token. ${msgFailedReason}`;
 
       console.error(msg);
-
-      refreshTokenService.remove();
-      api.dispatch(clearAccessToken());
+      api.dispatch(logout());
     }
   } else if (result.error) {
     console.error('Error: ', result.error);
