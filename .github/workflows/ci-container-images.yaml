@@ -1,0 +1,78 @@
+name: Create and publish a container images
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+  UI_IMAGE_NAME: full-stack-todo-ui
+  API_IMAGE_NAME: full-stack-todo-api
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build api
+        id: build-api
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.API_IMAGE_NAME }}
+          tags: 'latest'
+          containerfiles: |
+            ./Containerfile.prod
+          build-args: |
+            target=api
+      - name: Build ui
+        id: build-ui
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.UI_IMAGE_NAME }}
+          tags: 'latest-api-fixed-image'
+          containerfiles: |
+            ./Containerfile.prod
+          build-args: |
+            target=ui
+      - name: Log in to container registry
+        uses: redhat-actions/podman-login@v1
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push api to container registry
+        id: push-api
+        uses: redhat-actions/push-to-registry@v2
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build-api.outputs.image }}
+          tags: ${{ steps.build-api.outputs.tags }}
+      - name: Push ui to container registry
+        id: push-ui
+        uses: redhat-actions/push-to-registry@v2
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build-ui.outputs.image }}
+          tags: ${{ steps.build-ui.outputs.tags }}
+      - name: Generate artifact attestation of api
+        uses: actions/attest-build-provenance@v2
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-api.outputs.digest }}
+          push-to-registry: true
+      - name: Generate artifact attestation of ui
+        uses: actions/attest-build-provenance@v2
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.UI_IMAGE_NAME}}
+          subject-digest: ${{ steps.push-ui.outputs.digest }}
+          push-to-registry: true
