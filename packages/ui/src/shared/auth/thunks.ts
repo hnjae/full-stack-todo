@@ -25,9 +25,9 @@ export const login = createAsyncThunk(
       if (error instanceof AuthenticationError) {
         console.log('Failed to obtain access/refresh token:', error);
         dispatch(setAuthInitialized());
-      } else {
-        throw error;
       }
+
+      throw error;
     }
   },
 );

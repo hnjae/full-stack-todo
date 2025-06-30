@@ -1,7 +1,7 @@
+import { unwrapResult } from '@reduxjs/toolkit';
 import { Button, Form, Input, message, Typography } from 'antd';
 import { useState } from 'react';
 import { login, logout } from 'src/shared/auth';
-import { AuthenticationError } from 'src/shared/lib';
 import { useAppDispatch } from 'src/shared/model';
 
 import { FormData } from '../model/FormData';
@@ -24,12 +24,14 @@ export default function LoginPage() {
       formParams.append('username', data.email);
       formParams.append('password', data.password);
 
-      dispatch(login(formParams));
+      unwrapResult(await dispatch(login(formParams)));
     } catch (error) {
-      const msgFailedReason =
-        error instanceof AuthenticationError
-          ? error.message
-          : `An unexpected error occurred: ${error}`;
+      let msgFailedReason;
+      if (error != null && typeof error === 'object' && 'message' in error) {
+        msgFailedReason = error.message;
+      } else {
+        msgFailedReason = 'An unexpected error occurred.';
+      }
       const msg = `Failed to login. ${msgFailedReason}`;
 
       messageApi.error(msg);
