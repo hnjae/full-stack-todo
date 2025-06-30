@@ -27,18 +27,22 @@ jobs:
           tags: 'latest'
           containerfiles: |
             ./Containerfile.prod
-          build-args: |
-            target=api
+          oci: true
+          layers: true
+          extra-args: |
+            --target=api
       - name: Build ui
         id: build-ui
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.UI_IMAGE_NAME }}
           tags: 'latest-api-fixed-image'
+          oci: true
+          layers: true
           containerfiles: |
             ./Containerfile.prod
-          build-args: |
-            target=ui
+          extra-args: |
+            --target=ui
       - name: Log in to container registry
         uses: redhat-actions/podman-login@v1
         if: ${{ github.event_name != 'pull_request' }}
